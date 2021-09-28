@@ -1,0 +1,40 @@
+{
+  "name": "@konomi/decentralized-fs",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "description": "Konomi Decentralized File Storage",
+  "keywords": [
+    "KONO",
+    "konomi",
+    "dfs",
+    "Decentralized File Storage"
+  ],
+  "author": "Konomi",
+  "homepage": "https://github.com/konomi-network/typescript-common",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konomi-network/typescript-common.git"
+  },
+  "bugs": {
+    "url": "https://github.com/konomi-network/typescript-common/issues"
+  },
+  "scripts": {
+    "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
+    "prepack": "yarn build",
+    "build": "yarn clean && tsc --build && cp \"./package.json\" ./dist/",
+    "test": "yarn jest",
+    "lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings=0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.10.1",
+    "mocha": "^9.1.2",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "ipfs-http-client": "^53.0.1"
+  }
+}
