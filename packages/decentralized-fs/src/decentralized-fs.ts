@@ -19,7 +19,7 @@ class DecentralizedFileStorage {
     public async find(cid: string) {
         let result = '';
         for await (const value of this.ipfs.cat(CID.parse(cid))) {
-            result.concat(value.toString());
+            result += value.toString();
         }
         return result;
     }
