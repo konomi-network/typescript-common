@@ -1,6 +1,8 @@
 import { equal } from 'assert';
 import DecentralizedFileStorage from '../src/decentralized-fs';
 
+global.TextDecoder = jest.fn();
+
 describe('decentralized-fs', () => {
     const dfs = new DecentralizedFileStorage();
 
