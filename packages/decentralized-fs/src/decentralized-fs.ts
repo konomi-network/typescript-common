@@ -1,20 +1,25 @@
-import { Agent } from "http";
-import { CID, create as ipfsClient, IPFSHTTPClient } from "ipfs-http-client";
+import { Agent as httpAgent } from "http";
+import { Agent as httpsAgent } from "https";
+import { CID, create as ipfsClient, IPFSHTTPClient, Options } from "ipfs-http-client";
 
 class DecentralizedFileStorage {
     private ipfs: IPFSHTTPClient;
 
     constructor(url?: string) {
-        const agent = new Agent({
+        const agentOptions = {
             keepAlive: true,
-        });
+            keepAliveMsecs: 60 * 1000,
+            maxSockets: 3
+        };
 
-        let options = {
-            agent: agent,
+        const agent = url?.startsWith('http') ? new httpAgent(agentOptions) : new httpsAgent(agentOptions);
+
+        let options: Options = {
+            agent: agent
         };
 
         if (url !== undefined) {
-            options = { ...options, ...{ url: new URL(url) } };
+            options.url = url;
         }
 
         this.ipfs = ipfsClient(options);
