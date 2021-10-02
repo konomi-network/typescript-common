@@ -29,6 +29,10 @@ class DecentralizedFileStorage {
         return this.ipfs.isOnline();
     }
 
+    public async version() {
+        return await this.ipfs.version();
+    }
+
     public async save(content: any): Promise<string> {
         const result = await this.ipfs.add(JSON.stringify(content));
         return result.cid.toString();
