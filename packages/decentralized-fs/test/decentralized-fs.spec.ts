@@ -6,7 +6,7 @@ global.TextDecoder = TextDecoder
 import DecentralizedFileStorage from '../src/decentralized-fs';
 
 describe('decentralized-fs', () => {
-    const dfs = new DecentralizedFileStorage('http://localhost:5001');
+    const dfs = new DecentralizedFileStorage('http://localhost:5001/');
 
     it('is online', async () => {
         equal(await dfs.isOnline(), true);

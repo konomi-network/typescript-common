@@ -10,13 +10,17 @@ class DecentralizedFileStorage {
             keepAlive: true,
             keepAliveMsecs: 60 * 1000,
             // Similar to browsers which limit connections to six per host
-            maxSockets: 6
+            maxSockets: 6,
         };
 
         const agent = url?.startsWith('https') ? new httpsAgent(agentOptions) : new httpAgent(agentOptions);
 
         let options: Options = {
-            agent: agent
+            agent: agent,
+            headers: {
+                // 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0',
+                'Content-Type': 'application/json'
+            }
         };
 
         if (url !== undefined) {
