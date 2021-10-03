@@ -9,10 +9,11 @@ class DecentralizedFileStorage {
         const agentOptions = {
             keepAlive: true,
             keepAliveMsecs: 60 * 1000,
-            maxSockets: 3
+            // Similar to browsers which limit connections to six per host
+            maxSockets: 6
         };
 
-        const agent = url?.startsWith('http') ? new httpAgent(agentOptions) : new httpsAgent(agentOptions);
+        const agent = url?.startsWith('https') ? new httpsAgent(agentOptions) : new httpAgent(agentOptions);
 
         let options: Options = {
             agent: agent
@@ -39,11 +40,12 @@ class DecentralizedFileStorage {
     }
 
     public async find(cid: string): Promise<string> {
-        let result = "";
-        for await (const value of this.ipfs.cat(CID.parse(cid))) {
-            result += value.toString();
+        let data = '';
+        const stream = this.ipfs.cat(CID.parse(cid));
+        for await (const chunk of stream) {
+            data += JSON.parse(chunk.toString());
         }
-        return result;
+        return data;
     }
 }
 

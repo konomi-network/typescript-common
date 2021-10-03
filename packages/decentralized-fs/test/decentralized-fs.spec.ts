@@ -16,9 +16,15 @@ describe('decentralized-fs', () => {
         equal((await dfs.version()).version, '0.9.1')
     })
 
-    it('save and find tests', async () => {
-        const value = {k: "Hello, dfs!"};
-        const cid = await dfs.save(value);
+    it('find test', async () => {
+        const value = "hello, dfs!";
+        const cid = 'Qmcb5MJyP3DDBXBFJ9wVqLu8V1AA7SSbSJ4kurHHjDDnw7';
         equal(await dfs.find(cid), value);
+    })
+
+    it('save test', async () => {
+        const value = "hello, dfs!";
+        const cid = await dfs.save(value);
+        equal(cid, 'Qmcb5MJyP3DDBXBFJ9wVqLu8V1AA7SSbSJ4kurHHjDDnw7');
     })
 })
