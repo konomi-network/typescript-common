@@ -1,7 +1,7 @@
 import { equal } from 'assert';
-import { TextEncoder, TextDecoder } from 'util'
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
 import DecentralizedFileStorage from '../src/decentralized-fs';
 
