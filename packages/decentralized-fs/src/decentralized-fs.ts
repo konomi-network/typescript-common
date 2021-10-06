@@ -26,8 +26,12 @@ class DecentralizedFileStorage {
         this.ipfs = ipfsClient(options);
     }
 
-    public isOnline(): boolean {
+    get isOnline(): boolean {
         return this.ipfs.isOnline();
+    }
+
+    public async id() {
+        return await this.ipfs.id();
     }
 
     public async version() {
