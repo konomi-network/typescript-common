@@ -33,7 +33,9 @@ const IpfsComponent = () => {
   return (
     <div className="hello">
       <div className="greeting">
-        Hello Id: {id}, Version: {version}, Status: {isOnline ? 'online': 'offline'}
+        <h4 data-test="id">Id: {id}</h4>
+        <h4 data-test="version">Version: {version}</h4>
+        <h4 data-test="status">Status: {isOnline ? 'Online': 'Offline'}</h4>
       </div>
     </div>
   )
