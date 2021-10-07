@@ -21,3 +21,12 @@ Typescript common util library for both Frontend and Backend usage
    yarn run test
    ```
 
+4. before run ipfs daemon
+   ```
+   ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST", "OPTIONS"]'
+   ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
+   ipfs config --json API.HTTPHeaders.Access-Control-Allow-Credentials '["true"]'
+   ipfs config --json API.HTTPHeaders.Access-Control-Allow-Headers '["Authorization"]'
+   ipfs config --json API.HTTPHeaders.Access-Control-Expose-Headers '["Location"]'
+   ipfs daemon
+   ```
