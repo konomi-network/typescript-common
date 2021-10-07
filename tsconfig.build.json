@@ -4,7 +4,7 @@
       "target": "es6",
       "module": "commonjs",
       "moduleResolution": "node",
-      "jsx": "react",
+      "lib": ["es2020", "es2017", "es7", "es6", "dom"],
       "strict": true,
       "declaration": true,
       "declarationMap": true,
@@ -19,7 +19,8 @@
       "**/__mocks__/*",
       "**/__tests__/*",
       "**/*.spec.ts",
-      "**/*.test.ts"
+      "**/*.test.ts",
+      "dist"
     ]
   }
   
