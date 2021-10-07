@@ -2,9 +2,8 @@
     "compilerOptions": {
       "composite": true,
       "target": "es6",
-      "module": "commonjs",
+      // "module": "commonjs",
       "moduleResolution": "node",
-      "lib": ["es2020", "es2017", "es7", "es6", "dom"],
       "strict": true,
       "declaration": true,
       "declarationMap": true,
@@ -19,8 +18,7 @@
       "**/__mocks__/*",
       "**/__tests__/*",
       "**/*.spec.ts",
-      "**/*.test.ts",
-      "dist"
+      "**/*.test.ts"
     ]
   }
   

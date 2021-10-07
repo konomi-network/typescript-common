@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import DecentralizedFileStorage from '@konomi/decentralized-fs';
+import DecentralizedFileStorage from '@konomi/decentralized-fs/dist/decentralized-fs';
 
 const IpfsComponent = () => {
   const [id, setId] = useState(null);
