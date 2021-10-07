@@ -38,8 +38,8 @@ class DecentralizedFileStorage {
         return await this.ipfs.version();
     }
 
-    public async save(content: any): Promise<string> {
-        const result = await this.ipfs.add(JSON.stringify(content));
+    public async save(content: string): Promise<string> {
+        const result = await this.ipfs.add(content);
         return result.cid.toString();
     }
 
@@ -47,10 +47,11 @@ class DecentralizedFileStorage {
         let data = '';
         const stream = this.ipfs.cat(CID.parse(cid));
         for await (const chunk of stream) {
-            data += JSON.parse(chunk.toString());
+            data += chunk.toString();
         }
         return data;
     }
 }
 
 export default DecentralizedFileStorage;
+
