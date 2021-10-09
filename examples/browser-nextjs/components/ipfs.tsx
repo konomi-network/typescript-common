@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import DecentralizedFileStorage from '@konomi/decentralized-fs/dist/decentralized-fs';
+import { useState, useEffect } from "react";
+import DecentralizedFileStorage from "@konomi/decentralized-fs/dist/decentralized-fs";
 
 const IpfsComponent = () => {
   const [id, setId] = useState(null);
@@ -11,9 +11,9 @@ const IpfsComponent = () => {
 
   useEffect(() => {
     const init = async () => {
-      if (ipfs) return
+      if (ipfs) return;
 
-      const dfs = new DecentralizedFileStorage('http://localhost:5002');
+      const dfs = new DecentralizedFileStorage("http://localhost:5002");
 
       const dfsId = await dfs.id();
       const dfsVersion = await dfs.version();
@@ -24,26 +24,47 @@ const IpfsComponent = () => {
       setVersion(dfsVersion.version);
       setIsOnline(dfsIsOnline);
 
-      const cid = await dfs.save(JSON.stringify({test: 'hello, dfs!'}));
+      const mockData = {
+        symbol: "kono",
+        slug: "konomi",
+        client: 0,
+        aggregationStrategy: 1,
+        sources: [
+          {
+            type: 3, // for uniswap
+            detail: {
+              address: "0x...",
+            },
+          },
+          {
+            type: 2, // coinmarcketcap
+            detail: {
+              coinId: "2",
+            },
+          },
+        ],
+      };
+      
+      const cid = await dfs.save(JSON.stringify(mockData));
       setCID(cid);
 
       const content = await dfs.find(cid);
-      setContent(Uint8ArrayToString(content.split(',')));
-    }
+      setContent(Uint8ArrayToString(content.split(",")));
+    };
 
-    init()
+    init();
   }, [ipfs]);
 
   const Uint8ArrayToString = (u8aStr: number[]) => {
-    var dataString = '';
+    var dataString = "";
     for (const v of u8aStr) {
       dataString += String.fromCharCode(v);
     }
     return dataString;
-  }
+  };
 
   if (!ipfs) {
-    return '<h4>Connecting to IPFS...</h4>';
+    return "<h4>Connecting to IPFS...</h4>";
   }
 
   return (
@@ -51,12 +72,12 @@ const IpfsComponent = () => {
       <div className="greeting">
         <h4 data-test="id">Id: {id}</h4>
         <h4 data-test="version">Version: {version}</h4>
-        <h4 data-test="status">Status: {isOnline ? 'Online': 'Offline'}</h4>
+        <h4 data-test="status">Status: {isOnline ? "Online" : "Offline"}</h4>
         <h4 data-test="cid">CID: {cid}</h4>
         <h4 data-test="content">content: {content}</h4>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default IpfsComponent;
