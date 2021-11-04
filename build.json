@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "target": "es6",
+        "allowJs": false,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "declaration": true,
+        "declarationMap": true,
+        "removeComments": false,
+        "strict": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedParameters": true,
+        "noUnusedLocals": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+        "lib": ["es2018", "esnext.asynciterable", "DOM"],
+        "baseUrl": "."
+    },
+    "exclude": [
+        "node_modules",
+        "**/__mocks__/*",
+        "**/__tests__/*",
+        "**/*.spec.ts",
+        "**/*.test.ts"
+    ]
+}
