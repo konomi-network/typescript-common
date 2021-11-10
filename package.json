@@ -16,7 +16,7 @@
 		"build": "lerna run build --stream",
 		"lint": "lerna run lint --stream --parallel",
 		"publish:lerna": "lerna publish",
-		"release": "yarn build && yarn publish",
+		"release": "yarn build && yarn publish:lerna",
 		"test": "yarn jest"
 	},
 	"devDependencies": {
