@@ -1,29 +1,33 @@
 {
-  "name": "konomi-common-library",
-  "description": "Konomi Common Library",
-  "author": "Konomi",
-  "private": true,
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
-  },
-  "npmClient": "yarn",
-  "useWorkspaces": true,
-  "scripts": {
-    "prepare": "node ./configure-references.js",
-    "build": "lerna run build --stream",
-    "lint": "lerna run lint --stream --parallel",
-    "test": "yarn jest"
-  },
-  "devDependencies": {
-    "@types/jest": "^27.0.2",
-    "eslint": "^7.32.0",
-    "is-ci": "^3.0.0",
-    "jest": "^27.2.4",
-    "lerna": "^4.0.0",
-    "rimraf": "^3.0.2",
-    "ts-jest": "^27.0.5",
-    "typescript": "^4.4.3"
-  }
+	"name": "konomi-common-library",
+	"description": "Konomi Common Library",
+	"author": "Konomi Network",
+	"private": true,
+	"workspaces": {
+		"packages": [
+			"packages/*"
+		]
+	},
+	"npmClient": "yarn",
+	"useWorkspaces": true,
+	"scripts": {
+		"prepare": "node ./configure-references.js",
+		"bootstrap": "lerna bootstrap",
+		"build": "lerna run build --stream",
+		"lint": "lerna run lint --stream --parallel",
+		"publish": "lerna publish",
+		"release": "yarn build && yarn publish",
+		"test": "yarn jest"
+	},
+	"devDependencies": {
+		"@types/jest": "^27.0.2",
+		"eslint": "^7.32.0",
+		"is-ci": "^3.0.0",
+		"jest": "^27.2.4",
+		"lerna": "^4.0.0",
+		"rimraf": "^3.0.2",
+		"ts-jest": "^27.0.5",
+		"typescript": "^4.4.3"
+	},
+	"version": "0.0.0"
 }
