@@ -14,10 +14,10 @@
 		"prepare": "node ./configure-references.js",
 		"bootstrap": "lerna bootstrap",
 		"build": "lerna run build --stream",
-		"lint": "lerna run lint --stream --parallel",
+		"lint": "lerna run lint --parallel",
+		"test": "lerna run test --parallel --stream",
 		"publish:lerna": "lerna publish",
-		"release": "yarn build && yarn publish:lerna",
-		"test": "yarn jest"
+		"release": "yarn build && yarn publish:lerna"
 	},
 	"devDependencies": {
 		"@types/jest": "^27.0.2",
