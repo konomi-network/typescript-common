@@ -15,7 +15,7 @@
 		"bootstrap": "lerna bootstrap",
 		"build": "lerna run build --stream",
 		"lint": "lerna run lint --stream --parallel",
-		"publish": "lerna publish",
+		"publish:lerna": "lerna publish",
 		"release": "yarn build && yarn publish",
 		"test": "yarn jest"
 	},
