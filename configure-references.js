@@ -22,6 +22,7 @@ config.references = [];
 	const { stdout } = await exec('yarn workspaces info');
 	const workspaces = JSON.parse(stdout);
 	for (const name in workspaces) {
+		console.log('🚀 ~ file: configure-references.js ~ line 25 ~ name', name);
 		const workspace = workspaces[name];
 		const location = path.resolve(process.cwd(), workspace.location);
 		const tsconfigPath = path.resolve(location, 'tsconfig.json');

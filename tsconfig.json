@@ -1,16 +1,14 @@
 {
-    "compilerOptions": {
-        "baseUrl": "./packages",
-        "paths": {
-            "@konomi/decentralized-fs/*": [
-                "decentralized-fs/src/*"
-            ]
-        }
-    },
-    "files": [],
-    "references": [
-        {
-            "path": "packages/decentralized-fs"
-        }
-    ]
+	"compilerOptions": {
+		"baseUrl": "./packages",
+		"paths": {
+			"@konomi-network/decentralized-fs/*": ["decentralized-fs/src/*"]
+		}
+	},
+	"files": [],
+	"references": [
+		{
+			"path": "packages/decentralized-fs"
+		}
+	]
 }
