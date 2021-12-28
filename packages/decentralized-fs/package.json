@@ -35,10 +35,9 @@
 		"lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings=0"
 	},
 	"devDependencies": {
-		"@types/node": "^16.10.1",
-		"typescript": "^4.4.3"
+		"@types/node": "^16.10.1"
 	},
 	"dependencies": {
-		"ipfs-http-client": "^53.0.1"
+		"ipfs-http-client": "^55.0.0"
 	}
 }
