@@ -1,11 +1,7 @@
 import DecentralizedFileStorage from './decentralized-fs';
-// import { TextEncoder, TextDecoder } from 'util';
-
-// global.TextEncoder = TextEncoder;
-// global.TextDecoder = TextDecoder;
 
 describe('decentralized-fs', () => {
-	const dfs = new DecentralizedFileStorage('http://localhost:5002/');
+	const dfs = new DecentralizedFileStorage('http://localhost:5001/');
 
 	it('is online', async () => {
 		expect(await dfs.isOnline).toEqual(true);

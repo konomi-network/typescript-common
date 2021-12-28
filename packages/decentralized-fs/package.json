@@ -1,7 +1,6 @@
 {
 	"name": "@konomi-network/decentralized-fs",
 	"version": "0.0.4",
-	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"description": "Konomi Decentralized File Storage",
@@ -11,6 +10,7 @@
 	"keywords": [
 		"KONO",
 		"konomi",
+		"ipfs",
 		"dfs",
 		"Decentralized File Storage"
 	],
@@ -31,12 +31,11 @@
 		"clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
 		"prepack": "yarn build",
 		"build": "yarn clean && tsc --build && cp \"./package.json\" ./dist/",
-		"test": "yarn jest",
+		"test": "jest",
 		"lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings=0"
 	},
 	"devDependencies": {
 		"@types/node": "^16.10.1",
-		"electron": "^15.1.1",
 		"typescript": "^4.4.3"
 	},
 	"dependencies": {
