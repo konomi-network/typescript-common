@@ -15,7 +15,7 @@ Before using package at local, make sure you've install `ipfs` and run `ipfs dae
     ipfs daemon
 ```
 
-then try with below example:
+Then try with below example:
 
 ```typescript
 import DecentralizedFileStorage from '@konomi-network/decentralized-fs';
