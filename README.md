@@ -7,6 +7,7 @@ Typescript common util library for both Frontend and Backend usage
 ### Packages:
 
 -   @konomi-network/decentralized-fs
+-   @konomi-network/eslint-config-konomi
 
 <br>
 
