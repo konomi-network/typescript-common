@@ -1,6 +1,6 @@
 {
 	"name": "@konomi-network/eslint-config-konomi",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"main": "lib/index.js",
 	"description": "Konomi Eslint config",
 	"author": "Konomi Network",
@@ -24,7 +24,6 @@
 		"type": "git",
 		"url": "git+https://github.com/konomi-network/typescript-common.git"
 	},
-	"peerDependencies": {},
 	"dependencies": {
 		"@typescript-eslint/eslint-plugin": "^5.8.1",
 		"@typescript-eslint/parser": "^5.8.1",
