@@ -4,6 +4,7 @@
 	"main": "lib/index.js",
 	"description": "Konomi Eslint config",
 	"author": "Konomi Network",
+	"private": false,
 	"homepage": "https://github.com/konomi-network/typescript-common",
 	"license": "MIT",
 	"keywords": [
