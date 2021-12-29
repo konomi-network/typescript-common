@@ -5,7 +5,6 @@
 	"types": "dist/index.d.ts",
 	"description": "Konomi Decentralized File Storage",
 	"author": "Konomi Network",
-	"private": false,
 	"homepage": "https://github.com/konomi-network/typescript-common",
 	"license": "MIT",
 	"keywords": [
