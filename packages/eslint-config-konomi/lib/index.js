@@ -12,7 +12,7 @@ module.exports = {
 		},
 		'import/extensions': ['.js', '.ts', '.tsx'],
 	},
-	extends: ['plugin:react/recommended', 'plugin:react-hooks/recommend', 'plugin:prettier/recommended', 'airbnb-typescript'],
+	extends: ['plugin:react/recommended', 'plugin:react-hooks/recommended', 'plugin:prettier/recommended', 'airbnb-typescript'],
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		ecmaFeatures: {
