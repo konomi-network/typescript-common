@@ -24,12 +24,15 @@ async function main() {
     const oToken = new OToken(
         web3,
         oTokenAbi,
-        config.addresses.oKono,
-        account
+        config.oTokens.oKono.address,
+        account,
+        config.oTokens.oKono.parameters
     );
 
     const amount = BigInt(1000) * ONE_ETHER;
-    await oToken.mint(amount);
+    await oToken.mint(amount, { confirmations: 3 });
+    const balance = await oToken.balanceOf(account.address);
+    console.log(amount, balance);
 }
 
 main();
