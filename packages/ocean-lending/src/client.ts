@@ -21,6 +21,11 @@ export class Client {
         this.web3 = web3;
         this.contract = new web3.eth.Contract(abi, address);
         this.account = account;
+    
+    }
+
+    public connect(account: Account): void {
+        this.account = account;
     }
 
     /**
@@ -37,7 +42,7 @@ export class Client {
         return txn;
     }
 
-    protected async send(method: any, txn: any, options: TxnOptions): Promise<void> {
+    protected async send(method: any, txn: any, options: TxnOptions, receiptCallback?: (receipt: any) => any): Promise<void> {
         return new Promise((resolve, reject) => {
             method.send(txn)
             .once('transactionHash', async (txnHash: any) => {
@@ -46,6 +51,7 @@ export class Client {
             .on('confirmation', (confirmations: number, receipt: any, latestBlockHash: any) => {
                 logger.debug("confirmations: %o receipt: %o latestBlockHash: %o", confirmations, receipt, latestBlockHash);
                 if (confirmations === options.confirmations) {
+                    if (receiptCallback) { receiptCallback(receipt); }
                     return resolve();
                 }
             })
