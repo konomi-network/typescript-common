@@ -1,0 +1,8 @@
+{
+    "nodeUrl": "<Your node url>",
+    "privateKey": "<Your account private key>",
+    "encryptedAccountJsonPath": "<Your path to encrypted json>",
+    "addresses": {
+        "oKono": "0x401bdaA038fc319413eC02202992f4C0a5CdE7C7"
+    }
+}
