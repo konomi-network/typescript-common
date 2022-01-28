@@ -86,7 +86,7 @@ async function main() {
     );
 
     // actual tests
-    // await depositWorks(account, oToken, erc20Token);
+    await depositWorks(account, oToken, erc20Token);
     await redeemNoBorrow(account, oToken, erc20Token);
 }
 
