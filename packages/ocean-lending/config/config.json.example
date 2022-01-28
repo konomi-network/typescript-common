@@ -6,7 +6,9 @@
         "oKono": {
             "address": "0x401bdaA038fc319413eC02202992f4C0a5CdE7C7",
             "parameters": {
-                "initialExchangeRate": 20
+                "initialExchangeRate": "200000000000000000000000000",
+                "underlying": "0x9d31a83faeac620450ebd9870fcecc6afb1d99a3",
+                "decimals": 8
             }
         }
     }
