@@ -9,11 +9,15 @@ async function depositWorks(account: Account, oToken: OToken, token: ERC20Token)
     const erc20Before = await token.balanceOf(account.address);
     const oTokenBefore = await oToken.balanceOf(account.address);
 
+    console.log("erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
+
     const amount = BigInt(1000) * ONE_ETHER;
     await oToken.mint(amount, { confirmations: 3 });
 
     const erc20After = await token.balanceOf(account.address);
     const oTokenAfter = await oToken.balanceOf(account.address);
+
+    console.log("erc20After:", erc20After, " oTokenAfter:", oTokenAfter);
 
     const expectedErc = erc20Before.valueOf() - amount;
     ensure(

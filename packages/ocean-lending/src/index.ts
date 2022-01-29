@@ -32,7 +32,8 @@ async function main() {
     const amount = BigInt(1000) * ONE_ETHER;
     await oToken.mint(amount, { confirmations: 3 });
     const balance = await oToken.balanceOf(account.address);
-    console.log(amount, balance);
+    console.log("amount: ", amount, " balance:", balance);
+
 }
 
 main();
