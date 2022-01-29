@@ -43,6 +43,16 @@ export class OToken extends Client{
         if (failed != null) { throw new Error(failed); }
     }
 
+    public async borrow(amount: BigInt, options: TxnOptions): Promise<void> {
+        const method = this.contract.methods.borrow(amount.toString());
+        await this.send(method, await this.prepareTxn(method), options);
+    }
+
+    public async repayBorrow(amount: BigInt, options: TxnOptions): Promise<void> {
+        const method = this.contract.methods.repayBorrow(amount.toString());
+        await this.send(method, await this.prepareTxn(method), options);
+    }
+
     public async balanceOf(address: string): Promise<BigInt> {
         const b = await this.contract.methods.balanceOf(address).call();
         return BigInt(b);
