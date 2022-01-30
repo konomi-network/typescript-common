@@ -16,11 +16,14 @@ export class Client {
     protected contract: Contract;
     // The account to use for operations
     protected account: Account;
+    // The token address
+    protected address: string;
 
     constructor(web3: Web3, abi: any, address: string, account: Account) {
         this.web3 = web3;
         this.contract = new web3.eth.Contract(abi, address);
         this.account = account;
+        this.address = address;
     
     }
 
@@ -38,6 +41,7 @@ export class Client {
             from: this.account.address,
             nonce: await this.deduceNonce()
         };
+
         txn['gas'] = await this.estimateGas(method, txn);
         return txn;
     }

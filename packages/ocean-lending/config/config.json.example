@@ -8,6 +8,7 @@
             "parameters": {
                 "initialExchangeRate": "200000000000000000000000000",
                 "underlying": "0x9d31a83faeac620450ebd9870fcecc6afb1d99a3",
+                "comptroller": "0x0fd1ac108f4f95dc313a81aeea73286befc0ab29",
                 "decimals": 8
             }
         }

@@ -7,10 +7,12 @@ import { TxnOptions } from "./options";
 export interface OTokenParameter {
     initialExchangeRate: number,
     underlying: string,
+    comptroller: string,
 }
 
-export class OToken extends Client{
+export class OToken extends Client {
     readonly parameters: OTokenParameter;
+    private readonly underlyingDecimals = 18;
 
     constructor(
         web3: Web3,
@@ -43,8 +45,22 @@ export class OToken extends Client{
         if (failed != null) { throw new Error(failed); }
     }
 
-    public async borrow(amount: BigInt, options: TxnOptions): Promise<void> {
+    public async borrowRatePerBlock(): Promise<BigInt> {
+        const borrowRate = await this.contract.methods.borrowRatePerBlock().call();
+        return BigInt(borrowRate / Math.pow(10, this.underlyingDecimals));
+    }
+
+    public async borrow(amount: number, options: TxnOptions): Promise<void> {
         const method = this.contract.methods.borrow(amount.toString());
+        await this.send(method, await this.prepareTxn(method), options);
+    }
+
+    public async borrowBalanceCurrent(address: string): Promise<number> {
+        return await this.contract.methods.borrowBalanceCurrent(address).call();
+    }
+
+    public async approve(amount: number, options: TxnOptions): Promise<void> {
+        const method = this.contract.methods.approve(this.address, amount.toString());
         await this.send(method, await this.prepareTxn(method), options);
     }
 
