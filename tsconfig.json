@@ -11,6 +11,9 @@
     "references": [
         {
             "path": "packages/decentralized-fs"
+        },
+        {
+            "path": "packages/ocean-lending"
         }
     ]
 }
