@@ -1,13 +1,11 @@
 {
-    "extends": "../../tsconfig.build.json",
-    "compilerOptions": {
-        "outDir": "./dist",
-        "rootDir": "./src",
-        "composite": true,
-        "experimentalDecorators": true
-    },
-    "include": [
-        "src"
-    ],
-    "references": []
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"composite": true,
+		"experimentalDecorators": true
+	},
+	"include": ["src"],
+	"references": []
 }
