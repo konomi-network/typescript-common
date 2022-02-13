@@ -2,6 +2,8 @@
     "nodeUrl": "<Your node url>",
     "privateKey": "<Your account private key>",
     "encryptedAccountJsonPath": "<Your path to encrypted json>",
+    "liquidatorPrivateKey": "<Your account private key>",
+    "encryptedLiquidatorAccountJson": "<Your path to encrypted json>",
     "oTokens": {
         "oKono": {
             "address": "0x401bdaA038fc319413eC02202992f4C0a5CdE7C7",
