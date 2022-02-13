@@ -64,7 +64,7 @@ export class OToken extends Client {
         await this.send(method, await this.prepareTxn(method), options);
     }
 
-    public async repayBorrow(amount: BigInt, options: TxnOptions): Promise<void> {
+    public async repayBorrow(amount: number, options: TxnOptions): Promise<void> {
         const method = this.contract.methods.repayBorrow(amount.toString());
         await this.send(method, await this.prepareTxn(method), options);
     }
@@ -72,6 +72,11 @@ export class OToken extends Client {
     public async balanceOf(address: string): Promise<BigInt> {
         const b = await this.contract.methods.balanceOf(address).call();
         return BigInt(b);
+    }
+
+    public async liquidateBorrow(borrower: string, amount: number, cTokenCollateral: string, options: TxnOptions): Promise<void> {
+        const method = this.contract.methods.liquidateBorrow(borrower, amount.toString(), cTokenCollateral);
+        await this.send(method, await this.prepareTxn(method), options);
     }
 
     // public convertFromUnderlying(amount: BigInt): BigInt {

@@ -18,4 +18,9 @@ export class Comptroller extends Client {
         const { 1:collateralFactor } = await this.contract.methods.markets(address).call();
         return (collateralFactor / this.decimals) * 100;
     }
+
+    public async liquidationIncentive(): Promise<number> {
+        const closeFactor = await this.contract.methods.liquidationIncentiveMantissa().call();
+        return closeFactor / this.decimals;
+    }
 }

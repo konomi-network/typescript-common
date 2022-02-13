@@ -4,8 +4,32 @@ import { Account } from 'web3-core';
 import { ERC20Token } from '../erc20Token';
 import { OToken } from '../oToken';
 import { Comptroller } from '../comptroller';
-import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../utils';
+import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../utils';
 import { enterMarkets, borrow, repayBorrow } from './borrowUtils';
+
+async function liquidateBorrow(account: Account, oToken: OToken, token: ERC20Token, comptroller: Comptroller) {
+    console.log("==== liquidateBorrow ====");
+    const erc20Before = await token.balanceOf(account.address);
+    const oTokenBefore = await oToken.balanceOf(account.address);
+    console.log("erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
+
+    const closeFactor = await comptroller.liquidationIncentive();
+    console.log("closeFactor: ", closeFactor);
+
+    const underlyingToBorrow = 10;
+    const underlyingDecimals = 18;
+    const repayAmount = underlyingToBorrow * Math.pow(10, underlyingDecimals);
+    await oToken.liquidateBorrow(account.address, repayAmount, oToken.address, { confirmations: 3 });
+
+    const erc20After = await token.balanceOf(account.address);
+    const oTokenAfter = await oToken.balanceOf(account.address);
+    console.log("erc20After:", erc20After, " oTokenAfter:", oTokenAfter);
+
+    ensure(
+        erc20Before == erc20After,
+        `invalid erc20 balance, expected ${erc20After} to be equal actual: ${erc20After}`
+    );
+}
 
 async function main() {
     const config = readJsonSync('./config/config.json');
@@ -54,6 +78,7 @@ async function main() {
     // actual tests
     await enterMarkets(account, config.oTokens.oKono.address, comptroller);
     await borrow(account, oToken, erc20Token);
+    await liquidateBorrow(account, oToken, erc20Token, comptroller);
     await repayBorrow(account, oToken, erc20Token);
 }
 
