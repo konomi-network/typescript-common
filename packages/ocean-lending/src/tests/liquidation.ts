@@ -21,6 +21,11 @@ async function liquidateBorrow(liquidatorAccount: Account, liquidatorOToken: OTo
     const oTokenBefore = await borrowerOToken.balanceOf(borrowerAccount.address);
     console.log("borrower erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
 
+    {
+        const liquidity = await borrowerComptroller.getAccountLiquidity(borrowerAccount.address);
+        console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
+    }
+
     const closeFactor = await borrowerComptroller.liquidationIncentive();
     console.log("borrower closeFactor: ", closeFactor);
 
