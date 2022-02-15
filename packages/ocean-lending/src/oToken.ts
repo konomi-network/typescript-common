@@ -8,6 +8,7 @@ export interface OTokenParameter {
 	initialExchangeRate: number;
 	underlying: string;
 	comptroller: string;
+	decimals: number;
 }
 
 export class OToken extends Client {

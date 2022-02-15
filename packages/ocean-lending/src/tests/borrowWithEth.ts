@@ -85,7 +85,7 @@ async function main() {
 
 	// load the oToken object
 	const oTokenAbi = readJsonSync('./config/oToken.json');
-	const oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
+	const oToken = new OToken(web3, oTokenAbi, config.oTokens.oEth.address, account, config.oTokens.oEth.parameters);
 
 	// load the eth object
 	const ethAbi = readJsonSync('./config/erc20.json');
@@ -95,7 +95,7 @@ async function main() {
 	const comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
 
 	// actual tests
-	const markets = [config.oTokens.oKono.address];
+	const markets = [config.oTokens.oEth.address];
 	await enterMarkets(account, markets, comptroller);
 	await borrow(account, oToken, ethToken);
 	// await repayBorrow(account, oToken, erc20Token);
