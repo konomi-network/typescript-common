@@ -15,8 +15,8 @@ async function enterMarkets(account: Account, markets: string[], comptroller: Co
 
 	ensure(liquidity.valueOf() > 0, `You don't have any liquid assets pooled in the protocol.`);
 
-	const collateralFactor = await comptroller.markets(markets[0]);
-	console.log(`You can borrow up to ${collateralFactor}% of your TOTAL collateral supplied to the protocol as oKONO.`);
+	const konoCollateralFactor = await comptroller.markets(markets[0]);
+	console.log(`You can borrow up to ${konoCollateralFactor}% of your TOTAL collateral supplied of KONO to the protocol as oKONO.`);
 }
 
 async function borrow(account: Account, oToken: OToken, token: ERC20Token) {
@@ -24,10 +24,13 @@ async function borrow(account: Account, oToken: OToken, token: ERC20Token) {
 	const erc20Before = await token.balanceOf(account.address);
 	const oTokenBefore = await oToken.balanceOf(account.address);
 
-	ensure(oTokenBefore > BigInt(0), "You don't have any KONO as collateral");
+	ensure(oTokenBefore.valueOf() > BigInt(0), "You don't have any KONO as collateral");
 	console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
 
-	const underlyingToBorrow = 50;
+	const exchangeRate = await oToken.exchangeRate();
+	console.log('exchangeRate', exchangeRate);
+
+	const underlyingToBorrow = 900;
 	const underlyingDecimals = 18;
 	const scaledUpBorrowAmount = underlyingToBorrow * Math.pow(10, underlyingDecimals);
 	await oToken.borrow(scaledUpBorrowAmount, { confirmations: 3 });
@@ -55,7 +58,8 @@ async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token) 
 
 	console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
 
-	await oToken.repayBorrow(oTokenBefore, { confirmations: 3 });
+	const balance = await oToken.borrowBalanceCurrent(account.address);
+	await oToken.repayBorrow(BigInt(balance), { confirmations: 3 });
 
 	const erc20After = await token.balanceOf(account.address);
 	const oTokenAfter = await oToken.balanceOf(account.address);
@@ -96,8 +100,8 @@ async function main() {
 	// actual tests
 	const markets = [config.oTokens.oKono.address, config.oTokens.oEth.address];
 	await enterMarkets(account, markets, comptroller);
-	await borrow(account, oToken, erc20Token);
-	// await repayBorrow(account, oToken, erc20Token);
+	// await borrow(account, oToken, erc20Token);
+	await repayBorrow(account, oToken, erc20Token);
 }
 
 main()

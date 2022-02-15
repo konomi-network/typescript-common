@@ -32,7 +32,7 @@ async function depositWorks(account: Account, oToken: OToken, token: ERC20Token)
  */
 async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Token) {
 	console.log('==== redeemNoBorrow ====');
-	const amount = BigInt(1000) * ONE_ETHER;
+	// const amount = BigInt(1000) * ONE_ETHER;
 
 	const ethBefore = await token.balanceOf(account.address);
 	const oEthBefore = await oToken.balanceOf(account.address);
@@ -43,8 +43,9 @@ async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Toke
 	const oEthAfter = await oToken.balanceOf(account.address);
 
 	ensure(ethBefore < ethAfter, `invalid eth balance, expected ${ethAfter} to be bigger than actual: ${ethBefore}`);
-
 	ensure(oEthAfter.valueOf() === BigInt(0), 'invalid deposit balance');
+
+	console.log(`ethAfter balance is ${ethAfter}`);
 	// oToken.convertFromUnderlying(amount);
 }
 
@@ -70,12 +71,12 @@ async function main() {
 	const oEth = new OToken(web3, oEthAbi, config.oTokens.oEth.address, account, config.oTokens.oEth.parameters);
 
 	// load the erc20 token object
-	const ethAbi = readJsonSync('./config/eth.json');
+	const ethAbi = readJsonSync('./config/erc20.json');
 	const ethToken = new ERC20Token(web3, ethAbi, oEth.parameters.underlying, account);
 
 	// actual tests
 	await depositWorks(account, oEth, ethToken);
-	// await redeemNoBorrow(account, oEth, ethToken);
+	await redeemNoBorrow(account, oEth, ethToken);
 }
 
 main()
