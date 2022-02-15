@@ -105,8 +105,8 @@ async function main() {
 	// actual tests
 	const markets = [config.oTokens.oKono.address, config.oTokens.oEth.address];
 	await enterMarkets(account, markets, comptroller);
-	await borrow(account, oToken, erc20Token);
-	// await repayBorrow(account, oToken, erc20Token);
+	// await borrow(account, oToken, erc20Token);
+	await repayBorrow(account, oToken, erc20Token);
 }
 
 main()
