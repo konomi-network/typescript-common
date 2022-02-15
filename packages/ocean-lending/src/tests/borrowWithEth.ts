@@ -13,10 +13,11 @@ async function enterMarkets(account: Account, markets: string[], comptroller: Co
 	const liquidity = await comptroller.getAccountLiquidity(account.address);
 	console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
 
-	ensure(liquidity.valueOf() > 0, `You don't have any liquid assets pooled in the protocol.`);
+	ensure(liquidity > 0, `You don't have any liquid assets pooled in the protocol.`);
 
 	const collateralFactor = await comptroller.markets(markets[0]);
 	console.log(`You can borrow up to ${collateralFactor}% of your TOTAL collateral supplied to the protocol as oKONO.`);
+	ensure(collateralFactor > 0, 'You dont have any collateral assets');
 }
 
 async function borrow(account: Account, oToken: OToken, token: ERC20Token) {
@@ -24,7 +25,7 @@ async function borrow(account: Account, oToken: OToken, token: ERC20Token) {
 	const erc20Before = await token.balanceOf(account.address);
 	const oTokenBefore = await oToken.balanceOf(account.address);
 
-	ensure(oTokenBefore > BigInt(0), "You don't have any KONO as collateral");
+	ensure(oTokenBefore > BigInt(0), "You don't have any ETH as collateral");
 	console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
 
 	const underlyingToBorrow = 50;
@@ -83,20 +84,20 @@ async function main() {
 	console.log('Using account:', account.address);
 
 	// load the oToken object
-	const oTokenAbi = readJsonSync('./config/oToken.json');
-	const oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
+	const oEthAbi = readJsonSync('./config/oToken.json');
+	const oEth = new OToken(web3, oEthAbi, config.oTokens.oEth.address, account, config.oTokens.oEth.parameters);
 
-	// load the erc20 token object
-	const erc20Abi = readJsonSync('./config/erc20.json');
-	const erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
+	// load the eth object
+	const ethAbi = readJsonSync('./config/erc20.json');
+	const ethToken = new ERC20Token(web3, ethAbi, oEth.parameters.underlying, account);
 
 	const comptrollerAbi = readJsonSync('./config/comptroller.json');
-	const comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
+	const comptroller = new Comptroller(web3, comptrollerAbi, oEth.parameters.comptroller, account);
 
 	// actual tests
-	const markets = [config.oTokens.oKono.address, config.oTokens.oEth.address];
+	const markets = [config.oTokens.oEth.address];
 	await enterMarkets(account, markets, comptroller);
-	await borrow(account, oToken, erc20Token);
+	await borrow(account, oEth, ethToken);
 	// await repayBorrow(account, oToken, erc20Token);
 }
 
