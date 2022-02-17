@@ -5,14 +5,15 @@ import { ERC20Token } from '../erc20Token';
 import { OToken } from '../oToken';
 import { Comptroller } from '../comptroller';
 import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../utils';
+import { PriceOracle } from '../priceOracle';
 
 let konoCollateralFactor: number = 0;
-
+let liquidity: number = 0;
 async function enterMarkets(account: Account, markets: string[], comptroller: Comptroller) {
 	console.log('==== enterMarkets ====');
 	await comptroller.enterMarkets(markets, { confirmations: 3 });
 
-	const liquidity = await comptroller.getAccountLiquidity(account.address);
+	liquidity = await comptroller.getAccountLiquidity(account.address);
 	console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
 
 	ensure(liquidity.valueOf() > 0, `You don't have any liquid assets pooled in the protocol.`);
@@ -21,19 +22,28 @@ async function enterMarkets(account: Account, markets: string[], comptroller: Co
 	console.log(`You can borrow up to ${konoCollateralFactor}% of your TOTAL collateral supplied to the protocol as oKONO.`);
 }
 
-async function borrow(account: Account, oToken: OToken, token: ERC20Token) {
+async function borrow(account: Account, oToken: OToken, token: ERC20Token, priceOracle: PriceOracle) {
 	console.log('==== borrow ====');
 	const erc20Before = await token.balanceOf(account.address);
 	const oTokenBefore = await oToken.balanceOf(account.address);
+	const exchangeRate = await oToken.exchangeRate();
+	const underlyingPrice = await priceOracle.getUnderlyingPrice(oToken.address);
 
 	ensure(oTokenBefore.valueOf() > BigInt(0), "You don't have any KONO as collateral");
 	console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
+	console.log('exchangeRate:', +exchangeRate / 1e28);
+	console.log('underlyingPrice:', underlyingPrice);
 
-	const exchangeRate = await oToken.exchangeRate();
-	console.log('exchangeRate', exchangeRate / 1e18);
-
+	const underlyingDeposited = (+oTokenBefore / 1e8) * exchangeRate;
+	const underlyingBorrowable = (underlyingDeposited * konoCollateralFactor) / 100;
 	const underlyingToBorrow = 900;
 	const underlyingDecimals = 18;
+	const toBorrowLiquid = (underlyingToBorrow * underlyingPrice * konoCollateralFactor) / 100;
+
+	ensure(underlyingToBorrow <= underlyingBorrowable, `Can not borrow more than collateral factor`);
+	ensure(toBorrowLiquid < liquidity.valueOf(), `Borrowing amount exceed account liquid`);
+	return;
+
 	const scaledUpBorrowAmount = underlyingToBorrow * Math.pow(10, underlyingDecimals);
 	await oToken.borrow(scaledUpBorrowAmount, { confirmations: 3 });
 
@@ -53,7 +63,7 @@ async function borrow(account: Account, oToken: OToken, token: ERC20Token) {
 	// oToken.convertFromUnderlying(amount);
 }
 
-async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token) {
+async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token, priceOracle: PriceOracle) {
 	console.log('==== repayBorrow ====');
 	const erc20Before = await token.balanceOf(account.address);
 	const oTokenBefore = await oToken.balanceOf(account.address);
@@ -63,7 +73,6 @@ async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token) 
 	const balance = await oToken.borrowBalanceCurrent(account.address);
 	console.log(`borrow balance to repay ${balance / 1e18}`);
 	ensure(balance.valueOf() > 0, 'invalid borrow balance to repay, expected more than zero');
-
 	await oToken.repayBorrow(BigInt(balance), { confirmations: 3 });
 
 	const erc20After = await token.balanceOf(account.address);
@@ -102,11 +111,18 @@ async function main() {
 	const comptrollerAbi = readJsonSync('./config/comptroller.json');
 	const comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
 
+	// load price feed object
+	const priceOracleAbi = readJsonSync('./config/priceOracle.json');
+	const priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle, account);
+
+	const underlyingPrice = await priceOracle.getUnderlyingPrice(oToken.address);
+	console.log('🚀 ~ underlyingPrice', underlyingPrice);
+
 	// actual tests
 	const markets = [config.oTokens.oKono.address, config.oTokens.oEth.address];
 	await enterMarkets(account, markets, comptroller);
-	// await borrow(account, oToken, erc20Token);
-	await repayBorrow(account, oToken, erc20Token);
+	await borrow(account, oToken, erc20Token, priceOracle);
+	await repayBorrow(account, oToken, erc20Token, priceOracle);
 }
 
 main()
