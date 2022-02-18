@@ -68,3 +68,7 @@ export const ONE_ETHER = BigInt("1000000000000000000");
 export function ensure(predicate: boolean, errorMessage: string) {
     if (!predicate) { throw new Error(errorMessage); }
 }
+
+export function isBitSet(n: number, offset: number): boolean {
+    return (n >> offset & 1) === 1;
+}

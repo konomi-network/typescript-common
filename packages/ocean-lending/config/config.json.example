@@ -11,5 +11,8 @@
                 "decimals": 8
             }
         }
+    },
+    "feedFactory": {
+        "address": ""
     }
 }
