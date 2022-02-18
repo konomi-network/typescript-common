@@ -21,11 +21,18 @@ export class Client {
         this.web3 = web3;
         this.contract = new web3.eth.Contract(abi, address);
         this.account = account;
-    
     }
 
     public connect(account: Account): void {
         this.account = account;
+    }
+
+    /**
+     * Get token address from contract
+     * @returns The token address
+     */
+    get address(): string {
+        return this.contract.options.address;
     }
 
     /**
@@ -38,6 +45,7 @@ export class Client {
             from: this.account.address,
             nonce: await this.deduceNonce()
         };
+
         txn['gas'] = await this.estimateGas(method, txn);
         return txn;
     }
