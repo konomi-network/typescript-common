@@ -6,6 +6,7 @@ import { OToken } from '../oToken';
 import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../utils';
 
 async function depositWorks(account: Account, oToken: OToken, token: ERC20Token) {
+	console.log('==== deposit ====');
 	const erc20Before = await token.balanceOf(account.address);
 	const oTokenBefore = await oToken.balanceOf(account.address);
 
@@ -30,19 +31,24 @@ async function depositWorks(account: Account, oToken: OToken, token: ERC20Token)
  * Deposit then withdraw when no borrowing or collateral in place
  */
 async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Token) {
+	console.log('==== redeem ====');
 	const amount = BigInt(1000) * ONE_ETHER;
 	// await oToken.mint(amount, { confirmations: 3 });
 
 	const erc20Before = await token.balanceOf(account.address);
 	const oTokenBefore = await oToken.balanceOf(account.address);
+	console.log('oToken minted: ', Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals));
+	console.log('oToken to redeem: ', Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals));
 
 	await oToken.redeem(oTokenBefore, { confirmations: 3 });
 
 	const erc20After = await token.balanceOf(account.address);
 	const oTokenAfter = await oToken.balanceOf(account.address);
 
-	ensure(erc20Before < erc20After, `invalid erc20 balance, expected ${erc20After} to be bigger than actual: ${erc20After}`);
-
+	ensure(
+		erc20Before < erc20After,
+		`invalid erc20 balance, expected erc20After ${Number(erc20After) / 1e18} to be bigger than actual: ${Number(erc20After) / 1e18}`
+	);
 	ensure(oTokenAfter.valueOf() === BigInt(0), 'invalid deposit balance');
 	// oToken.convertFromUnderlying(amount);
 }
@@ -73,7 +79,7 @@ async function main() {
 	const erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
 
 	// actual tests
-	// await depositWorks(account, oToken, erc20Token);
+	await depositWorks(account, oToken, erc20Token);
 	await redeemNoBorrow(account, oToken, erc20Token);
 }
 
