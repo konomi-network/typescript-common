@@ -4,10 +4,9 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "composite": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
     },
-    "include": [
-        "src"
-    ],
-    "references": []
+    "include": ["src", "config", "integration-tests"],
+    "references": [],
+    "types": ["@types/jest", "node"]
 }
