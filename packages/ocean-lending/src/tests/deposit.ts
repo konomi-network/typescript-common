@@ -32,8 +32,6 @@ async function depositWorks(account: Account, oToken: OToken, token: ERC20Token)
  */
 async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Token) {
 	console.log('==== redeem ====');
-	const amount = BigInt(1000) * ONE_ETHER;
-	// await oToken.mint(amount, { confirmations: 3 });
 
 	const erc20Before = await token.balanceOf(account.address);
 	const oTokenBefore = await oToken.balanceOf(account.address);
@@ -79,7 +77,7 @@ async function main() {
 	const erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
 
 	// actual tests
-	await depositWorks(account, oToken, erc20Token);
+	// await depositWorks(account, oToken, erc20Token);
 	await redeemNoBorrow(account, oToken, erc20Token);
 }
 
