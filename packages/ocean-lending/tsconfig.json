@@ -6,6 +6,7 @@
 		"composite": true,
 		"experimentalDecorators": true
 	},
-	"include": ["src"],
-	"references": []
+	"include": ["src", "config", "integration-tests"],
+	"references": [],
+	"types": ["@types/jest", "node"]
 }

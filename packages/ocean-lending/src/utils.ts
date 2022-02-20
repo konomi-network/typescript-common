@@ -69,13 +69,6 @@ export function ensure(predicate: boolean, errorMessage: string) {
     if (!predicate) { throw new Error(errorMessage); }
 }
 
-// let testCount = 0;
-// export async function Test(method: Function) {
-//     try {
-//         testCount += 1;
-//         await method();
-//         console.log(`#======= Test ${testCount} - ${method.name}} passed`);
-//     } catch (error) {
-//         console.log(`#======= Test ${testCount} - ${method.name}} failed with error: ${error}`);
-//     }
-// }
+export function isBitSet(n: number, offset: number): boolean {
+    return (n >> offset & 1) === 1;
+}
