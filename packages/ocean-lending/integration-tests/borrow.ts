@@ -1,11 +1,11 @@
 import { exit } from 'process';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { ERC20Token } from '../erc20Token';
-import { OToken } from '../oToken';
-import { Comptroller } from '../comptroller';
-import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../utils';
-import { PriceOracle } from '../priceOracle';
+import { ERC20Token } from 'erc20Token';
+import { OToken } from 'oToken';
+import { Comptroller } from 'comptroller';
+import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from 'utils';
+import { PriceOracle } from 'priceOracle';
 
 let konoCollateralFactor: number = 0;
 let liquidity: number = 0;
@@ -120,7 +120,7 @@ async function main() {
 	// actual tests
 	const markets = [config.oTokens.oKono.address, config.oTokens.oEth.address];
 	await enterMarkets(account, markets, comptroller);
-	// await borrow(account, oToken, erc20Token, priceOracle);
+	await borrow(account, oToken, erc20Token, priceOracle);
 	await repayBorrow(account, oToken, erc20Token, priceOracle);
 }
 
