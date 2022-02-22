@@ -1,0 +1,19 @@
+{
+    "nodeUrl": "https://data-seed-prebsc-2-s2.binance.org:8545",
+    "privateKey": "f1b3157890c91d4edc8ca3c2f2e6dd560ae6693242744a0c4817cffb04a0dab1",
+    "encryptedAccountJsonPath": "C:/Users/kun-d/Desktop/WFH/code/dev/ocean-lending/packages/konomi-CLI/test/myWallet.json",
+    "oTokens": {
+        "oKono": {
+            "address": "0x401bdaA038fc319413eC02202992f4C0a5CdE7C7",
+            "parameters": {
+                "initialExchangeRate": "200000000000000000000000000",
+                "underlying": "0x9d31a83faeac620450ebd9870fcecc6afb1d99a3",
+                "comptroller": "0x0fd1ac108f4f95dc313a81aeea73286befc0ab29",
+                "decimals": 8
+            }
+        }
+    },
+    "feedFactory": {
+        "address": ""
+    }
+}
