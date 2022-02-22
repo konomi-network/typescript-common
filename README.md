@@ -1,32 +1,38 @@
 # typescript-common
+
 Typescript common util library for both Frontend and Backend usage
+
+<br>
+
+### Packages:
+
+-   @konomi-network/decentralized-fs
+-   @konomi-network/eslint-config-konomi
+
+<br>
 
 ### Installation
 
 1. Install yarn globally (needed to resolve dependencies correctly when working in a monorepo)
 
-   ```shell
-   npm install -g yarn
-   ```
+    ```shell
+    npm install -g yarn
+    ```
 
 2. Install NPM packages
 
-   ```shell
-   yarn install
-   ```
+    ```shell
+    yarn bootstrap
+    ```
 
-3. Run all the examples
+    then
 
-   ```shell
-   yarn run test
-   ```
+    ```shell
+    yarn install
+    ```
 
-4. before run ipfs daemon
-   ```
-   ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST", "OPTIONS"]'
-   ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
-   ipfs config --json API.HTTPHeaders.Access-Control-Allow-Credentials '["true"]'
-   ipfs config --json API.HTTPHeaders.Access-Control-Allow-Headers '["Authorization"]'
-   ipfs config --json API.HTTPHeaders.Access-Control-Expose-Headers '["Location"]'
-   ipfs daemon
-   ```
+3. Run all test
+
+    ```shell
+    yarn test
+    ```

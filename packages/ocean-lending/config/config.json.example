@@ -4,11 +4,11 @@
     "encryptedAccountJsonPath": "<Your path to encrypted json>",
     "oTokens": {
         "oKono": {
-            "address": "0x401bdaA038fc319413eC02202992f4C0a5CdE7C7",
+            "address": "0x3f7307F720c340767EE6e6397599EFc95F0ABca0",
             "parameters": {
                 "initialExchangeRate": "200000000000000000000000000",
                 "underlying": "0x9d31a83faeac620450ebd9870fcecc6afb1d99a3",
-                "comptroller": "0x0fd1ac108f4f95dc313a81aeea73286befc0ab29",
+                "comptroller": "0x83F53ef149B01FFc0f2DbF8cEd89BEC77868d61b",
                 "decimals": 8
             }
         }

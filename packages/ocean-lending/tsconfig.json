@@ -1,12 +1,13 @@
 {
-    "extends": "../../tsconfig.build.json",
-    "compilerOptions": {
-        "outDir": "./dist",
-        "rootDir": "./src",
-        "composite": true,
-        "experimentalDecorators": true,
-    },
-    "include": ["src", "config", "integration-tests"],
-    "references": [],
-    "types": ["@types/jest", "node"]
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"baseUrl": "./src",
+		"composite": true,
+		"experimentalDecorators": true
+	},
+	"include": ["src", "config", "integration-tests"],
+	"references": [],
+	"types": ["@types/jest", "node"]
 }

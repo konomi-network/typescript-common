@@ -1,1 +1,1 @@
-export { OceanEncoder } from "./encoding";
+export { OceanEncoder } from './encoding';
