@@ -5,22 +5,24 @@ import { OToken } from '../../ocean-lending/src/oToken';
 import { Comptroller } from '../../ocean-lending/src/comptroller';
 import { OptionValues } from "commander"
 import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../../ocean-lending/src/utils';
-
+import { enterMarkets ,borrow, repayBorrow} from '../../ocean-lending/integration-tests/borrow'
+import { depositWorks, redeemNoBorrow} from '../../ocean-lending/integration-tests/deposit'
+import{ PriceOracle} from '../../ocean-lending/src/priceOracle'
 /**
  * The OceanLeningHandler class for CLI's  OceanLending command .
  */
 export class OceanLendingHandler {
-    // OceanLending config path
+    // The OceanLending config path
     protected  configPath: string;
     // The OecanLending subCommand
     protected  subCommand: string;
     // The adreess of token
     protected tokenAddress: string;
     // The amount of tokens for operations
-    protected amount: string;
+    protected amount: number;
 
 
-    constructor(configPath:string, subCommand: string, tokenAddress: string, amount: string) {
+    constructor(configPath:string, subCommand: string, tokenAddress: string, amount=0) {
         this.configPath = configPath;
         this.subCommand = subCommand;
         this.tokenAddress = tokenAddress;
@@ -33,63 +35,60 @@ export class OceanLendingHandler {
      * @param method The method object
      * @returns Command execution result.
      */
-    public async handle(): Promise<any> {
-        console.log("OceanLendingHandler is handling!");
-        const [account, oToken, token] = await this.parseConfig();
+    public async handle() {
+        const [account, oToken, token, comptroller, config, priceOracle] = await this.parseConfig();
         switch (this.subCommand) {
+            case 'enterMarkets':
+                const markets = [config.oTokens.oKono.address];
+                enterMarkets(account, markets, comptroller);
+                break;
+
+            case 'depositWorks':
+                await depositWorks(account, oToken, token, this.amount);
+                break;
+                
+            case 'redeemNoBorrow':
+                await redeemNoBorrow(account, oToken, token);
+                break;
+
             case 'borrow':
-                this.borrow(account, oToken, token);
+                await borrow(account, oToken, token, priceOracle, comptroller, this.amount);
                 break;
 
             case 'repay':
-                this.repay(account, oToken, token);
+                await repayBorrow(account, oToken, token, priceOracle);
                 break;
                                 
             default:
-                console.log('unknown subcommand')
+                console.log('unknown subCommand')
                 break;
         }
     }
 
-    private async borrow(account: Account, oToken: OToken, token: ERC20Token): Promise<any> {
-        console.log("==== borrow ====");
-        const erc20Before = await token.balanceOf(account.address);
-        const oTokenBefore = await oToken.balanceOf(account.address);
-    
-        console.log("erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
-    
-        const underlyingToBorrow = 50;
-        const underlyingDecimals = 18;
-        const scaledUpBorrowAmount = underlyingToBorrow * Math.pow(10, underlyingDecimals);
-        await oToken.borrow(scaledUpBorrowAmount, { confirmations: 3 });
-    
-        const balance = await oToken.borrowBalanceCurrent(account.address);
-        console.log(`Borrow balance is ${balance / Math.pow(10, underlyingDecimals)}`);
-    
-        await oToken.approve(scaledUpBorrowAmount, { confirmations: 3 });
-    
-        const erc20After = await token.balanceOf(account.address);
-        const oTokenAfter = await oToken.balanceOf(account.address);
-    
-        console.log("erc20After:", erc20After, " oTokenAfter:", oTokenAfter);
-    
-        ensure(
-            erc20After > erc20Before,
-            `invalid erc20 balance, expected ${erc20Before}, actual: ${erc20After}`
-        );
-    
-        ensure(oTokenAfter == oTokenBefore, "invalid borrow balance");
-        // oToken.convertFromUnderlying(amount);
-        console.log("brrowed: " + this.amount);
+    private async enterMarkets(account: Account, markets: string[], comptroller: Comptroller): Promise<any> {
+        enterMarkets(account, markets, comptroller);
     }
 
+    private async depositWorks(account: Account, oToken: OToken, token: ERC20Token){
+        // depositWorks(account, oToken, token);
+    }
 
+    private async  redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Token) {
+        // redeemNoBorrow(account, oToken, token);
+
+    }
+
+    private async borrow(account: Account, oToken: OToken, token: ERC20Token, comptroller: Comptroller, priceOracle: PriceOracle): Promise<any> {
+        // borrow(account, oToken, token, comptroller, priceOracle);
+    }
     
-
-    private async repay(account: Account, oToken: OToken, token: ERC20Token): Promise<any> {
+    private async  repayBorrow(account: Account, oToken: OToken, token: ERC20Token, priceOracle: PriceOracle): Promise<any> {
         console.log("repayed: " + this.amount);
-        
+        // repayBorrow(account, oToken, token, priceOracle);
+    
     }
+
+    
 
     private async parseConfig(){
         const config = readJsonSync(this.configPath);
@@ -126,7 +125,20 @@ export class OceanLendingHandler {
            oToken.parameters.underlying,
             account
         );
-        return [account, oToken, token] as const;
+
+        const comptrollerAbi = readJsonSync('../ocean-lending/config/comptroller.json');
+        const comptroller = new Comptroller(
+            web3,
+            comptrollerAbi,
+            oToken.parameters.comptroller,
+            account
+        );
+        
+        // load price feed object
+        const priceOracleAbi = readJsonSync('../ocean-lending/config/priceOracle.json');
+        const priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle, account);
+
+        return [account, oToken, token, comptroller, config, priceOracle] as const;
     }
 
 }

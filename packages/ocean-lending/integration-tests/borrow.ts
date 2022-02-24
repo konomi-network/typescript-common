@@ -1,32 +1,32 @@
 import { exit } from 'process';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { ERC20Token } from 'erc20Token';
-import { OToken } from 'oToken';
-import { Comptroller } from 'comptroller';
-import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from 'utils';
-import { PriceOracle } from 'priceOracle';
+import { ERC20Token } from '../src/erc20Token';
+import { OToken } from '../src/oToken';
+import { Comptroller } from '../src/comptroller';
+import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../src/utils';
+import { PriceOracle } from '../src/priceOracle';
+export { enterMarkets ,borrow, repayBorrow } 
 
-let konoCollateralFactor: number = 0;
-let liquidity: number = 0;
 async function enterMarkets(account: Account, markets: string[], comptroller: Comptroller) {
 	console.log('==== enterMarkets ====');
 	await comptroller.enterMarkets(markets, { confirmations: 3 });
 
-	liquidity = await comptroller.getAccountLiquidity(account.address);
+	const liquidity: number = await comptroller.getAccountLiquidity(account.address);
 	console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
 
-	konoCollateralFactor = await comptroller.markets(markets[0]);
+	const konoCollateralFactor: number = await comptroller.markets(markets[0]);
 	console.log(`You can borrow up to ${konoCollateralFactor}% of your TOTAL collateral supplied to the protocol as oKONO.`);
 }
 
-async function borrow(account: Account, oToken: OToken, token: ERC20Token, priceOracle: PriceOracle) {
+async function borrow(account: Account, oToken: OToken, token: ERC20Token, priceOracle: PriceOracle, comptroller: Comptroller, underlyingToBorrow: number) {
 	console.log('==== borrow ====');
+	const liquidity: number = await comptroller.getAccountLiquidity(account.address);
 	ensure(liquidity.valueOf() > 0, `You don't have any liquid assets pooled in the protocol.`);
 	const erc20Before = await token.balanceOf(account.address);
 	const oTokenBefore = await oToken.balanceOf(account.address);
 	const borrowBalanceBefore = await oToken.borrowBalanceCurrent(account.address);
-
+	const konoCollateralFactor: number = await comptroller.markets(oToken.address);
 	const exchangeRate = await oToken.exchangeRate();
 	const underlyingPrice = await priceOracle.getUnderlyingPrice(oToken.address);
 
@@ -38,7 +38,7 @@ async function borrow(account: Account, oToken: OToken, token: ERC20Token, price
 
 	const underlyingDeposited = (Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals)) * exchangeRate;
 	const underlyingBorrowable = (underlyingDeposited * konoCollateralFactor) / 100;
-	const underlyingToBorrow = 500;
+	// const underlyingToBorrow = 500;
 	const underlyingDecimals = 18;
 	const toBorrowLiquid = (underlyingToBorrow * underlyingPrice * konoCollateralFactor) / 100;
 	console.log(`Borrow balance currently is ${borrowBalanceBefore / Math.pow(10, underlyingDecimals)}`);
@@ -86,7 +86,8 @@ async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token, 
 }
 
 async function main() {
-	const config = readJsonSync('./config/config.json');
+	// const config = readJsonSync('./config/config.json');
+	const config = readJsonSync("../konomi-CLI/testConfig/config.json")
 
 	const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -118,15 +119,15 @@ async function main() {
 	const priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle, account);
 
 	// actual tests
-	const markets = [config.oTokens.oKono.address, config.oTokens.oEth.address];
+	const markets = [config.oTokens.oKono.address];
 	await enterMarkets(account, markets, comptroller);
-	await borrow(account, oToken, erc20Token, priceOracle);
+	await borrow(account, oToken, erc20Token, priceOracle, comptroller, 50);
 	await repayBorrow(account, oToken, erc20Token, priceOracle);
 }
 
-main()
-	.then(() => exit(0))
-	.catch((e) => {
-		console.log(e);
-		exit(1);
-	});
+// main()
+// 	.then(() => exit(0))
+// 	.catch((e) => {
+// 		console.log(e);
+// 		exit(1);
+// 	});
