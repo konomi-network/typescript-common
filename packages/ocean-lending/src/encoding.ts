@@ -50,16 +50,17 @@ export class OceanEncoder {
             if (v === undefined) { n = n | 1 << DEFAULT_BIT_MASK.get(k)!.index; }
         })
 
-        if (!para.collateral.collateralFactor) {
+        if (!para.collateral.canBeCollateral) {
+            n = n & ~(1 << DEFAULT_BIT_MASK.get('canBeCollateral')!.index);
+        } else if (!para.collateral.collateralFactor) {
+            n = n | 1 << DEFAULT_BIT_MASK.get('canBeCollateral')!.index;
             n = n | 1 << DEFAULT_BIT_MASK.get('collateralFactor')!.index;
+        } else {
+            n = n | 1 << DEFAULT_BIT_MASK.get('canBeCollateral')!.index;
         }
 
         if (!para.collateral.liquidationIncentive) {
             n = n | 1 << DEFAULT_BIT_MASK.get('liquidationIncentive')!.index;
-        }
-
-        if (para.collateral.canBeCollateral) {
-            n = n | 1 << DEFAULT_BIT_MASK.get('canBeCollateral')!.index;
         }
 
         let b = Buffer.allocUnsafe(1);
@@ -80,7 +81,7 @@ export class OceanEncoder {
 
     public static encodeCollateral(param: CollateralConfig): Buffer {
         let buf = Buffer.allocUnsafe(0);
-        if (param.collateralFactor) {
+        if (param.canBeCollateral && param.collateralFactor) {
             buf = Buffer.concat([buf, param.collateralFactor.toBuffer()]);
         }
         if (param.liquidationIncentive) {
@@ -130,19 +131,21 @@ export class OceanDecoder {
 
     public static decodeHeader(n: number): Header {
         return {
-            baseRatePerYear: isBitSet(n, 0),
-            multiplierPerYear: isBitSet(n, 1),
-            jumpMultiplierPerYear: isBitSet(n, 2),
-            kink: isBitSet(n, 3),
-            collateralFactor: isBitSet(n, 4),
-            liquidationIncentive: isBitSet(n, 5),
-            canBeCollateral:isBitSet(n, 6),
+            baseRatePerYear: isBitSet(n, DEFAULT_BIT_MASK.get('baseRatePerYear')!.index),
+            multiplierPerYear: isBitSet(n, DEFAULT_BIT_MASK.get('multiplierPerYear')!.index),
+            jumpMultiplierPerYear: isBitSet(n, DEFAULT_BIT_MASK.get('jumpMultiplierPerYear')!.index),
+            kink: isBitSet(n, DEFAULT_BIT_MASK.get('kink')!.index),
+            collateralFactor: isBitSet(n, DEFAULT_BIT_MASK.get('collateralFactor')!.index),
+            liquidationIncentive: isBitSet(n, DEFAULT_BIT_MASK.get('liquidationIncentive')!.index),
+            canBeCollateral:isBitSet(n, DEFAULT_BIT_MASK.get('canBeCollateral')!.index),
         };
     }
 
     public static decodeCollateral(buf: Buffer, offset: number, header: Header): [CollateralConfig, number] {
         let collateralFactor;
-        if (header.collateralFactor) {
+        if (!header.canBeCollateral) {
+            collateralFactor = new Uint16(0);
+        } else if (header.collateralFactor) {
             collateralFactor = DEFAULT_PARAM.collateralFactor;
         } else {
             collateralFactor = new Uint16(buf.readUInt16BE(offset));

@@ -81,7 +81,6 @@ describe('Encoding', () => {
       tokens: [ t1, t2 ],
     };
     const buf = OceanEncoder.encode(poolConfig);
-    console.log(buf.length);
 
     const expected = {
       tokens: [
@@ -111,7 +110,7 @@ describe('Encoding', () => {
           ),
           collateral: {
             canBeCollateral: false,
-            collateralFactor: DEFAULT_PARAM.collateralFactor,
+            collateralFactor: new Uint16(0),
             liquidationIncentive: DEFAULT_PARAM.liquidationIncentive,
           }
         }
@@ -140,10 +139,83 @@ describe('Encoding Single', () => {
       }
     };
     const buf = OceanEncoder.encodeSingle(token);
-    console.log(buf.length);
 
     const decodeed = OceanDecoder.decodeSingle(buf, 0)[0];
     expect(token).toEqual(decodeed);
+  })
+
+  it('works - but not as collateral', () => {
+    const token = {
+      underlying: Address.fromString("0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3"),
+      subscriptionId: new Uint64(BigInt(1)),
+      interest: new InterestConfig(
+        new Uint16(1001), // baseRatePerYear
+        new Uint16(2002), // multiplierPerYear
+        new Uint16(3003), // jumpMultiplierPerYear
+        new Uint16(4004), // kink
+      ),
+      collateral: {
+        canBeCollateral: false,
+        collateralFactor: new Uint16(1001),
+        liquidationIncentive: new Uint16(2),
+      }
+    };
+    const buf = OceanEncoder.encodeSingle(token);
+
+    const expected = {
+      underlying: Address.fromString("0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3"),
+      subscriptionId: new Uint64(BigInt(1)),
+      interest: new InterestConfig(
+        new Uint16(1001), // baseRatePerYear
+        new Uint16(2002), // multiplierPerYear
+        new Uint16(3003), // jumpMultiplierPerYear
+        new Uint16(4004), // kink
+      ),
+      collateral: {
+        canBeCollateral: false,
+        collateralFactor: new Uint16(0),
+        liquidationIncentive: new Uint16(2),
+      }
+    };
+    const decodeed = OceanDecoder.decodeSingle(buf, 0)[0];
+    expect(expected).toEqual(decodeed);
+  })
+
+  it('works - can be collateral with default', () => {
+    const token = {
+      underlying: Address.fromString("0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3"),
+      subscriptionId: new Uint64(BigInt(1)),
+      interest: new InterestConfig(
+        new Uint16(1001), // baseRatePerYear
+        new Uint16(2002), // multiplierPerYear
+        new Uint16(3003), // jumpMultiplierPerYear
+        new Uint16(4004), // kink
+      ),
+      collateral: {
+        canBeCollateral: true,
+        collateralFactor: undefined,
+        liquidationIncentive: new Uint16(2),
+      }
+    };
+    const buf = OceanEncoder.encodeSingle(token);
+
+    const expected = {
+      underlying: Address.fromString("0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3"),
+      subscriptionId: new Uint64(BigInt(1)),
+      interest: new InterestConfig(
+        new Uint16(1001), // baseRatePerYear
+        new Uint16(2002), // multiplierPerYear
+        new Uint16(3003), // jumpMultiplierPerYear
+        new Uint16(4004), // kink
+      ),
+      collateral: {
+        canBeCollateral: true,
+        collateralFactor: DEFAULT_PARAM.collateralFactor,
+        liquidationIncentive: new Uint16(2),
+      }
+    };
+    const decodeed = OceanDecoder.decodeSingle(buf, 0)[0];
+    expect(expected).toEqual(decodeed);
   })
 
   it('with default', () => {
@@ -163,7 +235,6 @@ describe('Encoding Single', () => {
       }
     };
     const buf = OceanEncoder.encodeSingle(token);
-    console.log(buf.length);
 
     const expected = {
       underlying: Address.fromString("0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3"),
@@ -176,7 +247,7 @@ describe('Encoding Single', () => {
       ),
       collateral: {
         canBeCollateral: false,
-        collateralFactor: DEFAULT_PARAM.collateralFactor,
+        collateralFactor: new Uint16(0),
         liquidationIncentive: DEFAULT_PARAM.liquidationIncentive,
       }
     };
