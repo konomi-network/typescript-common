@@ -40,7 +40,7 @@ describe('Encoding', () => {
       tokens: [ t1, t2 ],
     };
     const buf = OceanEncoder.encode(poolConfig);
-    console.log(buf.length);
+    console.log(buf.toString("hex"));
 
     const decodeed = OceanDecoder.decode(buf);
     expect(poolConfig).toEqual(decodeed);
