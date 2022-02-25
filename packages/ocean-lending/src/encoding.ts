@@ -37,9 +37,9 @@ export class OceanEncoder {
         return Buffer.concat([
             this.encodeHeader(param),
             this.encodeInterest(param.interest),
+            param.underlying.toBuffer(),
             this.encodeCollateral(param.collateral),
             param.subscriptionId.toBuffer(),
-            param.underlying.toBuffer(),
         ]);
     }
 
@@ -110,15 +110,15 @@ export class OceanDecoder {
         const interest = i[0];
         offset = i[1];
 
+        const underlying = Address.fromBuffer(buf, offset);
+        offset += 20;
+
         const c = this.decodeCollateral(buf, offset, header);
         const collateral = c[0];
         offset = c[1];
 
         const subscriptionId = new Uint64(buf.readBigUInt64BE(offset));
         offset += 8;
-
-        const underlying = Address.fromBuffer(buf, offset);
-        offset += 20;
 
         return [{
             underlying,
