@@ -4,60 +4,56 @@
 
 ### Help
 ```
-npx ts-node src/konomi.ts --help
+konomi-cli --help
 
-npx ts-node src/konomi.ts ocean --help
+konomi-cli ocean --help
 
-npx ts-node src/konomi.ts ocean enterMarkets --help
+konomi-cli ocean enterMarkets --help
 
 ```
 
 ### EnterMarkets
 ```
-npx ts-node src/konomi.ts ocean enterMarkets  --config-path your-path-to-configuration-json   
-
-```
-
-*Abbreviation*
-```
-npx ts-node src/konomi.ts ocean  enterMarkets  -c your-path-to-configuration-json   
-```
-
-### depositWorks
-```
-npx ts-node src/konomi.ts  ocean deposit  --config-path your-path-to-configuration-json  --amount 1000 
+konomi-cli ocean --config-path your-path-to-configuration-json  enterMarkets     
 ```
 *Abbreviation*
 ```
-npx ts-node src/konomi.ts ocean deposit  -c your-path-to-configuration-json  -a 1000 
+konomi-cli ocean -c your-path-to-configuration-json  enterMarkets  
 ```
 
-### redeemNoBorrow
+### deposit
 ```
-npx ts-node src/konomi.ts ocean  redeem  --config-path your-path-to-configuration-json   
+konomi-cli ocean --config-path your-path-to-configuration-json  deposit --amount 1000 
 ```
 *Abbreviation*
 ```
-npx ts-node src/konomi.ts ocean redeem  -c your-path-to-configuration-json
+konomi-cli ocean -c your-path-to-configuration-json deposit -a 1000 
+```
+
+### redeem
+```
+konomi-cli ocean --config-path your-path-to-configuration-json   redeem     
+```
+*Abbreviation*
+```
+konomi-cli ocean -c your-path-to-configuration-json redeem  
 ```
 
 ### Borrow
 ```
-npx ts-node src/konomi.ts  ocean  borrow  --config-path your-path-to-configuration-json --amount 10
+konomi-cli  ocean --config-path your-path-to-configuration-json   borrow --amount 10
 ```
-
-
 *Abbreviation*
 ```
-npx ts-node src/konomi.ts ocean borrow -c your-path-to-configuration-json -a 10
+konomi-cli ocean -c your-path-to-configuration-json borrow -a 10
 ```
 
 ### Repay
 ```
-npx ts-node src/konomi.ts ocean repay --config-path your-path-to-configuration-json
+konomi-cli ocean --config-path your-path-to-configuration-json repay 
 ```
 *Abbreviation*
 ```
-npx ts-node src/konomi.ts ocean repay  -c your-path-to-configuration-json
+konomi-cli ocean -c your-path-to-configuration-json repay
 ```
 
