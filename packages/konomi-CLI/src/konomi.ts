@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 import { Command, OptionValues } from 'commander';
 import logger from './logger';
-import { enterMarkets, borrow, repay, deposit, redeem, parseOceanLendingConfiguration } from './oceanLendingHandler'
+import { enterMarkets, borrow, repay, repayAll, deposit, redeem, redeemAll, parseOceanLendingConfiguration } from './oceanLendingHandler'
 
 function makeOceanCommand(): Command {
   // Add ocean subcommad
@@ -29,7 +29,7 @@ function makeOceanCommand(): Command {
   ocean
     .command('deposit')
     .description('charge otoken deposit with ERC20Token')
-    .requiredOption('-a, --amount <amount>', 'The amount of tokens to use for operations')
+    .requiredOption('-a, --amount <amount>', 'The amount of tokens to deposit')
     .action(async (options: OptionValues) => {
       logger.info('OceanLending: deposit started, configPath: %o, amount: %o ', ocean.opts().configPath, options.amount);
       const [account, oToken, token, comptroller, config, priceOracle] = await parseOceanLendingConfiguration(ocean.opts());
@@ -40,23 +40,35 @@ function makeOceanCommand(): Command {
   // Add redeem subcommad
   ocean
     .command('redeem')
+    .description('redeem minted oToken')
+    .requiredOption('-a, --amount <amount>', 'The amount of tokens to redeem')
+    .action(async (options: OptionValues) => {
+      logger.info('OceanLending: redeem started, configPath: %o, amount: %o', ocean.opts().configPath, options.amount);
+      const [account, oToken, token, comptroller, config, priceOracle] = await parseOceanLendingConfiguration(ocean.opts());
+      await redeem(account, oToken, token, options.amount)
+      logger.info('OceanLending: redeem sucess!');
+    });
+
+  // Add redeemAll subcommad
+  ocean
+    .command('redeemAll')
     .description('redeem all minted oToken')
     .action(async (options: OptionValues) => {
-      logger.info('OceanLending: redeem started, configPath: %o', ocean.opts().configPath);
+      logger.info('OceanLending: redeemAll started, configPath: %o', ocean.opts().configPath);
       const [account, oToken, token, comptroller, config, priceOracle] = await parseOceanLendingConfiguration(ocean.opts());
-      await redeem(account, oToken, token)
-      logger.info('OceanLending: redeem sucess!');
+      await redeemAll(account, oToken, token)
+      logger.info('OceanLending: redeemAll sucess!');
     });
 
   // Add borrow subcommad
   ocean
     .command('borrow')
     .description('brrow otoken use KONO as collateral')
-    .requiredOption('-a, --amount <amount>', 'The amount of tokens to use for operations')
+    .requiredOption('-a, --amount <amount>', 'The amount of tokens to borrow')
     .action(async (options: OptionValues) => {
       logger.info('OceanLending: borrow started, configPath: %o, amount: %o', ocean.opts().configPath, options.amount);
       const [account, oToken, token, comptroller, config, priceOracle] = await parseOceanLendingConfiguration(ocean.opts());
-      await borrow(account, oToken, token, priceOracle, comptroller, options.amount);
+      await borrow(account, oToken, token, comptroller, options.amount);
       logger.info('OceanLending: borrow sucess!');
     });
 
@@ -64,16 +76,28 @@ function makeOceanCommand(): Command {
   ocean
     .command('repay')
     .description('repay borrow balance')
+    .requiredOption('-a, --amount <amount>', 'The amount of tokens to reapy')
     .action(async (options: OptionValues) => {
-      logger.info('OceanLending: repay started, configPath: %o', ocean.opts().configPath);
+      logger.info('OceanLending: repay started, configPath: %o, amount: %o', ocean.opts().configPath, options.amount);
       const [account, oToken, token, comptroller, config, priceOracle] = await parseOceanLendingConfiguration(ocean.opts());
-      await repay(account, oToken, token, priceOracle);
+      await repay(account, oToken, token, options.amount);
       logger.info('OceanLending: repay sucess!');
+    });
+
+  // Add repay subcommad
+  ocean
+    .command('repayAll')
+    .description('repay all borrow balance')
+    .action(async (options: OptionValues) => {
+      logger.info('OceanLending: repayAll started, configPath: %o', ocean.opts().configPath);
+      const [account, oToken, token, comptroller, config, priceOracle] = await parseOceanLendingConfiguration(ocean.opts());
+      await repayAll(account, oToken, token);
+      logger.info('OceanLending: repayAll sucess!');
     });
   return ocean;
 }
 
-async function main() {
+function main() {
   const konomi: Command = new Command('konomi');
 
   // Add nested ocean commands.
