@@ -1,11 +1,11 @@
 import { exit } from 'process';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { ERC20Token } from 'erc20Token';
-import { OToken } from 'oToken';
-import { Comptroller } from 'comptroller';
+import { ERC20Token } from '../src/clients/erc20Token';
+import { OToken } from '../src/clients/oToken';
+import { Comptroller } from '../src/clients/comptroller';
 import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from 'utils';
-import { PriceOracle } from 'priceOracle';
+import { PriceOracle } from '../src/clients/priceOracle';
 
 let konoCollateralFactor: number = 0;
 let liquidity: number = 0;

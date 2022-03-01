@@ -1,4 +1,4 @@
-import { Client } from "./client";
+import { Client } from "./clients/client";
 import { TxnOptions } from "./options";
 
 export class Comptroller extends Client {

@@ -1,4 +1,4 @@
-import { Client } from '../client';
+import { Client } from './client';
 import { TxnOptions } from '../options';
 
 export interface Feed {

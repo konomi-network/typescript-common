@@ -1,8 +1,7 @@
 import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { Client } from './client';
-import { ERC20Token } from './erc20Token';
-import { TxnOptions } from './options';
+import { TxnOptions } from '../options';
 
 export interface OTokenParameter {
 	initialExchangeRate: number;
