@@ -1,5 +1,5 @@
-import { Client } from "./clients/client";
-import { TxnOptions } from "./options";
+import { Client } from "./client";
+import { TxnOptions } from "../options";
 
 export class Comptroller extends Client {
     private readonly decimals = 1e18;
