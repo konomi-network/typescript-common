@@ -116,3 +116,64 @@ _Abbreviation_
 ```
 konomi-cli ocean -c your-path-to-configuration-json repayAll
 ```
+
+## Staking
+
+### Help
+
+```
+konomi-cli --help
+
+konomi-cli staking --help
+
+konomi-cli staking stakes --help
+
+```
+
+### Stakes
+
+```
+konomi-cli staking --config-path your-path-to-configuration-json stakes
+```
+
+_Abbreviation_
+
+```
+konomi-cli staking -c your-path-to-configuration-json stakes
+```
+
+### Deposit
+
+```
+konomi-cli staking --config-path your-path-to-configuration-json deposit --amount 1000
+```
+
+_Abbreviation_
+
+```
+konomi-cli staking -c your-path-to-configuration-json deposit -a 1000
+```
+
+### Withdraw
+
+```
+konomi-cli staking --config-path your-path-to-configuration-json withdraw --amount 100
+```
+
+_Abbreviation_
+
+```
+konomi-cli staking -c your-path-to-configuration-json withdraw -a 100
+```
+
+### WithdrawAll
+
+```
+konomi-cli staking --config-path your-path-to-configuration-json withdrawAll
+```
+
+_Abbreviation_
+
+```
+konomi-cli staking -c your-path-to-configuration-json withdrawAll
+```
