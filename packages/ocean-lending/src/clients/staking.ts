@@ -1,5 +1,5 @@
-import { Client } from './client';
-import { TxnOptions } from '../options';
+import { Client } from "./client";
+import { TxnOptions } from "../options";
 
 /**
  * Staking V1 contract client.
@@ -9,7 +9,7 @@ export class StakingV1 extends Client {
    * Supply reward in to the contract. Only allowed by admin.
    * @param amount The amount to withdraw
    */
-  public async supplyReward (
+  public async supplyReward(
     amount: string,
     options: TxnOptions
   ): Promise<void> {
@@ -21,7 +21,7 @@ export class StakingV1 extends Client {
    * Supply reward in to the contract. Only allowed by admin.
    * @param amount The amount to withdraw
    */
-  public async stakingToken (): Promise<string> {
+  public async stakingToken(): Promise<string> {
     return this.contract.methods.stakingToken().call();
   }
 }

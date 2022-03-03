@@ -1,4 +1,4 @@
-import { Address, Bufferable, Uint16, Uint64 } from './types';
+import { Address, Bufferable, Uint16, Uint64 } from "./types";
 
 export const DEFAULT_PARAM = {
   baseRatePerYear: new Uint16(1),
@@ -6,35 +6,35 @@ export const DEFAULT_PARAM = {
   jumpMultiplierPerYear: new Uint16(1),
   kink: new Uint16(1),
   collateralFactor: new Uint16(1),
-  liquidationIncentive: new Uint16(1)
+  liquidationIncentive: new Uint16(1),
 };
 
 export class InterestConfig {
   private inner: [string, Bufferable | undefined][];
 
-  constructor (
+  constructor(
     baseRatePerYear: Uint16 | undefined,
     multiplierPerYear: Uint16 | undefined,
     jumpMultiplierPerYear: Uint16 | undefined,
     kink: Uint16 | undefined
   ) {
     this.inner = [
-      ['baseRatePerYear', baseRatePerYear],
-      ['multiplierPerYear', multiplierPerYear],
-      ['jumpMultiplierPerYear', jumpMultiplierPerYear],
-      ['kink', kink]
+      ["baseRatePerYear", baseRatePerYear],
+      ["multiplierPerYear", multiplierPerYear],
+      ["jumpMultiplierPerYear", jumpMultiplierPerYear],
+      ["kink", kink],
     ];
   }
 
-  public dump (): [string, Bufferable | undefined][] {
+  public dump(): [string, Bufferable | undefined][] {
     return this.inner;
   }
 
-  public values (): (Bufferable | undefined)[] {
+  public values(): (Bufferable | undefined)[] {
     return this.inner.map((v) => v[1]);
   }
 
-  public keys (): string[] {
+  public keys(): string[] {
     return this.inner.map((v) => v[0]);
   }
 }
