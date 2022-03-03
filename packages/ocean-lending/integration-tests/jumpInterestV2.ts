@@ -1,12 +1,12 @@
 import { exit } from 'process';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { ERC20Token } from '../src/erc20Token';
-import { OToken } from '../src/oToken';
-import { Comptroller } from '../src/comptroller';
+import { ERC20Token } from 'clients/erc20Token';
+import { OToken } from 'clients/oToken';
+import { Comptroller } from 'clients/comptroller';
 import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../src/utils';
-import { PriceOracle } from '../src/priceOracle';
-import { JumpInterestV2 } from '../src/clients/jumpInterestV2';
+import { PriceOracle } from 'clients/priceOracle';
+import { JumpInterestV2 } from 'clients/jumpInterestV2';
 
 async function multiplierPerBlock(jumpInterestV2: JumpInterestV2) {
     console.log('==== multiplierPerBlock ====');

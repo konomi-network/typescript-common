@@ -1,4 +1,4 @@
-import { Client } from "../../src/client";
+import { Client } from "clients/client";
 import { TxnOptions } from "../../src/options";
 import { Account } from 'web3-core';
 

@@ -1,8 +1,8 @@
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import { Account } from 'web3-core';
-import { TxnOptions } from './options';
-import logger from './logger';
+import { TxnOptions } from '../options';
+import logger from '../logger';
 
 const PENDING = 'pending';
 

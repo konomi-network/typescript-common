@@ -1,8 +1,8 @@
 import { exit } from 'process';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { ERC20Token } from '../src/erc20Token';
-import { OToken } from '../src/oToken';
+import { ERC20Token } from 'clients/erc20Token';
+import { OToken } from 'clients/oToken';
 import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../src/utils';
 
 async function depositWorks(account: Account, oToken: OToken, token: ERC20Token, amount: number) {
