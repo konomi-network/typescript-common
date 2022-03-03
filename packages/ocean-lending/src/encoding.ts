@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { CollateralConfig, DEFAULT_PARAM, Header, InterestConfig, PoolConfig, TokenConfig } from "./config";
 import { Address, Uint16, Uint64 } from "./types";
 import { isBitSet } from "./utils";
@@ -27,7 +28,7 @@ const DEFAULT_BIT_MASK: Map<string, BitMask> = new Map([
 export class OceanEncoder {
     public static encode(params: PoolConfig): Buffer {
         let buf = Buffer.allocUnsafe(0);
-        for (let token of params.tokens) {
+        for (const token of params.tokens) {
             buf = Buffer.concat([buf, OceanEncoder.encodeSingle(token)]);
         }
         return buf;
@@ -48,7 +49,7 @@ export class OceanEncoder {
 
         para.interest.dump().forEach(([k, v]) => {
             if (v === undefined) { n = n | 1 << DEFAULT_BIT_MASK.get(k)!.index; }
-        })
+        });
 
         if (!para.collateral.canBeCollateral) {
             n = n & ~(1 << DEFAULT_BIT_MASK.get('canBeCollateral')!.index);
@@ -63,7 +64,7 @@ export class OceanEncoder {
             n = n | 1 << DEFAULT_BIT_MASK.get('liquidationIncentive')!.index;
         }
 
-        let b = Buffer.allocUnsafe(1);
+        const b = Buffer.allocUnsafe(1);
         b.writeUInt8(n, 0);
 
         return b;
@@ -96,7 +97,7 @@ export class OceanDecoder {
         let offset = 0;
         const tokens = [];
         while (offset < buf.length) {
-            let r = OceanDecoder.decodeSingle(buf, offset);
+            const r = OceanDecoder.decodeSingle(buf, offset);
             tokens.push(r[0]);
             offset = r[1];
         }

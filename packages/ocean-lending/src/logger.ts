@@ -1,17 +1,17 @@
-import path from "path";
-import winston, { format } from "winston";
-import DailyRotateFile from "winston-daily-rotate-file";
+import path from 'path';
+import winston, { format } from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
-const defaultLogFolder = "./data";
-const logFolder = path.join(process.env.LOG_FOLDER || defaultLogFolder, "log");
-console.log("log folder", logFolder);
+const defaultLogFolder = './data';
+const logFolder = path.join(process.env.LOG_FOLDER || defaultLogFolder, 'log');
+console.log('log folder', logFolder);
 
-const infoLogFile = path.join(logFolder, "info-%DATE%.log");
+const infoLogFile = path.join(logFolder, 'info-%DATE%.log');
 const logFormat = format.combine(
   format.timestamp(),
   format.prettyPrint(),
   format.splat(),
-  format.json(),
+  format.json()
 );
 const logMeta = { service: 'konomi-client' };
 
@@ -22,7 +22,7 @@ const logger = winston.createLogger({
     new winston.transports.Console({ level: 'error' }),
     new DailyRotateFile({
       filename: infoLogFile,
-      level: 'info',
+      level: 'info'
     })
   ]
 });
