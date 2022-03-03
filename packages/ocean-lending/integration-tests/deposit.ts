@@ -4,7 +4,6 @@ import { Account } from 'web3-core';
 import { ERC20Token } from '../src/erc20Token';
 import { OToken } from '../src/oToken';
 import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../src/utils';
-export { depositWorks, redeemNoBorrow }
 
 async function depositWorks(account: Account, oToken: OToken, token: ERC20Token, amount: number) {
 	console.log('==== deposit ====');

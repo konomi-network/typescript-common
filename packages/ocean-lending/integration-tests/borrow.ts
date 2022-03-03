@@ -6,7 +6,6 @@ import { OToken } from '../src/oToken';
 import { Comptroller } from '../src/comptroller';
 import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../src/utils';
 import { PriceOracle } from '../src/priceOracle';
-export { enterMarkets ,borrow, repayBorrow } 
 
 async function enterMarkets(account: Account, markets: string[], comptroller: Comptroller) {
 	console.log('==== enterMarkets ====');
