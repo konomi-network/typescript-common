@@ -64,24 +64,34 @@ async function borrow(account: Account, oToken: OToken, token: ERC20Token, price
 	// oToken.convertFromUnderlying(amount);
 }
 
-async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token, priceOracle: PriceOracle) {
-	console.log('==== repayBorrow ====');
-	const erc20Before = await token.balanceOf(account.address);
-	const oTokenBefore = await oToken.balanceOf(account.address);
-	console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
+async function repayBorrow(
+  account: Account,
+  oToken: OToken,
+  token: ERC20Token
+) {
+  console.log("==== repayBorrow ====");
+  const erc20Before = await token.balanceOf(account.address);
+  const oTokenBefore = await oToken.balanceOf(account.address);
+  console.log("erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
 
-	const balance = await oToken.borrowBalanceCurrent(account.address);
-	console.log(`borrow balance to repay ${balance / 1e18}`);
-	ensure(balance > 0, 'invalid borrow balance to repay, expected more than zero');
+  const balance = await oToken.borrowBalanceCurrent(account.address);
+  console.log(`borrow balance to repay ${balance / 1e18}`);
+  ensure(
+    balance > 0,
+    "invalid borrow balance to repay, expected more than zero"
+  );
 
-	await oToken.repayBorrow(BigInt(balance), { confirmations: 3 });
+  await oToken.repayBorrow(BigInt(balance), { confirmations: 3 });
 
-	const erc20After = await token.balanceOf(account.address);
-	const oTokenAfter = await oToken.balanceOf(account.address);
+  const erc20After = await token.balanceOf(account.address);
+  const oTokenAfter = await oToken.balanceOf(account.address);
 
-	console.log('erc20After:', erc20After, ' oTokenAfter:', oTokenAfter);
+  console.log("erc20After:", erc20After, " oTokenAfter:", oTokenAfter);
 
-	ensure(erc20Before > erc20After, `invalid erc20 balance, expected ${erc20After} to be bigger than actual: ${erc20After}`);
+  ensure(
+    erc20Before > erc20After,
+    `invalid erc20 balance, expected ${erc20After} to be bigger than actual: ${erc20After}`
+  );
 }
 
 async function main() {
@@ -121,7 +131,7 @@ async function main() {
 	const markets = [config.oTokens.oKono.address];
 	await enterMarkets(account, markets, comptroller);
 	await borrow(account, oToken, erc20Token, priceOracle, comptroller, 50);
-	await repayBorrow(account, oToken, erc20Token, priceOracle);
+	await repayBorrow(account, oToken, erc20Token);
 }
 
 // main()

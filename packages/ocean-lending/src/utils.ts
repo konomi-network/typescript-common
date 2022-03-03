@@ -1,10 +1,11 @@
-import * as fs from 'fs';
-import Web3 from 'web3';
+import * as fs from "fs";
+import Web3 from "web3";
 import { Account } from "web3-core";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function readJsonSync(path: string): any {
-    let rawdata = fs.readFileSync(path);
-    return JSON.parse(rawdata.toString());
+  const rawdata = fs.readFileSync(path);
+  return JSON.parse(rawdata.toString());
 }
 
 /**
@@ -13,13 +14,17 @@ export function readJsonSync(path: string): any {
  * @param password The password
  * @param web3 The web3 instance
  */
-export function loadWalletFromEncyrptedJson(json: string, password: string, web3: Web3) {
-    const walletEncryptedJson = JSON.parse(fs.readFileSync(json).toString());
-    
-    const account = web3.eth.accounts.decrypt(walletEncryptedJson, password);
-    web3.eth.accounts.wallet.add(account);
+export function loadWalletFromEncyrptedJson(
+  json: string,
+  password: string,
+  web3: Web3
+) {
+  const walletEncryptedJson = JSON.parse(fs.readFileSync(json).toString());
 
-    return account;
+  const account = web3.eth.accounts.decrypt(walletEncryptedJson, password);
+  web3.eth.accounts.wallet.add(account);
+
+  return account;
 }
 
 /**
@@ -28,47 +33,49 @@ export function loadWalletFromEncyrptedJson(json: string, password: string, web3
  * @param web3 The web3 instance
  */
 export function loadWalletFromPrivate(privateKey: string, web3: Web3): Account {
-    const account = web3.eth.accounts.privateKeyToAccount(privateKey);
-    web3.eth.accounts.wallet.add(account);
+  const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+  web3.eth.accounts.wallet.add(account);
 
-    return account;
+  return account;
 }
 
 export function readPassword(): Promise<string> {
-    var readline = require('readline');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const readline = require("readline");
 
-    var rl = readline.createInterface({
+  const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
+  });
+
+  rl.stdoutMuted = true;
+
+  const p: Promise<string> = new Promise((resolve) => {
+    rl.question("Password: ", function (password: string) {
+      rl.close();
+      console.log("\n");
+      resolve(password);
     });
+  });
 
-    rl.stdoutMuted = true;
+  rl._writeToOutput = function _writeToOutput(stringToWrite: string) {
+    if (rl.stdoutMuted) rl.output.write("*");
+    else rl.output.write(stringToWrite);
+  };
 
-    const p: Promise<string> = new Promise((resolve) => {
-        rl.question('Password: ', function(password: string) {
-            rl.close();
-            console.log("\n");
-            resolve(password);
-        });
-    });
+  rl.history = rl.history.slice(1);
 
-    rl._writeToOutput = function _writeToOutput(stringToWrite: string) {
-        if (rl.stdoutMuted) rl.output.write("*");
-        else rl.output.write(stringToWrite);
-    };
-
-    rl.history = rl.history.slice(1);
-
-    return p;
-    
+  return p;
 }
 
 export const ONE_ETHER = BigInt("1000000000000000000");
 
 export function ensure(predicate: boolean, errorMessage: string) {
-    if (!predicate) { throw new Error(errorMessage); }
+  if (!predicate) {
+    throw new Error(errorMessage);
+  }
 }
 
 export function isBitSet(n: number, offset: number): boolean {
-    return (n >> offset & 1) === 1;
+  return ((n >> offset) & 1) === 1;
 }

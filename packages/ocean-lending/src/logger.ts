@@ -11,20 +11,20 @@ const logFormat = format.combine(
   format.timestamp(),
   format.prettyPrint(),
   format.splat(),
-  format.json(),
+  format.json()
 );
-const logMeta = { service: 'konomi-client' };
+const logMeta = { service: "konomi-client" };
 
 const logger = winston.createLogger({
   format: logFormat,
   defaultMeta: logMeta,
   transports: [
-    new winston.transports.Console({ level: 'error' }),
+    new winston.transports.Console({ level: "error" }),
     new DailyRotateFile({
       filename: infoLogFile,
-      level: 'info',
-    })
-  ]
+      level: "info",
+    }),
+  ],
 });
 
 export default logger;
