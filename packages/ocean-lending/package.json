@@ -88,7 +88,7 @@
 	"lint-staged": {
 		"./**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
 			"prettier --write",
-			"yarn lint",
+			"npm run lint -- --fix",
 			"git add"
 		]
 	}
