@@ -38,9 +38,11 @@ async function kink(jumpInterestV2: JumpInterestV2) {
 
 async function getBorrowRate(jumpInterestV2: JumpInterestV2, oToken: OToken) {
     console.log('==== getBorrowRate ====');
-    const cash = await oToken.getCash();
-    const totalBorrows = await oToken.totalBorrowsCurrent();
-    const totalReserves = await oToken.totalReserves();
+    const [cash, totalBorrows, totalReserves] = await Promise.all([
+        oToken.getCash(),
+        oToken.totalBorrowsCurrent(),
+        oToken.totalReserves(),
+    ]);
     const rate = await jumpInterestV2.getBorrowRate(oToken);
     console.log(`cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, borrowRate: ${rate.valueOf() / ONE_ETHER}%`);
     console.log('==== getBorrowRate ====');
@@ -48,9 +50,11 @@ async function getBorrowRate(jumpInterestV2: JumpInterestV2, oToken: OToken) {
 
 async function getSupplyRate(jumpInterestV2: JumpInterestV2, oToken: OToken, reserveFactorMantissa: BigInt) {
     console.log('==== getSupplyRate ====');
-    const cash = await oToken.getCash();
-    const totalBorrows = await oToken.totalBorrowsCurrent();
-    const totalReserves = await oToken.totalReserves();
+    const [cash, totalBorrows, totalReserves] = await Promise.all([
+        oToken.getCash(),
+        oToken.totalBorrowsCurrent(),
+        oToken.totalReserves(),
+    ]);
     const rate = await jumpInterestV2.getSupplyRate(oToken);
     console.log(`cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, reserveFactorMantissa: ${reserveFactorMantissa} supplyRate: ${rate.valueOf() / ONE_ETHER}%`);
     console.log('==== getSupplyRate ====');
@@ -58,9 +62,11 @@ async function getSupplyRate(jumpInterestV2: JumpInterestV2, oToken: OToken, res
 
 async function getBorrowRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, blockTime: number) {
     console.log('==== getBorrowRateAPY ====');
-    const cash = await oToken.getCash();
-    const totalBorrows = await oToken.totalBorrowsCurrent();
-    const totalReserves = await oToken.totalReserves();
+    const [cash, totalBorrows, totalReserves] = await Promise.all([
+        oToken.getCash(),
+        oToken.totalBorrowsCurrent(),
+        oToken.totalReserves(),
+    ]);
     const rate = await jumpInterestV2.getBorrowRateAPY(oToken, blockTime);
     console.log(`cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, BorrowRateAPY: ${rate.valueOf() / ONE_ETHER}%`);
     console.log('==== getBorrowRateAPY ====');
@@ -68,9 +74,11 @@ async function getBorrowRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, 
 
 async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, blockTime: number) {
     console.log('==== getSupplyRateAPY ====');
-    const cash = await oToken.getCash();
-    const totalBorrows = await oToken.totalBorrowsCurrent();
-    const totalReserves = await oToken.totalReserves();
+    const [cash, totalBorrows, totalReserves] = await Promise.all([
+        oToken.getCash(),
+        oToken.totalBorrowsCurrent(),
+        oToken.totalReserves(),
+    ]);
     const rate = await jumpInterestV2.getSupplyRateAPY(oToken, blockTime);
     console.log(`cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, supplyRateAPY: ${rate.valueOf() / ONE_ETHER}%`);
     console.log('==== getSupplyRateAPY ====');
