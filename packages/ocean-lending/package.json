@@ -82,13 +82,13 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "npx lint"
     }
   },
   "lint-staged": {
     "./**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
       "prettier --write",
-      "npm run lint -- --fix"
+      "npx eslint --fix"
     ]
   }
 }

@@ -121,7 +121,7 @@ async function repayBorrow(
   console.log("==== repayBorrow ====");
   const erc20Before = await token.balanceOf(account.address);
   const oTokenBefore = await oToken.balanceOf(account.address);
-    console.log("erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
+  console.log("erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
 
   const balance = await oToken.borrowBalanceCurrent(account.address);
   console.log(`borrow balance to repay ${balance / 1e18}`);
