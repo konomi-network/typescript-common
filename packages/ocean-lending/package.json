@@ -30,7 +30,7 @@
 		"prepack": "yarn build",
 		"build": "tsc --build",
 		"test": "jest",
-		"lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings=0"
+		"lint": "eslint \"./**/*.{ts,tsx}\" --max-warnings=0"
 	},
 	"devDependencies": {
 		"@types/jest": "^27.4.0",
