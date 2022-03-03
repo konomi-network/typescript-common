@@ -1,30 +1,45 @@
-import { exit } from 'process';
-import Web3 from 'web3';
-import { Account } from 'web3-core';
-import { ERC20Token } from 'clients/erc20Token';
-import { OToken } from 'clients/oToken';
-import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../src/utils';
+import { exit } from "process";
+import Web3 from "web3";
+import { Account } from "web3-core";
+import { ERC20Token } from "clients/erc20Token";
+import { OToken } from "clients/oToken";
+import {
+  ensure,
+  loadWalletFromEncyrptedJson,
+  loadWalletFromPrivate,
+  ONE_ETHER,
+  readJsonSync,
+  readPassword,
+} from "../src/utils";
 
-async function depositWorks(account: Account, oToken: OToken, token: ERC20Token, amount: number) {
-	console.log('==== deposit ====');
-	const erc20Before = await token.balanceOf(account.address);
-	const oTokenBefore = await oToken.balanceOf(account.address);
+async function depositWorks(
+  account: Account,
+  oToken: OToken,
+  token: ERC20Token,
+  amount: number
+) {
+  console.log("==== deposit ====");
+  const erc20Before = await token.balanceOf(account.address);
+  const oTokenBefore = await oToken.balanceOf(account.address);
 
-	console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
+  console.log("erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
 
-	const depositAmount = BigInt(1000) * ONE_ETHER;
-	await oToken.mint(depositAmount, { confirmations: 3 });
+  const depositAmount = BigInt(1000) * ONE_ETHER;
+  await oToken.mint(depositAmount, { confirmations: 3 });
 
-	const erc20After = await token.balanceOf(account.address);
-	const oTokenAfter = await oToken.balanceOf(account.address);
+  const erc20After = await token.balanceOf(account.address);
+  const oTokenAfter = await oToken.balanceOf(account.address);
 
-	console.log('erc20After:', erc20After, ' oTokenAfter:', oTokenAfter);
+  console.log("erc20After:", erc20After, " oTokenAfter:", oTokenAfter);
 
-	const expectedErc = erc20Before.valueOf() - depositAmount;
-	ensure(erc20After == expectedErc, `invalid erc20 balance, expected ${expectedErc}, actual: ${erc20After}`);
+  const expectedErc = erc20Before.valueOf() - depositAmount;
+  ensure(
+    erc20After == expectedErc,
+    `invalid erc20 balance, expected ${expectedErc}, actual: ${erc20After}`
+  );
 
-	ensure(oTokenAfter > oTokenBefore, 'invalid deposit balance');
-	// oToken.convertFromUnderlying(amount);
+  ensure(oTokenAfter > oTokenBefore, "invalid deposit balance");
+  // oToken.convertFromUnderlying(amount);
 }
 
 /**
@@ -64,34 +79,49 @@ async function redeemNoBorrow(
 }
 
 async function main() {
-	// const config = readJsonSync('./config/config.json');
-	const config = readJsonSync("../konomi-CLI/testConfig/config.json")
+  // const config = readJsonSync('./config/config.json');
+  const config = readJsonSync("../konomi-CLI/testConfig/config.json");
 
-	const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
+  const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
-	let account: Account;
-	if (config.encryptedAccountJson) {
-		const pw = await readPassword();
-		account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);
-	} else if (config.privateKey) {
-		account = loadWalletFromPrivate(config.privateKey, web3);
-	} else {
-		throw Error('Cannot setup account');
-	}
+  let account: Account;
+  if (config.encryptedAccountJson) {
+    const pw = await readPassword();
+    account = loadWalletFromEncyrptedJson(
+      config.encryptedAccountJson,
+      pw,
+      web3
+    );
+  } else if (config.privateKey) {
+    account = loadWalletFromPrivate(config.privateKey, web3);
+  } else {
+    throw Error("Cannot setup account");
+  }
 
-	console.log('Using account:', account.address);
+  console.log("Using account:", account.address);
 
-	// load the oToken object
-	const oTokenAbi = readJsonSync('./config/oToken.json');
-	const oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
+  // load the oToken object
+  const oTokenAbi = readJsonSync("./config/oToken.json");
+  const oToken = new OToken(
+    web3,
+    oTokenAbi,
+    config.oTokens.oKono.address,
+    account,
+    config.oTokens.oKono.parameters
+  );
 
-	// load the erc20 token object
-	const erc20Abi = readJsonSync('./config/erc20.json');
-	const erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
+  // load the erc20 token object
+  const erc20Abi = readJsonSync("./config/erc20.json");
+  const erc20Token = new ERC20Token(
+    web3,
+    erc20Abi,
+    oToken.parameters.underlying,
+    account
+  );
 
-	// actual tests
-	await depositWorks(account, oToken, erc20Token, 500);
-	// await redeemNoBorrow(account, oToken, erc20Token);
+  // actual tests
+  await depositWorks(account, oToken, erc20Token, 500);
+  // await redeemNoBorrow(account, oToken, erc20Token);
 }
 
 // main()

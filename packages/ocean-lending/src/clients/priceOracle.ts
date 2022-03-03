@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { Client } from 'clients/client';
-=======
-import { Client } from "./client";
->>>>>>> remotes/origin/ocean-lending
+import { Client } from "clients/client";
 
 export class PriceOracle extends Client {
   private readonly decimals = 1e18;
