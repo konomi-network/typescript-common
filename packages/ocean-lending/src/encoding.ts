@@ -129,7 +129,7 @@ export class OceanDecoder {
 
     const c = this.decodeCollateral(buf, offset, header);
     const collateral = c[0];
-     offset = c[1];
+    offset = c[1];
 
     const subscriptionId = new Uint64(buf.readBigUInt64BE(offset));
     offset += 8;
