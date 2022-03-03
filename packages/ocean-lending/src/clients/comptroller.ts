@@ -2,7 +2,7 @@ import { Client } from "./client";
 import { TxnOptions } from "../options";
 
 export class Comptroller extends Client {
-    private readonly decimals = 1e18;
+  private readonly decimals = 1e18;
 
     public async enterMarkets(markets: string[], options: TxnOptions): Promise<void> {
         const method = this.contract.methods.enterMarkets(markets);
