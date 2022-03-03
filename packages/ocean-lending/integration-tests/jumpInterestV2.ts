@@ -36,30 +36,42 @@ async function kink(jumpInterestV2: JumpInterestV2) {
     console.log('==== kink ====');
 }
 
-async function getBorrowRate(jumpInterestV2: JumpInterestV2, cash: BigInt, totalBorrows: BigInt, totalReserves: BigInt) {
+async function getBorrowRate(jumpInterestV2: JumpInterestV2, oToken: OToken) {
     console.log('==== getBorrowRate ====');
-    const rate = await jumpInterestV2.getBorrowRate(cash, totalBorrows, totalReserves);
+    const cash = await oToken.getCash();
+    const totalBorrows = await oToken.totalBorrowsCurrent();
+    const totalReserves = await oToken.totalReserves();
+    const rate = await jumpInterestV2.getBorrowRate(oToken);
     console.log(`cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, borrowRate: ${rate.valueOf() / ONE_ETHER}%`);
     console.log('==== getBorrowRate ====');
 }
 
-async function getSupplyRate(jumpInterestV2: JumpInterestV2, cash: BigInt, totalBorrows: BigInt, totalReserves: BigInt, reserveFactorMantissa: BigInt) {
+async function getSupplyRate(jumpInterestV2: JumpInterestV2, oToken: OToken, reserveFactorMantissa: BigInt) {
     console.log('==== getSupplyRate ====');
-    const rate = await jumpInterestV2.getSupplyRate(cash, totalBorrows, totalReserves, reserveFactorMantissa);
+    const cash = await oToken.getCash();
+    const totalBorrows = await oToken.totalBorrowsCurrent();
+    const totalReserves = await oToken.totalReserves();
+    const rate = await jumpInterestV2.getSupplyRate(oToken);
     console.log(`cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, reserveFactorMantissa: ${reserveFactorMantissa} supplyRate: ${rate.valueOf() / ONE_ETHER}%`);
     console.log('==== getSupplyRate ====');
 }
 
-async function getBorrowRateAPY(jumpInterestV2: JumpInterestV2, cash: BigInt, totalBorrows: BigInt, totalReserves: BigInt, blockTime: number) {
+async function getBorrowRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, blockTime: number) {
     console.log('==== getBorrowRateAPY ====');
-    const rate = await jumpInterestV2.getBorrowRateAPY(cash, totalBorrows, totalReserves, blockTime);
+    const cash = await oToken.getCash();
+    const totalBorrows = await oToken.totalBorrowsCurrent();
+    const totalReserves = await oToken.totalReserves();
+    const rate = await jumpInterestV2.getBorrowRateAPY(oToken, blockTime);
     console.log(`cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, BorrowRateAPY: ${rate.valueOf() / ONE_ETHER}%`);
     console.log('==== getBorrowRateAPY ====');
 }
 
-async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, cash: BigInt, totalBorrows: BigInt, totalReserves: BigInt, reserveFactorMantissa: BigInt, blockTime: number) {
+async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, blockTime: number) {
     console.log('==== getSupplyRateAPY ====');
-    const rate = await jumpInterestV2.getSupplyRateAPY(cash, totalBorrows, totalReserves, reserveFactorMantissa, blockTime);
+    const cash = await oToken.getCash();
+    const totalBorrows = await oToken.totalBorrowsCurrent();
+    const totalReserves = await oToken.totalReserves();
+    const rate = await jumpInterestV2.getSupplyRateAPY(oToken, blockTime);
     console.log(`cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, supplyRateAPY: ${rate.valueOf() / ONE_ETHER}%`);
     console.log('==== getSupplyRateAPY ====');
 }
@@ -110,15 +122,15 @@ async function main() {
     const cash = await oToken.getCash();
     const totalBorrows = await oToken.totalBorrowsCurrent();
     const totalSupply = await oToken.totalSupply();
-    const totalReserves = await oToken.totalReserves()
-    const reserveFactorMantissa = await oToken.reserveFactorMantissa()
+    const totalReserves = await oToken.totalReserves();
+    const reserveFactorMantissa = await oToken.reserveFactorMantissa();
     console.log(`cash: ${cash}, totalBorrows: ${totalBorrows}, totalSupply: ${totalSupply}, reserveFactorMantissa: ${reserveFactorMantissa}, totalReserves: ${totalReserves}`)
-    const blockTime = 60;
+    const blockTime = 15;
 
-    await getBorrowRate(jumpInterestV2, cash, totalBorrows, totalReserves);
-    await getBorrowRateAPY(jumpInterestV2, cash, totalBorrows, totalReserves, blockTime);
-    await getSupplyRate(jumpInterestV2, cash, totalBorrows, totalReserves, reserveFactorMantissa);
-    await getSupplyRateAPY(jumpInterestV2, cash, totalBorrows, totalReserves, reserveFactorMantissa, blockTime);
+    await getBorrowRate(jumpInterestV2, oToken);
+    await getBorrowRateAPY(jumpInterestV2, oToken, blockTime);
+    await getSupplyRate(jumpInterestV2, oToken, reserveFactorMantissa);
+    await getSupplyRateAPY(jumpInterestV2, oToken, blockTime);
 }
 
 main();
