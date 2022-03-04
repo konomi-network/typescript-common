@@ -1,8 +1,8 @@
 import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { ERC20Token } from "../src/clients/erc20Token";
-import { OToken } from "../src/clients/oToken";
+import { ERC20Token } from "clients/erc20Token";
+import { OToken } from "clients/oToken";
 import {
   ensure,
   loadWalletFromEncyrptedJson,
@@ -10,13 +10,13 @@ import {
   ONE_ETHER,
   readJsonSync,
   readPassword,
-} from "utils";
+} from "../src/utils";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function depositWorks(
   account: Account,
   oToken: OToken,
-  token: ERC20Token
+  token: ERC20Token,
+  amount: number
 ) {
   console.log("==== deposit ====");
   const erc20Before = await token.balanceOf(account.address);
@@ -24,15 +24,15 @@ async function depositWorks(
 
   console.log("erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
 
-  const amount = BigInt(1000) * ONE_ETHER;
-  await oToken.mint(amount, { confirmations: 3 });
+  const depositAmount = BigInt(1000) * ONE_ETHER;
+  await oToken.mint(depositAmount, { confirmations: 3 });
 
   const erc20After = await token.balanceOf(account.address);
   const oTokenAfter = await oToken.balanceOf(account.address);
 
   console.log("erc20After:", erc20After, " oTokenAfter:", oTokenAfter);
 
-  const expectedErc = erc20Before.valueOf() - amount;
+  const expectedErc = erc20Before.valueOf() - depositAmount;
   ensure(
     erc20After == expectedErc,
     `invalid erc20 balance, expected ${expectedErc}, actual: ${erc20After}`
@@ -79,7 +79,8 @@ async function redeemNoBorrow(
 }
 
 async function main() {
-  const config = readJsonSync("./config/config.json");
+  // const config = readJsonSync('./config/config.json');
+  const config = readJsonSync("../konomi-CLI/testConfig/config.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -119,13 +120,13 @@ async function main() {
   );
 
   // actual tests
-  // await depositWorks(account, oToken, erc20Token);
-  await redeemNoBorrow(account, oToken, erc20Token);
+  await depositWorks(account, oToken, erc20Token, 500);
+  // await redeemNoBorrow(account, oToken, erc20Token);
 }
 
-main()
-  .then(() => exit(0))
-  .catch((e) => {
-    console.log(e);
-    exit(1);
-  });
+// main()
+// 	.then(() => exit(0))
+// 	.catch((e) => {
+// 		console.log(e);
+// 		exit(1);
+// 	});

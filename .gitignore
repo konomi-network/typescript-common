@@ -106,3 +106,10 @@ dist/
 packages/ocean-lending/config/config.json
 
 yarn.lock
+
+
+# tsc files
+/lib
+packages/test-config
+packages/ocean-lending/data
+packages/konomi-cli/data

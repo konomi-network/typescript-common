@@ -16,7 +16,6 @@ export class OToken extends Client {
 
   constructor(
     web3: Web3,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     abi: any,
     address: string,
     account: Account,
@@ -88,11 +87,10 @@ export class OToken extends Client {
 
   // }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private detectFailedEvents(events: any) {
     Object.keys(events).forEach((key) => {
       if (key === "Failure") {
-        const error = events.Failure.returnValues;
+        const error = events.Failure["returnValues"];
         if (error.error != 0) {
           return error.info;
         } else {
@@ -100,5 +98,42 @@ export class OToken extends Client {
         }
       }
     });
+  }
+
+  /**
+   * Total Borrows is the amount of underlying currently loaned out by the market,
+   * and the amount upon which interest is accumulated to suppliers of the market.
+   */
+  public async totalBorrowsCurrent(): Promise<BigInt> {
+    return this.contract.methods.totalBorrowsCurrent().call();
+  }
+
+  /**
+   * Total Supply is the number of tokens currently in circulation in this cToken market.
+   * It is part of the EIP-20 interface of the cToken contract.
+   */
+  public async totalSupply(): Promise<BigInt> {
+    return this.contract.methods.totalSupply().call();
+  }
+
+  /**
+   * Cash is the amount of underlying balance owned by this cToken contract.
+   */
+  public async getCash(): Promise<BigInt> {
+    return this.contract.methods.getCash().call();
+  }
+
+  /**
+   * The total amount of reserves held in the market.
+   */
+  public async totalReserves(): Promise<BigInt> {
+    return this.contract.methods.totalReserves().call();
+  }
+
+  /**
+   * The reserve factor defines the portion of borrower interest that is converted into reserves.
+   */
+  public async reserveFactorMantissa(): Promise<BigInt> {
+    return this.contract.methods.reserveFactorMantissa().call();
   }
 }

@@ -1,4 +1,4 @@
-import { Client } from "./client";
+import { Client } from "clients/client";
 
 export class PriceOracle extends Client {
   private readonly decimals = 1e18;
