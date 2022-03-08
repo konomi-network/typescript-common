@@ -50,4 +50,8 @@ export class Comptroller extends Client {
     const factor = await this.contract.methods.closeFactorMantissa().call();
     return (factor / this.decimals) * 100;
   }
+
+  public async allMarkets(): Promise<string[]> {
+    return await this.contract.methods.getAllMarkets().call();
+  }
 }

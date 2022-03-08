@@ -1,9 +1,9 @@
 import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { ERC20Token } from "clients/erc20Token";
-import { OToken } from "clients/oToken";
-import { Comptroller } from "clients/comptroller";
+import { ERC20Token } from "../src/clients/erc20Token";
+import { OToken } from "../src/clients/oToken";
+import { Comptroller } from "../src/clients/comptroller";
 import {
   ensure,
   loadWalletFromEncyrptedJson,
@@ -12,7 +12,8 @@ import {
   readJsonSync,
   readPassword,
 } from "../src/utils";
-import { PriceOracle } from "clients/priceOracle";
+import { PriceOracle } from "../src/clients/priceOracle";
+import { JumpInterestV2 } from "../src/clients/jumpInterestV2";
 
 async function liquidationIncentive(
   account: Account,
@@ -70,9 +71,97 @@ async function closeFactor(
   console.log("==== closeFactor ====");
 }
 
+async function totalLiquidaity(
+  web3: Web3,
+  oTokenAbi: any,
+  account: Account,
+  config: any,
+  comptroller: Comptroller,
+  priceOracle: PriceOracle
+) {
+  const tokenAddresses = await comptroller.allMarkets();
+  tokenAddresses.forEach(async (tokenAddress) => {
+    const oToken = new OToken(
+      web3,
+      oTokenAbi,
+      tokenAddress,
+      account,
+      config.oTokens.oKono.parameters // @todo may be use relate tokenAddress
+    );
+    const supply = await oToken.totalSupply();
+    const price = await priceOracle.getUnderlyingPrice(tokenAddress);
+    const totalLiquidaity = supply * price;
+    console.log("tokenAddress:", tokenAddress);
+    console.log("supply:", supply);
+    console.log("price:", price);
+    console.log("totalLiquidaity:", totalLiquidaity);
+  });
+}
+
+async function minBorrowAPY(
+  web3: Web3,
+  oTokenAbi: any,
+  account: Account,
+  config: any,
+  comptroller: Comptroller,
+  jumpInterestV2: JumpInterestV2
+) {
+  const blockTime = 15;
+  const tokenAddresses = await comptroller.allMarkets();
+  let min: BigInt = BigInt(-1);
+  for (const tokenAddress of tokenAddresses) {
+    const oToken = new OToken(
+      web3,
+      oTokenAbi,
+      tokenAddress,
+      account,
+      config.oTokens.oKono.parameters // @todo may be use relate tokenAddress
+    );
+    const borrowRateAPY = await jumpInterestV2.getBorrowRateAPY(
+      oToken,
+      blockTime
+    );
+
+    if (min == BigInt(-1) || min > borrowRateAPY) {
+      min = borrowRateAPY;
+    }
+  }
+  return min;
+}
+
+async function minSupplyAPY(
+  web3: Web3,
+  oTokenAbi: any,
+  account: Account,
+  config: any,
+  comptroller: Comptroller,
+  jumpInterestV2: JumpInterestV2
+) {
+  const blockTime = 15;
+  const tokenAddresses = await comptroller.allMarkets();
+  let min: BigInt = BigInt(-1);
+  for (const tokenAddress of tokenAddresses) {
+    const oToken = new OToken(
+      web3,
+      oTokenAbi,
+      tokenAddress,
+      account,
+      config.oTokens.oKono.parameters // @todo may be use relate tokenAddress
+    );
+    const borrowRateAPY = await jumpInterestV2.getSupplyRateAPY(
+      oToken,
+      blockTime
+    );
+
+    if (min == BigInt(-1) || min > borrowRateAPY) {
+      min = borrowRateAPY;
+    }
+  }
+  return min;
+}
+
 async function main() {
-  // const config = readJsonSync('./config/config.json');
-  const config = readJsonSync("../test-config/config.json");
+  const config = readJsonSync("./config/config.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -124,7 +213,16 @@ async function main() {
   const priceOracle = new PriceOracle(
     web3,
     priceOracleAbi,
-    config.priceOracle,
+    oToken.parameters.priceOracle,
+    account
+  );
+
+  // load JumpInterestV2 object
+  const jumpInterestV2Abi = readJsonSync("./config/jumpInterestV2.json");
+  const jumpInterestV2 = new JumpInterestV2(
+    web3,
+    jumpInterestV2Abi,
+    config.JumpInterestV2.address,
     account
   );
 
@@ -132,6 +230,33 @@ async function main() {
   await liquidationIncentive(account, oToken, erc20Token, comptroller);
   await collateralFactor(account, oToken, erc20Token, comptroller);
   await closeFactor(account, oToken, erc20Token, comptroller);
+  await totalLiquidaity(
+    web3,
+    oTokenAbi,
+    account,
+    config,
+    comptroller,
+    priceOracle
+  );
+  const minBorrowRateAPY = await minBorrowAPY(
+    web3,
+    oTokenAbi,
+    account,
+    config,
+    comptroller,
+    jumpInterestV2
+  );
+  console.log("minBorrowRateAPY:", minBorrowRateAPY);
+
+  const minSupplyRateAPY = await minSupplyAPY(
+    web3,
+    oTokenAbi,
+    account,
+    config,
+    comptroller,
+    jumpInterestV2
+  );
+  console.log("minSupplyRateAPY:", minSupplyRateAPY);
 }
 
 main();

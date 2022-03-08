@@ -9,6 +9,7 @@
                 "initialExchangeRate": "200000000000000000000000000",
                 "underlying": "0x9d31a83faeac620450ebd9870fcecc6afb1d99a3",
                 "comptroller": "0x83F53ef149B01FFc0f2DbF8cEd89BEC77868d61b",
+                "priceOracle": "0xD012616F394AC2aa10d5fA63014cCc10FB2a1FcB",
                 "decimals": 8
             }
         }

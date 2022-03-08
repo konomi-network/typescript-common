@@ -1,5 +1,5 @@
-import { OToken } from "clients/oToken";
-import { Client } from "clients/client";
+import { OToken } from "./oToken";
+import { Client } from "./client";
 
 /**
  * JumpInterest V2 contract client.
