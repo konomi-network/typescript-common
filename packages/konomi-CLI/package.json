@@ -1,5 +1,5 @@
 {
-	"name": "konomi-cli",
+	"name": "@konomi-network/cli",
 	"version": "1.0.2-alpha.0",
 	"description": "",
 	"main": "konomi.js",
