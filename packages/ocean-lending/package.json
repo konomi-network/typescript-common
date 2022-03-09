@@ -1,10 +1,11 @@
 {
   "name": "@konomi-network/client",
-  "version": "0.0.4",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Konomi Protocol Client",
   "author": "Konomi Network",
+  "private": false,
   "homepage": "https://github.com/konomi-network/typescript-common",
   "license": "MIT",
   "keywords": [
