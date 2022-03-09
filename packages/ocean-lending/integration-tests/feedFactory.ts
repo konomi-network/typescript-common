@@ -1,13 +1,13 @@
 import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { FeedFactory } from "clients/feedFactory";
+import { FeedFactory } from "../src/clients/feedFactory";
 import {
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
   readJsonSync,
   readPassword,
-} from "utils";
+} from "../src/utils";
 
 async function getFeedWorks(
   client: FeedFactory,

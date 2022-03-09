@@ -1,9 +1,10 @@
 import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { ERC20Token } from "clients/erc20Token";
-import { OToken } from "clients/oToken";
-import { Comptroller } from "clients/comptroller";
+import { ERC20Token } from "../src/clients/erc20Token";
+import { OToken } from "../src/clients/oToken";
+import { Comptroller } from "../src/clients/comptroller";
+import { PriceOracle } from "../src/clients/priceOracle";
 import {
   ensure,
   loadWalletFromEncyrptedJson,
@@ -12,7 +13,6 @@ import {
   readJsonSync,
   readPassword,
 } from "../src/utils";
-import { PriceOracle } from "clients/priceOracle";
 
 async function liquidationIncentive(
   account: Account,
@@ -72,7 +72,7 @@ async function closeFactor(
 
 async function main() {
   // const config = readJsonSync('./config/config.json');
-  const config = readJsonSync("../test-config/config.json");
+  const config = readJsonSync("./config/config.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -120,13 +120,13 @@ async function main() {
   );
 
   // load price feed object
-  const priceOracleAbi = readJsonSync("./config/priceOracle.json");
-  const priceOracle = new PriceOracle(
-    web3,
-    priceOracleAbi,
-    config.priceOracle,
-    account
-  );
+  // const priceOracleAbi = readJsonSync("./config/priceOracle.json");
+  // const priceOracle = new PriceOracle(
+  //   web3,
+  //   priceOracleAbi,
+  //   config.priceOracle,
+  //   account
+  // );
 
   // actual tests
   await liquidationIncentive(account, oToken, erc20Token, comptroller);

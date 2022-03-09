@@ -10,7 +10,7 @@ import {
   ONE_ETHER,
   readJsonSync,
   readPassword,
-} from "utils";
+} from "../src/utils";
 
 async function depositWorks(
   account: Account,
