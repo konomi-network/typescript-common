@@ -1,20 +1,32 @@
 {
-    "nodeUrl": "<Your node url>",
-    "privateKey": "<Your account private key>",
-    "encryptedAccountJsonPath": "<Your path to encrypted json>",
-    "oTokens": {
-        "oKono": {
-            "address": "0x3f7307F720c340767EE6e6397599EFc95F0ABca0",
-            "parameters": {
-                "initialExchangeRate": "200000000000000000000000000",
-                "underlying": "0x9d31a83faeac620450ebd9870fcecc6afb1d99a3",
-                "comptroller": "0x83F53ef149B01FFc0f2DbF8cEd89BEC77868d61b",
-                "priceOracle": "0xD012616F394AC2aa10d5fA63014cCc10FB2a1FcB",
-                "decimals": 8
-            }
-        }
-    },
-    "feedFactory": {
-        "address": ""
+  "nodeUrl": "<Your node url>",
+  "privateKey": "<Your account private key>",
+  "encryptedAccountJsonPath": "<Your path to encrypted json>",
+  "priceOracle": "0xd6dcd9def743e52953f265a16086c5b356c569de",
+  "oTokens": {
+    "oKono": {
+      "address": "0x3f7307F720c340767EE6e6397599EFc95F0ABca0",
+      "parameters": {
+        "initialExchangeRate": "200000000000000000000000000",
+        "underlying": "0x9d31a83faeac620450ebd9870fcecc6afb1d99a3",
+        "comptroller": "0x83F53ef149B01FFc0f2DbF8cEd89BEC77868d61b",
+        "decimals": 8
+      }
     }
+  },
+  "stakingV1": {
+    "address": "0x4b0e8Ac17B18736dEB6a740240f8C03E5df1Ccba"
+  },
+  "oracleGovernor": {
+    "address": "0xD36F1e1D578aF57691ee5b61239aF87142fFaC08"
+  },
+  "subscription": {
+    "address": "0x48F40Fc46aE30a5e1CF0B81E8E4D290FF9f4E14e"
+  },
+  "JumpInterestV2": {
+    "address": "0x601315921233fbe50477a08713e16b33a3f49477"
+  },
+  "feedFactory": {
+    "address": ""
+  }
 }
