@@ -213,7 +213,7 @@ async function main() {
   const priceOracle = new PriceOracle(
     web3,
     priceOracleAbi,
-    oToken.parameters.priceOracle,
+    config.priceOracle,
     account
   );
 
