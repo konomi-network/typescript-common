@@ -1,9 +1,9 @@
 import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { ERC20Token } from "clients/erc20Token";
-import { OToken } from "clients/oToken";
-import { Comptroller } from "clients/comptroller";
+import { ERC20Token } from "../src/clients/erc20Token";
+import { OToken } from "../src/clients/oToken";
+import { Comptroller } from "../src/clients/comptroller";
 import {
   ensure,
   loadWalletFromEncyrptedJson,
@@ -12,7 +12,7 @@ import {
   readJsonSync,
   readPassword,
 } from "../src/utils";
-import { PriceOracle } from "clients/priceOracle";
+import { PriceOracle } from "../src/clients/priceOracle";
 
 async function enterMarkets(
   account: Account,
