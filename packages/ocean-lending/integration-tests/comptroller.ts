@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from "chai";
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { ERC20Token } from "../src/clients/erc20Token";
