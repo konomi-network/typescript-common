@@ -79,7 +79,7 @@ async function totalLiquidaity(
 ) {
   const tokenAddresses = await comptroller.allMarkets();
   let totalLiquidaity = 0;
-  tokenAddresses.forEach(async (tokenAddress) => {
+  for (const tokenAddress of tokenAddresses) {
     const oToken = new OToken(
       web3,
       oTokenAbi,
@@ -93,7 +93,7 @@ async function totalLiquidaity(
     console.log("tokenAddress:", tokenAddress);
     console.log("supply:", supply);
     console.log("price:", price);
-  });
+  }
   console.log("totalLiquidaity:", totalLiquidaity);
   return totalLiquidaity;
 }
@@ -126,6 +126,7 @@ async function minBorrowAPY(
       min = borrowRateAPY;
     }
   }
+  console.log("minBorrowAPY:", min);
   return min;
 }
 
@@ -157,6 +158,7 @@ async function minSupplyAPY(
       min = borrowRateAPY;
     }
   }
+  console.log("minSupplyAPY:", min);
   return min;
 }
 
@@ -248,7 +250,7 @@ describe("Comptroller", async () => {
       comptroller,
       priceOracle
     );
-    expect(totalLiquidaityN).to.be.gte(0);
+    expect(totalLiquidaityN).to.be.gt(0);
 
     const minBorrowRateAPY = await minBorrowAPY(
       web3,
