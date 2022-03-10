@@ -1,14 +1,12 @@
-import { exit } from "process";
+import { expect } from 'chai';
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { ERC20Token } from "../src/clients/erc20Token";
 import { OToken } from "../src/clients/oToken";
 import { Comptroller } from "../src/clients/comptroller";
 import {
-  ensure,
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
-  ONE_ETHER,
   readJsonSync,
   readPassword,
 } from "../src/utils";
@@ -80,6 +78,7 @@ async function totalLiquidaity(
   priceOracle: PriceOracle
 ) {
   const tokenAddresses = await comptroller.allMarkets();
+  let totalLiquidaity = 0;
   tokenAddresses.forEach(async (tokenAddress) => {
     const oToken = new OToken(
       web3,
@@ -90,12 +89,13 @@ async function totalLiquidaity(
     );
     const supply = await oToken.totalSupply();
     const price = await priceOracle.getUnderlyingPrice(tokenAddress);
-    const totalLiquidaity = supply * price;
+    totalLiquidaity += supply * price;
     console.log("tokenAddress:", tokenAddress);
     console.log("supply:", supply);
     console.log("price:", price);
-    console.log("totalLiquidaity:", totalLiquidaity);
   });
+  console.log("totalLiquidaity:", totalLiquidaity);
+  return totalLiquidaity;
 }
 
 async function minBorrowAPY(
@@ -160,103 +160,114 @@ async function minSupplyAPY(
   return min;
 }
 
-async function main() {
+describe("Comptroller", async () => {
   const config = readJsonSync("./config/config.json");
+  const oTokenAbi = readJsonSync("./config/oToken.json");
+  const erc20Abi = readJsonSync("./config/erc20.json");
+  const comptrollerAbi = readJsonSync("./config/comptroller.json");
+  const priceOracleAbi = readJsonSync("./config/priceOracle.json");
+  const jumpInterestV2Abi = readJsonSync("./config/jumpInterestV2.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
   let account: Account;
-  if (config.encryptedAccountJson) {
-    const pw = await readPassword();
-    account = loadWalletFromEncyrptedJson(
-      config.encryptedAccountJson,
-      pw,
-      web3
+  let oToken: OToken;
+  let erc20Token: ERC20Token;
+  let comptroller: Comptroller;
+  let priceOracle: PriceOracle;
+  let jumpInterestV2: JumpInterestV2;
+
+  before(async () => {
+    if (config.encryptedAccountJson) {
+      const pw = await readPassword();
+      account = loadWalletFromEncyrptedJson(
+        config.encryptedAccountJson,
+        pw,
+        web3
+      );
+    } else if (config.privateKey) {
+      account = loadWalletFromPrivate(config.privateKey, web3);
+    } else {
+      throw Error("Cannot setup account");
+    }
+
+    console.log("Using account:", account.address);
+
+    // load the oToken object
+    oToken = new OToken(
+      web3,
+      oTokenAbi,
+      config.oTokens.oKono.address,
+      account,
+      config.oTokens.oKono.parameters
     );
-  } else if (config.privateKey) {
-    account = loadWalletFromPrivate(config.privateKey, web3);
-  } else {
-    throw Error("Cannot setup account");
-  }
 
-  console.log("Using account:", account.address);
+    // load the erc20 token object
+    erc20Token = new ERC20Token(
+      web3,
+      erc20Abi,
+      oToken.parameters.underlying,
+      account
+    );
 
-  // load the oToken object
-  const oTokenAbi = readJsonSync("./config/oToken.json");
-  const oToken = new OToken(
-    web3,
-    oTokenAbi,
-    config.oTokens.oKono.address,
-    account,
-    config.oTokens.oKono.parameters
-  );
+    comptroller = new Comptroller(
+      web3,
+      comptrollerAbi,
+      oToken.parameters.comptroller,
+      account
+    );
 
-  // load the erc20 token object
-  const erc20Abi = readJsonSync("./config/erc20.json");
-  const erc20Token = new ERC20Token(
-    web3,
-    erc20Abi,
-    oToken.parameters.underlying,
-    account
-  );
+    // load price feed object
+    priceOracle = new PriceOracle(
+      web3,
+      priceOracleAbi,
+      config.priceOracle,
+      account
+    );
 
-  const comptrollerAbi = readJsonSync("./config/comptroller.json");
-  const comptroller = new Comptroller(
-    web3,
-    comptrollerAbi,
-    oToken.parameters.comptroller,
-    account
-  );
+    // load JumpInterestV2 object
+    jumpInterestV2 = new JumpInterestV2(
+      web3,
+      jumpInterestV2Abi,
+      config.JumpInterestV2.address,
+      account
+    );
+  });
 
-  // load price feed object
-  const priceOracleAbi = readJsonSync("./config/priceOracle.json");
-  const priceOracle = new PriceOracle(
-    web3,
-    priceOracleAbi,
-    config.priceOracle,
-    account
-  );
+  it("key flow test", async () => {
+    // actual tests
+    await liquidationIncentive(account, oToken, erc20Token, comptroller);
+    await collateralFactor(account, oToken, erc20Token, comptroller);
+    await closeFactor(account, oToken, erc20Token, comptroller);
 
-  // load JumpInterestV2 object
-  const jumpInterestV2Abi = readJsonSync("./config/jumpInterestV2.json");
-  const jumpInterestV2 = new JumpInterestV2(
-    web3,
-    jumpInterestV2Abi,
-    config.JumpInterestV2.address,
-    account
-  );
+    const totalLiquidaityN = await totalLiquidaity(
+      web3,
+      oTokenAbi,
+      account,
+      config,
+      comptroller,
+      priceOracle
+    );
+    expect(totalLiquidaityN).to.be.gte(0);
 
-  // actual tests
-  await liquidationIncentive(account, oToken, erc20Token, comptroller);
-  await collateralFactor(account, oToken, erc20Token, comptroller);
-  await closeFactor(account, oToken, erc20Token, comptroller);
-  await totalLiquidaity(
-    web3,
-    oTokenAbi,
-    account,
-    config,
-    comptroller,
-    priceOracle
-  );
-  const minBorrowRateAPY = await minBorrowAPY(
-    web3,
-    oTokenAbi,
-    account,
-    config,
-    comptroller,
-    jumpInterestV2
-  );
-  console.log("minBorrowRateAPY:", minBorrowRateAPY);
+    const minBorrowRateAPY = await minBorrowAPY(
+      web3,
+      oTokenAbi,
+      account,
+      config,
+      comptroller,
+      jumpInterestV2
+    );
+    expect(minBorrowRateAPY > BigInt(0)).to.be.eq(true);
 
-  const minSupplyRateAPY = await minSupplyAPY(
-    web3,
-    oTokenAbi,
-    account,
-    config,
-    comptroller,
-    jumpInterestV2
-  );
-  console.log("minSupplyRateAPY:", minSupplyRateAPY);
-}
-
-main();
+    const minSupplyRateAPY = await minSupplyAPY(
+      web3,
+      oTokenAbi,
+      account,
+      config,
+      comptroller,
+      jumpInterestV2
+    );
+    expect(minSupplyRateAPY > BigInt(0)).to.be.eq(true);
+  });
+});

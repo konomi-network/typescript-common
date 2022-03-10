@@ -226,9 +226,9 @@ async function withdrawAllTest(
   console.log("==== withdrawAll ====");
 }
 
-main()
-  .then(() => exit(0))
-  .catch((e) => {
-    console.log(e);
-    exit(1);
-  });
+// main()
+//   .then(() => exit(0))
+//   .catch((e) => {
+//     console.log(e);
+//     exit(1);
+//   });

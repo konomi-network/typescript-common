@@ -50,10 +50,3 @@ async function main() {
   await client.getFeed("0");
   await getFeedWorks(client, ["0", "1", "2"]);
 }
-
-main()
-  .then(() => exit(0))
-  .catch((e) => {
-    console.log(e);
-    exit(1);
-  });

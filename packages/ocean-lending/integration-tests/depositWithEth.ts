@@ -96,9 +96,9 @@ async function main() {
   const oEth = new OToken(
     web3,
     oEthAbi,
-    config.oTokens.oEth.address,
+    config.oTokens.oKono.address,
     account,
-    config.oTokens.oEth.parameters
+    config.oTokens.oKono.parameters
   );
 
   // load the erc20 token object
@@ -115,9 +115,9 @@ async function main() {
   await redeemNoBorrow(account, oEth, ethToken);
 }
 
-main()
-  .then(() => exit(0))
-  .catch((e) => {
-    console.log(e);
-    exit(1);
-  });
+// main()
+//   .then(() => exit(0))
+//   .catch((e) => {
+//     console.log(e);
+//     exit(1);
+//   });
