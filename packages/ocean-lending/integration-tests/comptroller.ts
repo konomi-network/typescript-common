@@ -62,7 +62,7 @@ async function closeFactor(
   console.log("==== closeFactor ====");
   const erc20Before = await token.balanceOf(account.address);
   const oTokenBefore = await oToken.balanceOf(account.address);
-  const factor = await comptroller.closeFactor(account.address);
+  const factor = await comptroller.closeFactor();
   console.log(
     `erc20: ${erc20Before}, oToken: ${oTokenBefore}, closeFactor: ${factor}%`
   );
