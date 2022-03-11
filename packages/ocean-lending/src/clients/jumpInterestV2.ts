@@ -1,5 +1,5 @@
-import { OToken } from "clients/oToken";
-import { Client } from "clients/client";
+import { OToken } from "./oToken";
+import { Client } from "./client";
 
 /**
  * JumpInterest V2 contract client.
@@ -16,6 +16,16 @@ export class JumpInterestV2 extends Client {
   }
 
   /**
+   * Convert multiplierPerBlock into multiplierPerYear
+   * @param blockTime The number of seconds per block
+   * 
+   */ 
+   public async multiplierPerYear(blockTime: number): Promise<BigInt> {
+    const m = await this.contract.methods.multiplierPerBlock().call();
+    return this.blockToYear(BigInt(m), blockTime);
+  }
+
+  /**
    * The base interest rate which is the y-intercept when utilization rate is 0
    */
   public async baseRatePerBlock(): Promise<BigInt> {
@@ -24,11 +34,30 @@ export class JumpInterestV2 extends Client {
   }
 
   /**
+   * Convert baseRatePerBlock into baseRatePerYear
+   * @param blockTime The number of seconds per block
+   */ 
+  public async baseRatePerYear(blockTime: number): Promise<BigInt> {
+    const b = await this.contract.methods.baseRatePerBlock().call();
+    return this.blockToYear(BigInt(b), blockTime);
+  }
+
+  /**
    * The multiplierPerBlock after hitting a specified utilization point
    */
   public async jumpMultiplierPerBlock(): Promise<BigInt> {
     const j = await this.contract.methods.jumpMultiplierPerBlock().call();
     return BigInt(j);
+  }
+
+  /**
+   * Convert jumpMultiplierPerBlock into jumpMultiplierPerYear
+   * @param blockTime The number of seconds per block
+   * 
+   */ 
+   public async jumpMultiplierPerYear(blockTime: number): Promise<BigInt> {
+    const b = await this.contract.methods.jumpMultiplierPerBlock().call();
+    return this.blockToYear(BigInt(b), blockTime);
   }
 
   /**
