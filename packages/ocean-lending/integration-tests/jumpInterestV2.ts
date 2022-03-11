@@ -81,7 +81,7 @@ async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, 
 
 async function main() {
 	// const config = readJsonSync('./config/config.json');
-	const config = readJsonSync('../test-config/config.json');
+	const config = readJsonSync('./config/config.json');
 
 	const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
