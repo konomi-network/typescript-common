@@ -1,16 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_invoker",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -119,7 +108,20 @@
   },
   {
     "inputs": [],
-    "name": "INVOKER_ROLE",
+    "name": "FACTORY_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "UPDATER_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -133,9 +135,54 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "bytes32",
+        "name": "c__0xd3ebac81",
+        "type": "bytes32"
+      }
+    ],
+    "name": "c_0xd3ebac81",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "defaultAdmin",
+    "outputs": [
+      {
+        "internalType": "address",
         "name": "",
-        "type": "uint256"
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "_subscriptionId",
+        "type": "uint64"
+      }
+    ],
+    "name": "feedContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
       }
     ],
     "name": "feeds",
@@ -245,10 +292,36 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "initialBlockNumberThreshold",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "initialSubmissionThreshold",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_owner",
+        "name": "_invoker",
         "type": "address"
       },
       {
@@ -256,6 +329,71 @@
         "name": "_updaters",
         "type": "address[]"
       },
+      {
+        "internalType": "address",
+        "name": "_masterFeed",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_initialSubmissionThreshold",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_initialBlockNumberThreshold",
+        "type": "uint8"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "masterFeed",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "_subscriptionId",
+        "type": "uint64"
+      },
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "migrate",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "oldFeed",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "newFeed",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint64",
         "name": "_subscriptionId",
@@ -266,7 +404,7 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "feed",
         "type": "address"
       }
     ],
@@ -317,18 +455,19 @@
         "type": "uint64"
       },
       {
-        "internalType": "uint256",
-        "name": "_value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_decimals",
-        "type": "uint8"
+        "internalType": "bytes",
+        "name": "_data",
+        "type": "bytes"
       }
     ],
     "name": "submit",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "enum IKonoOracleFeed.AggregationStatus",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },

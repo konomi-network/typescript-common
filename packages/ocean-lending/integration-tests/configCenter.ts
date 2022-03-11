@@ -1,20 +1,13 @@
 import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { FeedFactory } from "../src/clients/feedFactory";
+import { ConfigCenter } from "../src/clients/configCenter";
 import {
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
   readJsonSync,
   readPassword,
 } from "../src/utils";
-
-async function getFeedWorks(
-  client: FeedFactory,
-  subscriptionIds: string[]
-): Promise<void> {
-  await Promise.all(subscriptionIds.map((id) => client.getFeed(id)));
-}
 
 async function main() {
   const config = readJsonSync("./config/config.json");
@@ -37,19 +30,16 @@ async function main() {
 
   console.log("Using account:", account.address);
 
-  const abi = readJsonSync("./config/feedFactory.json");
-  const client = new FeedFactory(
+  const abi = readJsonSync("./config/configCenter.json");
+  const client = new ConfigCenter(
     web3,
     abi,
-    config.feedFactory.address,
+    "0x3B6d7926FC8432ac38a9EC3F1DB24d3456169260",
     account
   );
 
-  // actual tests
-  // await client.feeds("0");
-  console.log(await client.getFeed("0"));
-  // await client.submit("0", 1, "200000000", { confirmations: 3 });
-  await getFeedWorks(client, ["0", "1", "2"]);
+  // await client.setFeedTimeout(2400, { confirmations: 3 });
+  console.log(await client.get("feedTimeout"));
 }
 
 main()
