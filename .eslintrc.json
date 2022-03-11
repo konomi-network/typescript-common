@@ -1,0 +1,5 @@
+{
+	"extends": ["@konomi-network/eslint-config-konomi"],
+	"settings": {},
+	"rules": {}
+}

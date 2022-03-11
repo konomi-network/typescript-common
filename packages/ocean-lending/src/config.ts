@@ -6,7 +6,7 @@ export const DEFAULT_PARAM = {
   jumpMultiplierPerYear: new Uint16(1),
   kink: new Uint16(1),
   collateralFactor: new Uint16(1),
-  liquidationIncentive: new Uint16(1),
+  liquidationIncentive: new Uint16(1)
 };
 
 export class InterestConfig {
@@ -22,7 +22,7 @@ export class InterestConfig {
       ["baseRatePerYear", baseRatePerYear],
       ["multiplierPerYear", multiplierPerYear],
       ["jumpMultiplierPerYear", jumpMultiplierPerYear],
-      ["kink", kink],
+      ["kink", kink]
     ];
   }
 

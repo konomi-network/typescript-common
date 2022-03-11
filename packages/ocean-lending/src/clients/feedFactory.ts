@@ -16,7 +16,7 @@ export class FeedFactory extends Client {
       decials: Number(b[0]),
       value: BigInt(b[1]),
       roundId: Number(b[2]),
-      updatedBlock: BigInt(b[3]),
+      updatedBlock: BigInt(b[3])
     };
   }
 
@@ -25,12 +25,7 @@ export class FeedFactory extends Client {
     return BigInt(b);
   }
 
-  public async submit(
-    subscriptionId: string,
-    roundId: number,
-    value: string,
-    options: TxnOptions
-  ): Promise<void> {
+  public async submit(subscriptionId: string, roundId: number, value: string, options: TxnOptions): Promise<void> {
     const bytes = this.encode(roundId, value);
     const method = this.contract.methods.submit(subscriptionId, bytes);
     await this.send(method, await this.prepareTxn(method), options);

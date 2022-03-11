@@ -2,17 +2,9 @@ import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { FeedFactory } from "../src/clients/feedFactory";
-import {
-  loadWalletFromEncyrptedJson,
-  loadWalletFromPrivate,
-  readJsonSync,
-  readPassword,
-} from "../src/utils";
+import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/utils";
 
-async function getFeedWorks(
-  client: FeedFactory,
-  subscriptionIds: string[]
-): Promise<void> {
+async function getFeedWorks(client: FeedFactory, subscriptionIds: string[]): Promise<void> {
   await Promise.all(subscriptionIds.map((id) => client.getFeed(id)));
 }
 
@@ -24,11 +16,7 @@ async function main() {
   let account: Account;
   if (config.encryptedAccountJson) {
     const pw = await readPassword();
-    account = loadWalletFromEncyrptedJson(
-      config.encryptedAccountJson,
-      pw,
-      web3
-    );
+    account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);
   } else if (config.privateKey) {
     account = loadWalletFromPrivate(config.privateKey, web3);
   } else {
@@ -38,12 +26,7 @@ async function main() {
   console.log("Using account:", account.address);
 
   const abi = readJsonSync("./config/feedFactory.json");
-  const client = new FeedFactory(
-    web3,
-    abi,
-    config.feedFactory.address,
-    account
-  );
+  const client = new FeedFactory(web3, abi, config.feedFactory.address, account);
 
   // actual tests
   // await client.feeds("0");

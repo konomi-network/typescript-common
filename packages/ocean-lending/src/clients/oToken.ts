@@ -15,13 +15,7 @@ export class OToken extends Client {
   readonly parameters: OTokenParameter;
   private readonly underlyingDecimals = 18;
 
-  constructor(
-    web3: Web3,
-    abi: any,
-    address: string,
-    account: Account,
-    parameters: OTokenParameter
-  ) {
+  constructor(web3: Web3, abi: any, address: string, account: Account, parameters: OTokenParameter) {
     super(web3, abi, address, account);
     this.parameters = parameters;
   }
@@ -34,14 +28,9 @@ export class OToken extends Client {
   public async redeem(amount: BigInt, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.redeem(amount.toString());
     let failed = null;
-    await this.send(
-      method,
-      await this.prepareTxn(method),
-      options,
-      (receipt) => {
-        failed = this.detectFailedEvents(receipt.events);
-      }
-    );
+    await this.send(method, await this.prepareTxn(method), options, (receipt) => {
+      failed = this.detectFailedEvents(receipt.events);
+    });
 
     if (failed != null) {
       throw new Error(failed);
@@ -63,10 +52,7 @@ export class OToken extends Client {
   }
 
   public async approve(amount: number, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.approve(
-      this.address,
-      amount.toString()
-    );
+    const method = this.contract.methods.approve(this.address, amount.toString());
     await this.send(method, await this.prepareTxn(method), options);
   }
 
