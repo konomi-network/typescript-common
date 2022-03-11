@@ -8,23 +8,23 @@ console.log("log folder", logFolder);
 
 const infoLogFile = path.join(logFolder, "info-%DATE%.log");
 const logFormat = format.combine(
-    format.timestamp(),
-    format.prettyPrint(),
-    format.splat(),
-    format.json(),
+  format.timestamp(),
+  format.prettyPrint(),
+  format.splat(),
+  format.json()
 );
-const logMeta = { service: 'konomi-cli' };
+const logMeta = { service: "konomi-cli" };
 
 const logger = winston.createLogger({
-    format: logFormat,
-    defaultMeta: logMeta,
-    transports: [
-        new winston.transports.Console({ level: 'error' }),
-        new DailyRotateFile({
-            filename: infoLogFile,
-            level: 'info',
-        })
-    ]
+  format: logFormat,
+  defaultMeta: logMeta,
+  transports: [
+    new winston.transports.Console({ level: "error" }),
+    new DailyRotateFile({
+      filename: infoLogFile,
+      level: "info",
+    }),
+  ],
 });
 
 export default logger;

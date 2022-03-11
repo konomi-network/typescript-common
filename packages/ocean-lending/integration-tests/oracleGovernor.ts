@@ -1,6 +1,7 @@
 import Web3 from "web3";
 import { Account } from "web3-core";
 import {
+  ensure,
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
   readJsonSync,
@@ -35,25 +36,45 @@ async function getProposalDetail(
 
 async function proposeCurrency(
   oracleGovernor: OracleGovernor,
-  proposalId: BigInt
+  symbol: string,
+  slug: string,
+  sources: number[],
+  clientType: string,
+  leasePeriod: string,
+  externalStorageHash: string
 ) {
   console.log("==== proposeCurrency ====");
-  const proposalDetail = await oracleGovernor.getProposalDetail(proposalId);
-  const symbol = String(proposalDetail.get("symbol"));
-  const slug = String(proposalDetail.get("slug"));
-  const source = [2];
-  const clientType = String(proposalDetail.get("clientType"));
-  const leasePeriod = String(proposalDetail.get("leasePeriod"));
-  const externalStorageHash = String(proposalDetail.get("externalStorageHash"));
-
   await oracleGovernor.proposeCurrency(
     symbol,
     slug,
-    source,
+    sources,
     clientType,
     leasePeriod,
     externalStorageHash,
     { confirmations: 3 }
+  );
+
+  const proposalId = await oracleGovernor.hashProposal(
+    symbol,
+    slug,
+    sources,
+    clientType,
+    externalStorageHash
+  );
+  const proposalDetail = await oracleGovernor.getProposalDetail(proposalId);
+
+  console.log(
+    "hashed proposalId: ",
+    proposalId,
+    "proposalDetail:\n",
+    proposalDetail
+  );
+  ensure(
+    clientType == proposalDetail.get("clientType") &&
+      sources.length.toString() == proposalDetail.get("sourceCount") &&
+      leasePeriod == proposalDetail.get("leasePeriod") &&
+      externalStorageHash == proposalDetail.get("externalStorageHash"),
+    "proposed currency data is not inconsistent"
   );
   console.log("==== proposeCurrency ====");
 }
@@ -102,22 +123,37 @@ async function castVote(
   console.log("==== castVote ====");
   const stateBefore = await oracleGovernor.getState(proposalId);
   let hasVoted = await oracleGovernor.hasVoted(proposalId, account);
+  const proposalDetailBefore = await oracleGovernor.getProposalDetail(
+    proposalId
+  );
+
   console.log(
     "state before castVote: ",
     status.get(stateBefore.toString()),
     "hasVoted: ",
-    hasVoted
+    hasVoted,
+    "forVotesBefore: ",
+    proposalDetailBefore.get("forVotes"),
+    "againstVotesBefore: ",
+    proposalDetailBefore.get("againstVotes")
   );
 
   await oracleGovernor.castVote(proposalId, voteType, { confirmations: 3 });
 
+  const proposalDetailAfter = await oracleGovernor.getProposalDetail(
+    proposalId
+  );
   const stateAfter = await oracleGovernor.getState(proposalId);
   hasVoted = await oracleGovernor.hasVoted(proposalId, account);
   console.log(
     "state after castVote: ",
     status.get(stateAfter.toString()),
     "hasVoted: ",
-    hasVoted
+    hasVoted,
+    "forVotesAfter: ",
+    proposalDetailAfter.get("forVotes"),
+    "againstVotesAfter: ",
+    proposalDetailAfter.get("againstVotes")
   );
   console.log("==== castVote ====");
 }
@@ -132,11 +168,18 @@ async function castVoteWithReason(
   console.log("==== castVoteWithReason ====");
   const stateBefore = await oracleGovernor.getState(proposalId);
   let hasVoted = await oracleGovernor.hasVoted(proposalId, account);
+  const proposalDetailBefore = await oracleGovernor.getProposalDetail(
+    proposalId
+  );
   console.log(
     "state before castVoteWithReason: ",
     status.get(stateBefore.toString()),
     "hasVoted: ",
-    hasVoted
+    hasVoted,
+    "forVotesBefore: ",
+    proposalDetailBefore.get("forVotes"),
+    "againstVotesBefore: ",
+    proposalDetailBefore.get("againstVotes")
   );
 
   await oracleGovernor.castVoteWithReason(proposalId, voteType, reason, {
@@ -145,11 +188,18 @@ async function castVoteWithReason(
 
   const stateAfter = await oracleGovernor.getState(proposalId);
   hasVoted = await oracleGovernor.hasVoted(proposalId, account);
+  const proposalDetailAfter = await oracleGovernor.getProposalDetail(
+    proposalId
+  );
   console.log(
     "state after castVoteWithReason: ",
     status.get(stateAfter.toString()),
     "hasVoted: ",
-    hasVoted
+    hasVoted,
+    "forVotesAfter: ",
+    proposalDetailAfter.get("forVotes"),
+    "againstVotesAfter: ",
+    proposalDetailAfter.get("againstVotes")
   );
   console.log("==== castVoteWithReason ====");
 }
@@ -185,26 +235,46 @@ async function main() {
   );
 
   // actual tests
-  const proposalId = BigInt(
-    "31460174923741090751995227965996190553828176918929754688521228662363341767331"
-  );
+  const symbol = "symbol";
+  const slug = "slug";
+  const sources = [1, 2];
+  const clientType = "0";
+  const leasePeriod = "2589570";
+  // Change it randomly
+  const externalStorageHash = "QmZKvL23nkVPZqBYaWUFZupfHGezUCHr18ZM9PJCuiP567";
   const voteType = 1;
   const voteReason = "this is the vote reason;";
 
+  const proposalId = await oracleGovernor.hashProposal(
+    symbol,
+    slug,
+    sources,
+    clientType,
+    externalStorageHash
+  );
+
+  await proposeCurrency(
+    oracleGovernor,
+    symbol,
+    slug,
+    sources,
+    clientType,
+    leasePeriod,
+    externalStorageHash
+  );
   await getState(oracleGovernor, proposalId);
   await getProposalDetail(oracleGovernor, proposalId);
   await hasVoted(oracleGovernor, proposalId, account);
-  await proposeCurrency(oracleGovernor, proposalId);
-  await execute(oracleGovernor, proposalId);
-  await cancel(oracleGovernor, proposalId);
-  await castVote(oracleGovernor, proposalId, voteType, account);
-  await castVoteWithReason(
-    oracleGovernor,
-    proposalId,
-    voteType,
-    voteReason,
-    account
-  );
+  // await execute(oracleGovernor, proposalId);
+  // await cancel(oracleGovernor, proposalId);
+  // await castVote(oracleGovernor, proposalId, voteType, account);
+  // await castVoteWithReason(
+  //   oracleGovernor,
+  //   proposalId,
+  //   voteType,
+  //   voteReason,
+  //   account
+  // );
 }
 
 main();

@@ -29,16 +29,19 @@ async function newSubscription(
   onBehalfOf: string
 ) {
   console.log("==== newSubscription ====");
-  await subscription.newSubscription(
+  const [subscriptionId, address] = await subscription.newSubscription(
     externalStorageHash,
     sourceCount,
     leasePeriod,
     clientType,
-    onBehalfOf,
-    { confirmations: 3 }
+    onBehalfOf
+  );
+  console.log(
+    `externalStorageHash: ${externalStorageHash}, sourceCount: ${sourceCount}, leasePeriod: ${leasePeriod}, clientType: ${clientType}, onBehalfOf: ${onBehalfOf}, subscriptionId: ${subscriptionId}, address:${address}`
   );
   console.log("==== newSubscription ====");
 }
+
 async function subscribeByExisting(
   subscription: Subscription,
   subscriptionId: BigInt,
@@ -109,17 +112,17 @@ async function main() {
   const extendPeriod = BigInt(3689570);
 
   await minLeasePeriod(subscription);
-  await newSubscription(
-    subscription,
-    externalStorageHash,
-    sourceCount,
-    leasePeriod,
-    clientType,
-    account.address
-  );
-  await updateSubscriptionStatus(subscription, subscriptionId, true);
-  await subscribeByExisting(subscription, subscriptionId, leasePeriod);
-  await extendSubscription(subscription, subscriptionId, extendPeriod);
+  // await newSubscription(
+  //   subscription,
+  //   externalStorageHash,
+  //   sourceCount,
+  //   leasePeriod,
+  //   clientType,
+  //   account.address
+  // );
+  // await updateSubscriptionStatus(subscription, subscriptionId, true);
+  // await subscribeByExisting(subscription, subscriptionId, leasePeriod);
+  // await extendSubscription(subscription, subscriptionId, extendPeriod);
 }
 
 main();

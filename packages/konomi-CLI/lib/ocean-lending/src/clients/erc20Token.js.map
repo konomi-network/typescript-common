@@ -1,0 +1,1 @@
+{"version":3,"file":"erc20Token.js","sourceRoot":"","sources":["../../../../../ocean-lending/src/clients/erc20Token.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qCAAkC;AAElC,MAAa,UAAW,SAAQ,eAAM;IACvB,SAAS,CAAC,OAAe;;YACpC,MAAM,CAAC,GAAG,MAAM,IAAI,CAAC,QAAQ,CAAC,OAAO,CAAC,SAAS,CAAC,OAAO,CAAC,CAAC,IAAI,EAAE,CAAC;YAChE,OAAO,MAAM,CAAC,CAAC,CAAC,CAAC;QACnB,CAAC;KAAA;CACF;AALD,gCAKC"}

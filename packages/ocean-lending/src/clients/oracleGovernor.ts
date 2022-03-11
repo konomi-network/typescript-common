@@ -45,6 +45,27 @@ export class OracleGovernor extends Client {
   }
 
   /**
+   * Derive the hash of the proposal
+   * @param symbol The currency info, 0 is for symbol and 1 is for slug.
+   * @param slug The currency info, 0 is for symbol and 1 is for slug.
+   * @param sources The data sources id.
+   * @param clientType The client type of the subscription.
+   * @param externalStorageHash The hash to identify the storage.
+   */
+  public async hashProposal(
+    symbol: string,
+    slug: string,
+    sources: Array<number>,
+    clientType: string,
+    externalStorageHash: string
+  ): Promise<BigInt> {
+    const proposalId = await this.contract.methods
+      .hashProposal(symbol, slug, sources, clientType, externalStorageHash)
+      .call();
+    return BigInt(proposalId);
+  }
+
+  /**
    * Propose a new currency in the Oracle. We only track the hash of the
    * proposal content. The actual content is store in decentralized storage.
    * @param symbol The currency info, 0 is for symbol and 1 is for slug.

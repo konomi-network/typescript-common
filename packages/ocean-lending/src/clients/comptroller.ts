@@ -46,6 +46,9 @@ export class Comptroller extends Client {
     return (factor / this.decimals) * 100;
   }
 
+  /**
+   * The percent, ranging from 0% to 100%, of a liquidatable account's borrow that can be repaid in a single liquidate transaction.
+   */
   public async closeFactor(address: string): Promise<number> {
     const factor = await this.contract.methods.closeFactorMantissa().call();
     return (factor / this.decimals) * 100;

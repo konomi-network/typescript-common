@@ -120,8 +120,7 @@ async function getSupplyRateAPY(
 }
 
 async function main() {
-  // const config = readJsonSync('./config/config.json');
-  const config = readJsonSync("../test-config/config.json");
+  const config = readJsonSync("./config/config.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -182,7 +181,7 @@ async function main() {
   const jumpInterestV2 = new JumpInterestV2(
     web3,
     jumpInterestV2Abi,
-    config.JumpInterestV2.address,
+    config.jumpInterestV2.address,
     account
   );
 

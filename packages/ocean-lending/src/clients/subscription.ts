@@ -1,4 +1,4 @@
-import { TxnOptions } from "options";
+import { TxnOptions } from "../../src/options";
 import { Client } from "./client";
 
 /**
@@ -27,7 +27,7 @@ export class Subscription extends Client {
    * @param externalStorageHash The external storage hash
    * @param sourceCount The number of data sources count
    * @param leasePeriod The lease period of the subscription
-   * @param clientType  The client type of the subscription.
+   * @param clientType  The client type of the subscription
    * @param onBehalfOf Making the subscription on behalf of address
    */
   public async newSubscription(
@@ -35,17 +35,18 @@ export class Subscription extends Client {
     sourceCount: BigInt,
     leasePeriod: BigInt,
     clientType: number,
-    onBehalfOf: string,
-    options: TxnOptions
-  ): Promise<void> {
-    const method = this.contract.methods.newSubscription(
-      externalStorageHash,
-      sourceCount,
-      leasePeriod,
-      clientType,
-      onBehalfOf
-    );
-    await this.send(method, await this.prepareTxn(method), options);
+    onBehalfOf: string
+  ): Promise<[BigInt, string]> {
+    const [subscriptionId, feedContract] = await this.contract.methods
+      .newSubscription(
+        externalStorageHash,
+        sourceCount,
+        leasePeriod,
+        clientType,
+        onBehalfOf
+      )
+      .call();
+    return [subscriptionId, feedContract];
   }
 
   /**
