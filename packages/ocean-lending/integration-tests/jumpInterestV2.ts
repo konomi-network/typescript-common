@@ -1,18 +1,13 @@
-import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { ERC20Token } from "clients/erc20Token";
 import { OToken } from "clients/oToken";
-import { Comptroller } from "clients/comptroller";
 import {
-  ensure,
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
   ONE_ETHER,
   readJsonSync,
   readPassword,
 } from "../src/utils";
-import { PriceOracle } from "clients/priceOracle";
 import { JumpInterestV2 } from "clients/jumpInterestV2";
 
 async function multiplierPerBlock(jumpInterestV2: JumpInterestV2) {
@@ -149,32 +144,6 @@ async function main() {
     config.oTokens.oKono.address,
     account,
     config.oTokens.oKono.parameters
-  );
-
-  // load the erc20 token object
-  const erc20Abi = readJsonSync("./config/erc20.json");
-  const erc20Token = new ERC20Token(
-    web3,
-    erc20Abi,
-    oToken.parameters.underlying,
-    account
-  );
-
-  const comptrollerAbi = readJsonSync("./config/comptroller.json");
-  const comptroller = new Comptroller(
-    web3,
-    comptrollerAbi,
-    oToken.parameters.comptroller,
-    account
-  );
-
-  // load price feed object
-  const priceOracleAbi = readJsonSync("./config/priceOracle.json");
-  const priceOracle = new PriceOracle(
-    web3,
-    priceOracleAbi,
-    config.priceOracle,
-    account
   );
 
   // load JumpInterestV2 object

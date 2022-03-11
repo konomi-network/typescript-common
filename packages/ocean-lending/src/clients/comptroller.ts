@@ -46,7 +46,7 @@ export class Comptroller extends Client {
     return (factor / this.decimals) * 100;
   }
 
-  public async closeFactor(address: string): Promise<number> {
+  public async closeFactor(): Promise<number> {
     const factor = await this.contract.methods.closeFactorMantissa().call();
     return (factor / this.decimals) * 100;
   }

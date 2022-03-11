@@ -1,18 +1,14 @@
-import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { ERC20Token } from "clients/erc20Token";
 import { OToken } from "clients/oToken";
 import { Comptroller } from "clients/comptroller";
 import {
-  ensure,
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
-  ONE_ETHER,
   readJsonSync,
   readPassword,
 } from "../src/utils";
-import { PriceOracle } from "clients/priceOracle";
 
 async function liquidationIncentive(
   account: Account,
@@ -63,7 +59,7 @@ async function closeFactor(
   console.log("==== closeFactor ====");
   const erc20Before = await token.balanceOf(account.address);
   const oTokenBefore = await oToken.balanceOf(account.address);
-  const factor = await comptroller.closeFactor(account.address);
+  const factor = await comptroller.closeFactor();
   console.log(
     `erc20: ${erc20Before}, oToken: ${oTokenBefore}, closeFactor: ${factor}%`
   );
@@ -116,15 +112,6 @@ async function main() {
     web3,
     comptrollerAbi,
     oToken.parameters.comptroller,
-    account
-  );
-
-  // load price feed object
-  const priceOracleAbi = readJsonSync("./config/priceOracle.json");
-  const priceOracle = new PriceOracle(
-    web3,
-    priceOracleAbi,
-    config.priceOracle,
     account
   );
 

@@ -1,4 +1,3 @@
-import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { ERC20Token } from "clients/erc20Token";
@@ -8,11 +7,11 @@ import {
   ensure,
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
-  ONE_ETHER,
   readJsonSync,
   readPassword,
 } from "../src/utils";
 import { PriceOracle } from "clients/priceOracle";
+import { exit } from "process";
 
 async function enterMarkets(
   account: Account,
@@ -216,9 +215,9 @@ async function main() {
   await repayBorrow(account, oToken, erc20Token);
 }
 
-// main()
-// 	.then(() => exit(0))
-// 	.catch((e) => {
-// 		console.log(e);
-// 		exit(1);
-// 	});
+main()
+  .then(() => exit(0))
+  .catch((e) => {
+    console.log(e);
+    exit(1);
+  });

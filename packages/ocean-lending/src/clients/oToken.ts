@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { Client } from "./client";
