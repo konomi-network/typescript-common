@@ -119,8 +119,8 @@ async function getSupplyRateAPY(
 }
 
 async function main() {
-  // const config = readJsonSync("./config/config.json");
-  const config = readJsonSync("C:/Users/kun-d/Desktop/WFH/code/dev/client/packages/test-config/config.json");
+  // Configure config.json according to config.json.example
+  const config = readJsonSync("./config/config.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
