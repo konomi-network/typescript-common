@@ -1,5 +1,5 @@
-import { Client } from "./client";
-import { TxnOptions } from "options";
+import { Client } from './client';
+import { TxnOptions } from 'options';
 
 /**
  * Staking V1 contract client.
@@ -49,8 +49,8 @@ export class StakingV1 extends Client {
    */
   public async stakeOf(address: string): Promise<[BigInt, BigInt]> {
     const s = await this.contract.methods.getUserStake(address).call();
-    const depositedAmount = BigInt(s["0"]);
-    const totalRewards = BigInt(s["1"]);
+    const depositedAmount = BigInt(s['0']);
+    const totalRewards = BigInt(s['1']);
     return [depositedAmount, totalRewards];
   }
 }

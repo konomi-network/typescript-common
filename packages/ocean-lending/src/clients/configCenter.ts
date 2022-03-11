@@ -1,5 +1,5 @@
-import { TxnOptions } from "options";
-import { Client } from "./client";
+import { TxnOptions } from 'options';
+import { Client } from './client';
 
 export class ConfigCenter extends Client {
   public async setFeedPriceThreshold(feedPriceThreshold: string, options: TxnOptions): Promise<void> {

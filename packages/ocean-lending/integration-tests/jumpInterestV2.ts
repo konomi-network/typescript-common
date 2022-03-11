@@ -1,51 +1,50 @@
-import { exit } from "process";
-import Web3 from "web3";
-import { Account } from "web3-core";
-import { ERC20Token } from "../src/clients/erc20Token";
-import { OToken } from "../src/clients/oToken";
-import { Comptroller } from "../src/clients/comptroller";
-import { PriceOracle } from "../src/clients/priceOracle";
-import { JumpInterestV2 } from "../src/clients/jumpInterestV2";
+import Web3 from 'web3';
+import { Account } from 'web3-core';
+import { OToken } from '../src/clients/oToken';
+// import { Comptroller } from '../src/clients/comptroller';
+// import { PriceOracle } from '../src/clients/priceOracle';
+// import { ERC20Token } from '../src/clients/erc20Token';
+
+import { JumpInterestV2 } from '../src/clients/jumpInterestV2';
 
 import {
-  ensure,
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
   ONE_ETHER,
   readJsonSync,
   readPassword
-} from "../src/utils";
+} from '../src/utils';
 
 async function multiplierPerBlock(jumpInterestV2: JumpInterestV2) {
-  console.log("==== multiplierPerBlock ====");
+  console.log('==== multiplierPerBlock ====');
   const multiplier = await jumpInterestV2.multiplierPerBlock();
   console.log(`multiplierPerBlock: ${multiplier}`);
-  console.log("==== multiplierPerBlock ====");
+  console.log('==== multiplierPerBlock ====');
 }
 
 async function baseRatePerBlock(jumpInterestV2: JumpInterestV2) {
-  console.log("==== baseRatePerBlock ====");
+  console.log('==== baseRatePerBlock ====');
   const rate = await jumpInterestV2.baseRatePerBlock();
   console.log(`baseRatePerBlock: ${rate.valueOf() / ONE_ETHER}%`);
-  console.log("==== baseRatePerBlock ====");
+  console.log('==== baseRatePerBlock ====');
 }
 
 async function jumpMultiplierPerBlock(jumpInterestV2: JumpInterestV2) {
-  console.log("==== jumpMultiplierPerBlock ====");
+  console.log('==== jumpMultiplierPerBlock ====');
   const jumpMultiplier = await jumpInterestV2.jumpMultiplierPerBlock();
   console.log(`jumpMultiplierPerBlock: ${jumpMultiplier}`);
-  console.log("==== jumpMultiplierPerBlock ====");
+  console.log('==== jumpMultiplierPerBlock ====');
 }
 
 async function kink(jumpInterestV2: JumpInterestV2) {
-  console.log("==== kink ====");
+  console.log('==== kink ====');
   const rate = await jumpInterestV2.kink();
   console.log(`kink: ${rate}`);
-  console.log("==== kink ====");
+  console.log('==== kink ====');
 }
 
 async function getBorrowRate(jumpInterestV2: JumpInterestV2, oToken: OToken) {
-  console.log("==== getBorrowRate ====");
+  console.log('==== getBorrowRate ====');
   const [cash, totalBorrows, totalReserves] = await Promise.all([
     oToken.getCash(),
     oToken.totalBorrowsCurrent(),
@@ -57,11 +56,11 @@ async function getBorrowRate(jumpInterestV2: JumpInterestV2, oToken: OToken) {
       rate.valueOf() / ONE_ETHER
     }%`
   );
-  console.log("==== getBorrowRate ====");
+  console.log('==== getBorrowRate ====');
 }
 
 async function getSupplyRate(jumpInterestV2: JumpInterestV2, oToken: OToken, reserveFactorMantissa: BigInt) {
-  console.log("==== getSupplyRate ====");
+  console.log('==== getSupplyRate ====');
   const [cash, totalBorrows, totalReserves] = await Promise.all([
     oToken.getCash(),
     oToken.totalBorrowsCurrent(),
@@ -73,11 +72,11 @@ async function getSupplyRate(jumpInterestV2: JumpInterestV2, oToken: OToken, res
       rate.valueOf() / ONE_ETHER
     }%`
   );
-  console.log("==== getSupplyRate ====");
+  console.log('==== getSupplyRate ====');
 }
 
 async function getBorrowRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, blockTime: number) {
-  console.log("==== getBorrowRateAPY ====");
+  console.log('==== getBorrowRateAPY ====');
   const [cash, totalBorrows, totalReserves] = await Promise.all([
     oToken.getCash(),
     oToken.totalBorrowsCurrent(),
@@ -89,11 +88,11 @@ async function getBorrowRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, 
       rate.valueOf() / ONE_ETHER
     }%`
   );
-  console.log("==== getBorrowRateAPY ====");
+  console.log('==== getBorrowRateAPY ====');
 }
 
 async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, blockTime: number) {
-  console.log("==== getSupplyRateAPY ====");
+  console.log('==== getSupplyRateAPY ====');
   const [cash, totalBorrows, totalReserves] = await Promise.all([
     oToken.getCash(),
     oToken.totalBorrowsCurrent(),
@@ -105,12 +104,12 @@ async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, 
       rate.valueOf() / ONE_ETHER
     }%`
   );
-  console.log("==== getSupplyRateAPY ====");
+  console.log('==== getSupplyRateAPY ====');
 }
 
 async function main() {
   // const config = readJsonSync('./config/config.json');
-  const config = readJsonSync("./config/config.json");
+  const config = readJsonSync('./config/config.json');
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -121,28 +120,28 @@ async function main() {
   } else if (config.privateKey) {
     account = loadWalletFromPrivate(config.privateKey, web3);
   } else {
-    throw Error("Cannot setup account");
+    throw Error('Cannot setup account');
   }
 
-  console.log("Using account:", account.address);
+  console.log('Using account:', account.address);
 
   // load the oToken object
-  const oTokenAbi = readJsonSync("./config/oToken.json");
+  const oTokenAbi = readJsonSync('./config/oToken.json');
   const oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
 
   // load the erc20 token object
-  const erc20Abi = readJsonSync("./config/erc20.json");
-  const erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
+  // const erc20Abi = readJsonSync('./config/erc20.json');
+  // const erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
 
-  const comptrollerAbi = readJsonSync("./config/comptroller.json");
-  const comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
+  // const comptrollerAbi = readJsonSync('./config/comptroller.json');
+  // const comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
 
   // load price feed object
-  const priceOracleAbi = readJsonSync("./config/priceOracle.json");
-  const priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle, account);
+  // const priceOracleAbi = readJsonSync('./config/priceOracle.json');
+  // const priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle, account);
 
   // load JumpInterestV2 object
-  const jumpInterestV2Abi = readJsonSync("./config/jumpInterestV2.json");
+  const jumpInterestV2Abi = readJsonSync('./config/jumpInterestV2.json');
   const jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, config.JumpInterestV2.address, account);
 
   // actual tests

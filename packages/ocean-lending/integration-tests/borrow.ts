@@ -1,21 +1,14 @@
-import { exit } from "process";
-import Web3 from "web3";
-import { Account } from "web3-core";
-import { ERC20Token } from "../src/clients/erc20Token";
-import { OToken } from "../src/clients/oToken";
-import { Comptroller } from "../src/clients/comptroller";
-import { PriceOracle } from "../src/clients/priceOracle";
-import {
-  ensure,
-  loadWalletFromEncyrptedJson,
-  loadWalletFromPrivate,
-  ONE_ETHER,
-  readJsonSync,
-  readPassword
-} from "../src/utils";
+import { exit } from 'process';
+import Web3 from 'web3';
+import { Account } from 'web3-core';
+import { ERC20Token } from '../src/clients/erc20Token';
+import { OToken } from '../src/clients/oToken';
+import { Comptroller } from '../src/clients/comptroller';
+import { PriceOracle } from '../src/clients/priceOracle';
+import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
 
 async function enterMarkets(account: Account, markets: string[], comptroller: Comptroller) {
-  console.log("==== enterMarkets ====");
+  console.log('==== enterMarkets ====');
   await comptroller.enterMarkets(markets, { confirmations: 3 });
 
   const liquidity: number = await comptroller.getAccountLiquidity(account.address);
@@ -35,9 +28,9 @@ async function borrow(
   comptroller: Comptroller,
   underlyingToBorrow: number
 ) {
-  console.log("==== borrow ====");
+  console.log('==== borrow ====');
   const liquidity: number = await comptroller.getAccountLiquidity(account.address);
-  ensure(liquidity.valueOf() > 0, `You don't have any liquid assets pooled in the protocol.`);
+  ensure(liquidity.valueOf() > 0, "You don't have any liquid assets pooled in the protocol.");
   const erc20Before = await token.balanceOf(account.address);
   const oTokenBefore = await oToken.balanceOf(account.address);
   const borrowBalanceBefore = await oToken.borrowBalanceCurrent(account.address);
@@ -46,10 +39,10 @@ async function borrow(
   const underlyingPrice = await priceOracle.getUnderlyingPrice(oToken.address);
 
   ensure(oTokenBefore.valueOf() > BigInt(0), "You don't have any KONO as collateral");
-  console.log("erc20Before:", erc20Before, "oTokenBefore:", oTokenBefore);
+  console.log('erc20Before:', erc20Before, 'oTokenBefore:', oTokenBefore);
   console.log(`exchangeRate: ${exchangeRate / 1e28}`);
   console.log(`underlyingPrice: ${underlyingPrice.toFixed(6)} USD`);
-  console.log(`NEVER borrow near the maximum amount because your account will be instantly liquidated.`);
+  console.log('NEVER borrow near the maximum amount because your account will be instantly liquidated.');
 
   const underlyingDeposited = (Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals)) * exchangeRate;
   const underlyingBorrowable = (underlyingDeposited * konoCollateralFactor) / 100;
@@ -58,8 +51,8 @@ async function borrow(
   const toBorrowLiquid = (underlyingToBorrow * underlyingPrice * konoCollateralFactor) / 100;
   console.log(`Borrow balance currently is ${borrowBalanceBefore / Math.pow(10, underlyingDecimals)}`);
 
-  ensure(borrowBalanceBefore <= underlyingBorrowable, `Borrow balance exceeded collateral factor`);
-  ensure(toBorrowLiquid < liquidity, `Borrowing amount exceed account liquid`);
+  ensure(borrowBalanceBefore <= underlyingBorrowable, 'Borrow balance exceeded collateral factor');
+  ensure(toBorrowLiquid < liquidity, 'Borrowing amount exceed account liquid');
 
   const scaledUpBorrowAmount = underlyingToBorrow * Math.pow(10, underlyingDecimals);
   await oToken.borrow(scaledUpBorrowAmount, { confirmations: 3 });
@@ -72,30 +65,30 @@ async function borrow(
   const erc20After = await token.balanceOf(account.address);
   const oTokenAfter = await oToken.balanceOf(account.address);
 
-  console.log("erc20After:", erc20After, " oTokenAfter:", oTokenAfter);
+  console.log('erc20After:', erc20After, ' oTokenAfter:', oTokenAfter);
 
   ensure(erc20After > erc20Before, `invalid erc20 balance, expected ${erc20Before}, actual: ${erc20After}`);
 
-  ensure(oTokenAfter === oTokenBefore, "invalid borrow balance");
+  ensure(oTokenAfter === oTokenBefore, 'invalid borrow balance');
   // oToken.convertFromUnderlying(amount);
 }
 
 async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token) {
-  console.log("==== repayBorrow ====");
+  console.log('==== repayBorrow ====');
   const erc20Before = await token.balanceOf(account.address);
   const oTokenBefore = await oToken.balanceOf(account.address);
-  console.log("erc20Before:", erc20Before, " oTokenBefore:", oTokenBefore);
+  console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
 
   const balance = await oToken.borrowBalanceCurrent(account.address);
   console.log(`borrow balance to repay ${balance / 1e18}`);
-  ensure(balance > 0, "invalid borrow balance to repay, expected more than zero");
+  ensure(balance > 0, 'invalid borrow balance to repay, expected more than zero');
 
   await oToken.repayBorrow(BigInt(balance), { confirmations: 3 });
 
   const erc20After = await token.balanceOf(account.address);
   const oTokenAfter = await oToken.balanceOf(account.address);
 
-  console.log("erc20After:", erc20After, " oTokenAfter:", oTokenAfter);
+  console.log('erc20After:', erc20After, ' oTokenAfter:', oTokenAfter);
 
   ensure(
     erc20Before > erc20After,
@@ -105,7 +98,7 @@ async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token) 
 
 async function main() {
   // const config = readJsonSync('./config/config.json');
-  const config = readJsonSync("./config/config.json");
+  const config = readJsonSync('./config/config.json');
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -116,24 +109,24 @@ async function main() {
   } else if (config.privateKey) {
     account = loadWalletFromPrivate(config.privateKey, web3);
   } else {
-    throw Error("Cannot setup account");
+    throw Error('Cannot setup account');
   }
 
-  console.log("Using account:", account.address);
+  console.log('Using account:', account.address);
 
   // load the oToken object
-  const oTokenAbi = readJsonSync("./config/oToken.json");
+  const oTokenAbi = readJsonSync('./config/oToken.json');
   const oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
 
   // load the erc20 token object
-  const erc20Abi = readJsonSync("./config/erc20.json");
+  const erc20Abi = readJsonSync('./config/erc20.json');
   const erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
 
-  const comptrollerAbi = readJsonSync("./config/comptroller.json");
+  const comptrollerAbi = readJsonSync('./config/comptroller.json');
   const comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
 
   // load price feed object
-  const priceOracleAbi = readJsonSync("./config/priceOracle.json");
+  const priceOracleAbi = readJsonSync('./config/priceOracle.json');
   const priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle.address, account);
 
   // actual tests

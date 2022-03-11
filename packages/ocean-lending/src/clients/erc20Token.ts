@@ -1,4 +1,4 @@
-import { Client } from "./client";
+import { Client } from './client';
 
 export class ERC20Token extends Client {
   public async balanceOf(address: string): Promise<BigInt> {

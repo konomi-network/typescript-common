@@ -1,5 +1,5 @@
-import { Client } from "./client";
-import { TxnOptions } from "../options";
+import { Client } from './client';
+import { TxnOptions } from '../options';
 
 export interface Feed {
   decimals: number;
@@ -30,9 +30,9 @@ export class OracleFeedV2 extends Client {
     buf.writeUInt8(roundId, 0);
 
     let result = BigInt(value).toString(16);
-    result = result.padStart(64, "0");
+    result = result.padStart(64, '0');
 
-    buf.write(result, 1, "hex");
+    buf.write(result, 1, 'hex');
     return buf;
   }
 }

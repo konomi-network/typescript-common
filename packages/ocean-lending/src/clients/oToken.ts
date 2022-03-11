@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Web3 from "web3";
-import { Account } from "web3-core";
-import { Client } from "./client";
-import { TxnOptions } from "../options";
+import Web3 from 'web3';
+import { Account } from 'web3-core';
+import { Client } from './client';
+import { TxnOptions } from '../options';
 
 export interface OTokenParameter {
   initialExchangeRate: number;
@@ -13,6 +13,7 @@ export interface OTokenParameter {
 
 export class OToken extends Client {
   readonly parameters: OTokenParameter;
+
   private readonly underlyingDecimals = 18;
 
   constructor(web3: Web3, abi: any, address: string, account: Account, parameters: OTokenParameter) {
@@ -48,7 +49,7 @@ export class OToken extends Client {
   }
 
   public async borrowBalanceCurrent(address: string): Promise<number> {
-    return await this.contract.methods.borrowBalanceCurrent(address).call();
+    return this.contract.methods.borrowBalanceCurrent(address).call();
   }
 
   public async approve(amount: number, options: TxnOptions): Promise<void> {
@@ -76,8 +77,8 @@ export class OToken extends Client {
 
   private detectFailedEvents(events: any) {
     Object.keys(events).forEach((key) => {
-      if (key === "Failure") {
-        const error = events.Failure["returnValues"];
+      if (key === 'Failure') {
+        const error = events.Failure.returnValues;
         if (error.error != 0) {
           return error.info;
         } else {
