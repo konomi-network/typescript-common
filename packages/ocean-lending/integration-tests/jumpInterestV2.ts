@@ -50,7 +50,7 @@ async function getBorrowRate(jumpInterestV2: JumpInterestV2, oToken: OToken) {
     oToken.totalBorrowsCurrent(),
     oToken.totalReserves(),
   ]);
-  const rate = await jumpInterestV2.getBorrowRate(oToken);
+  const rate = await jumpInterestV2.getBorrowRateByOToken(oToken);
   console.log(
     `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, borrowRate: ${
       rate.valueOf() / ONE_ETHER
@@ -70,7 +70,7 @@ async function getSupplyRate(
     oToken.totalBorrowsCurrent(),
     oToken.totalReserves(),
   ]);
-  const rate = await jumpInterestV2.getSupplyRate(oToken);
+  const rate = await jumpInterestV2.getSupplyRateByOToken(oToken);
   console.log(
     `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, reserveFactorMantissa: ${reserveFactorMantissa} supplyRate: ${
       rate.valueOf() / ONE_ETHER

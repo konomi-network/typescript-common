@@ -69,99 +69,6 @@ async function closeFactor(
   console.log("==== closeFactor ====");
 }
 
-async function totalLiquidaity(
-  web3: Web3,
-  oTokenAbi: any,
-  account: Account,
-  config: any,
-  comptroller: Comptroller,
-  priceOracle: PriceOracle
-) {
-  const tokenAddresses = await comptroller.allMarkets();
-  let totalLiquidaity = 0;
-  for (const tokenAddress of tokenAddresses) {
-    const oToken = new OToken(
-      web3,
-      oTokenAbi,
-      tokenAddress,
-      account,
-      config.oTokens.oKono.parameters // @todo may be use relate tokenAddress
-    );
-    const supply = await oToken.totalSupply();
-    const price = await priceOracle.getUnderlyingPrice(tokenAddress);
-    totalLiquidaity += supply * price;
-    console.log("tokenAddress:", tokenAddress);
-    console.log("supply:", supply);
-    console.log("price:", price);
-  }
-  console.log("totalLiquidaity:", totalLiquidaity);
-  return totalLiquidaity;
-}
-
-async function minBorrowAPY(
-  web3: Web3,
-  oTokenAbi: any,
-  account: Account,
-  config: any,
-  comptroller: Comptroller,
-  jumpInterestV2: JumpInterestV2
-) {
-  const blockTime = 15;
-  const tokenAddresses = await comptroller.allMarkets();
-  let min: BigInt = BigInt(-1);
-  for (const tokenAddress of tokenAddresses) {
-    const oToken = new OToken(
-      web3,
-      oTokenAbi,
-      tokenAddress,
-      account,
-      config.oTokens.oKono.parameters // @todo may be use relate tokenAddress
-    );
-    const borrowRateAPY = await jumpInterestV2.getBorrowRateAPY(
-      oToken,
-      blockTime
-    );
-
-    if (min == BigInt(-1) || min > borrowRateAPY) {
-      min = borrowRateAPY;
-    }
-  }
-  console.log("minBorrowAPY:", min);
-  return min;
-}
-
-async function minSupplyAPY(
-  web3: Web3,
-  oTokenAbi: any,
-  account: Account,
-  config: any,
-  comptroller: Comptroller,
-  jumpInterestV2: JumpInterestV2
-) {
-  const blockTime = 15;
-  const tokenAddresses = await comptroller.allMarkets();
-  let min: BigInt = BigInt(-1);
-  for (const tokenAddress of tokenAddresses) {
-    const oToken = new OToken(
-      web3,
-      oTokenAbi,
-      tokenAddress,
-      account,
-      config.oTokens.oKono.parameters // @todo may be use relate tokenAddress
-    );
-    const borrowRateAPY = await jumpInterestV2.getSupplyRateAPY(
-      oToken,
-      blockTime
-    );
-
-    if (min == BigInt(-1) || min > borrowRateAPY) {
-      min = borrowRateAPY;
-    }
-  }
-  console.log("minSupplyAPY:", min);
-  return min;
-}
-
 describe("Comptroller", async () => {
   const config = readJsonSync("./config/config.json");
   const oTokenAbi = readJsonSync("./config/oToken.json");
@@ -242,34 +149,16 @@ describe("Comptroller", async () => {
     await collateralFactor(account, oToken, erc20Token, comptroller);
     await closeFactor(account, oToken, erc20Token, comptroller);
 
-    const totalLiquidaityN = await totalLiquidaity(
-      web3,
-      oTokenAbi,
-      account,
-      config,
-      comptroller,
-      priceOracle
-    );
+    const totalLiquidaityN = await comptroller.totalLiquidaity(priceOracle);
+    console.log("==== totalLiquidaity:", totalLiquidaityN);
     expect(totalLiquidaityN).to.be.gt(0);
 
-    const minBorrowRateAPY = await minBorrowAPY(
-      web3,
-      oTokenAbi,
-      account,
-      config,
-      comptroller,
-      jumpInterestV2
-    );
+    const minBorrowRateAPY = await comptroller.minBorrowAPY(jumpInterestV2);
+    console.log("==== minBorrowRateAPY:", minBorrowRateAPY);
     expect(minBorrowRateAPY > BigInt(0)).to.be.eq(true);
 
-    const minSupplyRateAPY = await minSupplyAPY(
-      web3,
-      oTokenAbi,
-      account,
-      config,
-      comptroller,
-      jumpInterestV2
-    );
+    const minSupplyRateAPY = await comptroller.minSupplyAPY(jumpInterestV2);
+    console.log("==== minSupplyRateAPY:", minSupplyRateAPY);
     expect(minSupplyRateAPY > BigInt(0)).to.be.eq(true);
   });
 });

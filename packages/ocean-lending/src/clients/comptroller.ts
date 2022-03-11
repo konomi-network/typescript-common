@@ -1,5 +1,7 @@
 import { Client } from "./client";
 import { TxnOptions } from "../options";
+import { PriceOracle } from "./priceOracle";
+import { JumpInterestV2 } from "./jumpInterestV2";
 
 export class Comptroller extends Client {
   private readonly decimals = 1e18;
@@ -53,5 +55,105 @@ export class Comptroller extends Client {
 
   public async allMarkets(): Promise<string[]> {
     return await this.contract.methods.getAllMarkets().call();
+  }
+
+  public async totalSupply(tokenAddress: string): Promise<number> {
+    return await this.callMethod(tokenAddress, "totalSupply()");
+  }
+
+  public async getCash(tokenAddress: string): Promise<number> {
+    return await this.callMethod(tokenAddress, "getCash()");
+  }
+
+  public async totalBorrowsCurrent(tokenAddress: string): Promise<number> {
+    return await this.callMethod(tokenAddress, "totalBorrowsCurrent()");
+  }
+
+  public async totalReserves(tokenAddress: string): Promise<number> {
+    return await this.callMethod(tokenAddress, "totalReserves()");
+  }
+
+  public async reserveFactorMantissa(tokenAddress: string): Promise<number> {
+    return await this.callMethod(tokenAddress, "reserveFactorMantissa()");
+  }
+
+  private async callMethod(
+    tokenAddress: string,
+    methodName: string
+  ): Promise<number> {
+    const method = this.web3.utils.keccak256(methodName).substr(0, 10);
+    const transaction = {
+      to: tokenAddress,
+      data: method,
+    };
+
+    const r = this.web3.eth.abi.decodeParameters(
+      ["uint256"],
+      await this.web3.eth.call(transaction)
+    );
+    return r[0];
+  }
+
+  public async totalLiquidaity(priceOracle: PriceOracle) {
+    const tokenAddresses = await this.allMarkets();
+    let totalLiquidaity = 0;
+    for (const tokenAddress of tokenAddresses) {
+      const supply = await this.totalSupply(tokenAddress);
+      const price = await priceOracle.getUnderlyingPrice(tokenAddress);
+      totalLiquidaity += supply * price;
+    }
+    return totalLiquidaity;
+  }
+
+  public async minBorrowAPY(jumpInterestV2: JumpInterestV2) {
+    const blockTime = 15;
+    const tokenAddresses = await this.allMarkets();
+    let min: BigInt = BigInt(-1);
+    for (const tokenAddress of tokenAddresses) {
+      const cash = await this.getCash(tokenAddress);
+      const borrows = await this.totalBorrowsCurrent(tokenAddress);
+      const totalReserves = await this.totalReserves(tokenAddress);
+
+      const rate = await jumpInterestV2.getBorrowRate(
+        cash,
+        borrows,
+        totalReserves
+      );
+
+      const borrowRateAPY = jumpInterestV2.blockToYear(rate, blockTime);
+
+      if (min == BigInt(-1) || min > borrowRateAPY) {
+        min = borrowRateAPY;
+      }
+    }
+    return min;
+  }
+
+  public async minSupplyAPY(jumpInterestV2: JumpInterestV2) {
+    const blockTime = 15;
+    const tokenAddresses = await this.allMarkets();
+    let min: BigInt = BigInt(-1);
+    for (const tokenAddress of tokenAddresses) {
+      const cash = await this.getCash(tokenAddress);
+      const borrows = await this.totalBorrowsCurrent(tokenAddress);
+      const totalReserves = await this.totalReserves(tokenAddress);
+      const reserveFactorMantissa = await this.reserveFactorMantissa(
+        tokenAddress
+      );
+
+      const rate = await jumpInterestV2.getSupplyRate(
+        cash,
+        borrows,
+        totalReserves,
+        reserveFactorMantissa
+      );
+
+      const supplyRateAPY = jumpInterestV2.blockToYear(rate, blockTime);
+
+      if (min == BigInt(-1) || min > supplyRateAPY) {
+        min = supplyRateAPY;
+      }
+    }
+    return min;
   }
 }
