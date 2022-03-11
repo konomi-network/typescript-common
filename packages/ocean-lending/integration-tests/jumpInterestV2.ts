@@ -1,34 +1,38 @@
+import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { OToken } from "clients/oToken";
+import { ERC20Token } from "../src/clients/erc20Token";
+import { OToken } from "../src/clients/oToken";
+import { Comptroller } from "../src/clients/comptroller";
 import {
+  ensure,
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
   ONE_ETHER,
   readJsonSync,
   readPassword,
 } from "../src/utils";
-import { JumpInterestV2 } from "clients/jumpInterestV2";
+import { JumpInterestV2 } from "../src/clients/jumpInterestV2";
 
-async function multiplierPerBlock(jumpInterestV2: JumpInterestV2) {
-  console.log("==== multiplierPerBlock ====");
-  const multiplier = await jumpInterestV2.multiplierPerBlock();
-  console.log(`multiplierPerBlock: ${multiplier}`);
-  console.log("==== multiplierPerBlock ====");
+async function multiplierPerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
+  console.log("==== multiplierPerYear ====");
+  const multiplier = await jumpInterestV2.multiplierPerYear(blockTime);
+  console.log(`multiplierPerYear: ${multiplier}`);
+  console.log("==== multiplierPerYear ====");
 }
 
-async function baseRatePerBlock(jumpInterestV2: JumpInterestV2) {
-  console.log("==== baseRatePerBlock ====");
-  const rate = await jumpInterestV2.baseRatePerBlock();
-  console.log(`baseRatePerBlock: ${rate.valueOf() / ONE_ETHER}%`);
-  console.log("==== baseRatePerBlock ====");
+async function baseRatePerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
+  console.log("==== baseRatePerYear ====");
+  const rate = await jumpInterestV2.baseRatePerYear(blockTime);
+  console.log(`baseRatePerYear: ${rate.valueOf() / ONE_ETHER}%`);
+  console.log("==== baseRatePerYear ====");
 }
 
-async function jumpMultiplierPerBlock(jumpInterestV2: JumpInterestV2) {
-  console.log("==== jumpMultiplierPerBlock ====");
-  const jumpMultiplier = await jumpInterestV2.jumpMultiplierPerBlock();
-  console.log(`jumpMultiplierPerBlock: ${jumpMultiplier}`);
-  console.log("==== jumpMultiplierPerBlock ====");
+async function jumpMultiplierPerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
+  console.log("==== jumpMultiplierPerYear ====");
+  const jumpMultiplier = await jumpInterestV2.jumpMultiplierPerYear(blockTime);
+  console.log(`jumpMultiplierPerYear: ${jumpMultiplier}`);
+  console.log("==== jumpMultiplierPerYear ====");
 }
 
 async function kink(jumpInterestV2: JumpInterestV2) {
@@ -115,8 +119,8 @@ async function getSupplyRateAPY(
 }
 
 async function main() {
-  // const config = readJsonSync('./config/config.json');
-  const config = readJsonSync("../test-config/config.json");
+  // const config = readJsonSync("./config/config.json");
+  const config = readJsonSync("C:/Users/kun-d/Desktop/WFH/code/dev/client/packages/test-config/config.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -146,21 +150,34 @@ async function main() {
     config.oTokens.oKono.parameters
   );
 
+  // load the erc20 token object
+  const erc20Abi = readJsonSync("./config/erc20.json");
+  const erc20Token = new ERC20Token(
+    web3,
+    erc20Abi,
+    oToken.parameters.underlying,
+    account
+  );
+
+  const comptrollerAbi = readJsonSync("./config/comptroller.json");
+  const comptroller = new Comptroller(
+    web3,
+    comptrollerAbi,
+    oToken.parameters.comptroller,
+    account
+  );
+
   // load JumpInterestV2 object
   const jumpInterestV2Abi = readJsonSync("./config/jumpInterestV2.json");
   const jumpInterestV2 = new JumpInterestV2(
     web3,
     jumpInterestV2Abi,
-    config.JumpInterestV2.address,
+    config.jumpInterestV2.address,
     account
   );
 
   // actual tests
-  await multiplierPerBlock(jumpInterestV2);
-  await baseRatePerBlock(jumpInterestV2);
-  await jumpMultiplierPerBlock(jumpInterestV2);
-  await kink(jumpInterestV2);
-
+  const blockTime = 15;
   const cash = await oToken.getCash();
   const totalBorrows = await oToken.totalBorrowsCurrent();
   const totalSupply = await oToken.totalSupply();
@@ -169,7 +186,11 @@ async function main() {
   console.log(
     `cash: ${cash}, totalBorrows: ${totalBorrows}, totalSupply: ${totalSupply}, reserveFactorMantissa: ${reserveFactorMantissa}, totalReserves: ${totalReserves}`
   );
-  const blockTime = 15;
+
+  await multiplierPerYear(jumpInterestV2, blockTime);
+  await baseRatePerYear(jumpInterestV2, blockTime);
+  await jumpMultiplierPerYear(jumpInterestV2, blockTime);
+  await kink(jumpInterestV2);
 
   await getBorrowRate(jumpInterestV2, oToken);
   await getBorrowRateAPY(jumpInterestV2, oToken, blockTime);
