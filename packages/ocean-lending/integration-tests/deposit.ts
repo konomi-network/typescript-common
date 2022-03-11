@@ -1,4 +1,3 @@
-import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { ERC20Token } from "../src/clients/erc20Token";
@@ -78,8 +77,7 @@ async function depositWorks(
 // }
 
 async function main() {
-  // const config = readJsonSync('./config/config.json');
-  const config = readJsonSync("../konomi-CLI/testConfig/config.json");
+  const config = readJsonSync("./config/config.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -122,10 +120,3 @@ async function main() {
   await depositWorks(account, oToken, erc20Token);
   // await redeemNoBorrow(account, oToken, erc20Token);
 }
-
-main()
-  .then(() => exit(0))
-  .catch((e) => {
-    console.log(e);
-    exit(1);
-  });

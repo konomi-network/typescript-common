@@ -1,4 +1,4 @@
-import { exit } from "process";
+import { expect } from "chai";
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { ConfigCenter } from "../src/clients/configCenter";
@@ -41,10 +41,3 @@ async function main() {
   // await client.setFeedTimeout(2400, { confirmations: 3 });
   console.log(await client.get("feedTimeout"));
 }
-
-main()
-  .then(() => exit(0))
-  .catch((e) => {
-    console.log(e);
-    exit(1);
-  });

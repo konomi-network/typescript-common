@@ -1,6 +1,5 @@
 import { ERC20Token } from "../src/clients/erc20Token";
 import { OToken } from "../src/clients/oToken";
-import { exit } from "process";
 import Web3 from "web3";
 import { Account } from "web3-core";
 import { StakingV1 } from "../src/clients/staking";
@@ -225,10 +224,3 @@ async function withdrawAllTest(
   );
   console.log("==== withdrawAll ====");
 }
-
-// main()
-//   .then(() => exit(0))
-//   .catch((e) => {
-//     console.log(e);
-//     exit(1);
-//   });
