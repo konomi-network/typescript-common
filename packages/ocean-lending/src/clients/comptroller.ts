@@ -58,29 +58,29 @@ export class Comptroller extends Client {
   }
 
   public async totalSupply(tokenAddress: string): Promise<number> {
-    return await this.callMethod(tokenAddress, "totalSupply()");
+    return Number(await this.callMethod(tokenAddress, "totalSupply()"));
   }
 
-  public async getCash(tokenAddress: string): Promise<number> {
+  public async getCash(tokenAddress: string): Promise<BigInt> {
     return await this.callMethod(tokenAddress, "getCash()");
   }
 
-  public async totalBorrowsCurrent(tokenAddress: string): Promise<number> {
+  public async totalBorrowsCurrent(tokenAddress: string): Promise<BigInt> {
     return await this.callMethod(tokenAddress, "totalBorrowsCurrent()");
   }
 
-  public async totalReserves(tokenAddress: string): Promise<number> {
+  public async totalReserves(tokenAddress: string): Promise<BigInt> {
     return await this.callMethod(tokenAddress, "totalReserves()");
   }
 
-  public async reserveFactorMantissa(tokenAddress: string): Promise<number> {
+  public async reserveFactorMantissa(tokenAddress: string): Promise<BigInt> {
     return await this.callMethod(tokenAddress, "reserveFactorMantissa()");
   }
 
   private async callMethod(
     tokenAddress: string,
     methodName: string
-  ): Promise<number> {
+  ): Promise<BigInt> {
     const method = this.web3.utils.keccak256(methodName).substr(0, 10);
     const transaction = {
       to: tokenAddress,
