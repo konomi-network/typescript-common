@@ -8,6 +8,7 @@ export interface OTokenParameter {
   initialExchangeRate: number;
   underlying: string;
   comptroller: string;
+  priceOracle: string;
   decimals: number;
 }
 
@@ -113,7 +114,7 @@ export class OToken extends Client {
    * Total Supply is the number of tokens currently in circulation in this cToken market.
    * It is part of the EIP-20 interface of the cToken contract.
    */
-  public async totalSupply(): Promise<BigInt> {
+  public async totalSupply(): Promise<number> {
     return this.contract.methods.totalSupply().call();
   }
 

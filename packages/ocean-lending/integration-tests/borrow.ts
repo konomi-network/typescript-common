@@ -1,8 +1,9 @@
+import { expect } from "chai";
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { ERC20Token } from "clients/erc20Token";
-import { OToken } from "clients/oToken";
-import { Comptroller } from "clients/comptroller";
+import { ERC20Token } from "../src/clients/erc20Token";
+import { OToken } from "../src/clients/oToken";
+import { Comptroller } from "../src/clients/comptroller";
 import {
   ensure,
   loadWalletFromEncyrptedJson,
@@ -10,8 +11,7 @@ import {
   readJsonSync,
   readPassword,
 } from "../src/utils";
-import { PriceOracle } from "clients/priceOracle";
-import { exit } from "process";
+import { PriceOracle } from "../src/clients/priceOracle";
 
 async function enterMarkets(
   account: Account,
@@ -150,74 +150,74 @@ async function repayBorrow(
   );
 }
 
-async function main() {
-  // const config = readJsonSync('./config/config.json');
-  const config = readJsonSync("../konomi-CLI/testConfig/config.json");
+describe("Borrow", async () => {
+  const config = readJsonSync("./config/config.json");
+  const oTokenAbi = readJsonSync("./config/oToken.json");
+  const erc20Abi = readJsonSync("./config/erc20.json");
+  const comptrollerAbi = readJsonSync("./config/comptroller.json");
+  const priceOracleAbi = readJsonSync("./config/priceOracle.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
   let account: Account;
-  if (config.encryptedAccountJson) {
-    const pw = await readPassword();
-    account = loadWalletFromEncyrptedJson(
-      config.encryptedAccountJson,
-      pw,
-      web3
+  let oToken: OToken;
+  let erc20Token: ERC20Token;
+  let comptroller: Comptroller;
+  let priceOracle: PriceOracle;
+
+  before(async () => {
+    if (config.encryptedAccountJson) {
+      const pw = await readPassword();
+      account = loadWalletFromEncyrptedJson(
+        config.encryptedAccountJson,
+        pw,
+        web3
+      );
+    } else if (config.privateKey) {
+      account = loadWalletFromPrivate(config.privateKey, web3);
+    } else {
+      throw Error("Cannot setup account");
+    }
+
+    console.log("Using account:", account.address);
+
+    // load the oToken object
+    oToken = new OToken(
+      web3,
+      oTokenAbi,
+      config.oTokens.oKono.address,
+      account,
+      config.oTokens.oKono.parameters
     );
-  } else if (config.privateKey) {
-    account = loadWalletFromPrivate(config.privateKey, web3);
-  } else {
-    throw Error("Cannot setup account");
-  }
 
-  console.log("Using account:", account.address);
+    // load the erc20 token object
+    erc20Token = new ERC20Token(
+      web3,
+      erc20Abi,
+      oToken.parameters.underlying,
+      account
+    );
 
-  // load the oToken object
-  const oTokenAbi = readJsonSync("./config/oToken.json");
-  const oToken = new OToken(
-    web3,
-    oTokenAbi,
-    config.oTokens.oKono.address,
-    account,
-    config.oTokens.oKono.parameters
-  );
+    comptroller = new Comptroller(
+      web3,
+      comptrollerAbi,
+      oToken.parameters.comptroller,
+      account
+    );
 
-  // load the erc20 token object
-  const erc20Abi = readJsonSync("./config/erc20.json");
-  const erc20Token = new ERC20Token(
-    web3,
-    erc20Abi,
-    oToken.parameters.underlying,
-    account
-  );
-
-  const comptrollerAbi = readJsonSync("./config/comptroller.json");
-  const comptroller = new Comptroller(
-    web3,
-    comptrollerAbi,
-    oToken.parameters.comptroller,
-    account
-  );
-
-  // load price feed object
-  const priceOracleAbi = readJsonSync("./config/priceOracle.json");
-  const priceOracle = new PriceOracle(
-    web3,
-    priceOracleAbi,
-    config.priceOracle,
-    account
-  );
-
-  // actual tests
-  const markets = [config.oTokens.oKono.address];
-  await enterMarkets(account, markets, comptroller);
-  await borrow(account, oToken, erc20Token, priceOracle, comptroller, 50);
-  await repayBorrow(account, oToken, erc20Token);
-}
-
-main()
-  .then(() => exit(0))
-  .catch((e) => {
-    console.log(e);
-    exit(1);
+    // load price feed object
+    priceOracle = new PriceOracle(
+      web3,
+      priceOracleAbi,
+      config.priceOracle,
+      account
+    );
   });
+
+  it("key flow test", async () => {
+    const markets = [config.oTokens.oKono.address];
+    await enterMarkets(account, markets, comptroller);
+    await borrow(account, oToken, erc20Token, priceOracle, comptroller, 50);
+    await repayBorrow(account, oToken, erc20Token);
+  });
+});
