@@ -157,8 +157,8 @@ describe("Comptroller", async () => {
     console.log("==== minBorrowRateAPY:", minBorrowRateAPY);
     expect(minBorrowRateAPY > BigInt(0)).to.be.eq(true);
 
-    const minSupplyRateAPY = await comptroller.minSupplyAPY(jumpInterestV2);
-    console.log("==== minSupplyRateAPY:", minSupplyRateAPY);
-    expect(minSupplyRateAPY > BigInt(0)).to.be.eq(true);
+    const maxSupplyRateAPY = await comptroller.maxSupplyAPY(jumpInterestV2);
+    console.log("==== maxSupplyRateAPY:", maxSupplyRateAPY);
+    expect(maxSupplyRateAPY > BigInt(0)).to.be.eq(true);
   });
 });

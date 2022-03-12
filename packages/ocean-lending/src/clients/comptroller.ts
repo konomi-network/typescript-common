@@ -129,10 +129,10 @@ export class Comptroller extends Client {
     return min;
   }
 
-  public async minSupplyAPY(jumpInterestV2: JumpInterestV2) {
+  public async maxSupplyAPY(jumpInterestV2: JumpInterestV2) {
     const blockTime = 15;
     const tokenAddresses = await this.allMarkets();
-    let min: BigInt = BigInt(-1);
+    let max: BigInt = BigInt(-1);
     for (const tokenAddress of tokenAddresses) {
       const cash = await this.getCash(tokenAddress);
       const borrows = await this.totalBorrowsCurrent(tokenAddress);
@@ -150,10 +150,10 @@ export class Comptroller extends Client {
 
       const supplyRateAPY = jumpInterestV2.blockToYear(rate, blockTime);
 
-      if (min == BigInt(-1) || min > supplyRateAPY) {
-        min = supplyRateAPY;
+      if (max == BigInt(-1) || max < supplyRateAPY) {
+        max = supplyRateAPY;
       }
     }
-    return min;
+    return max;
   }
 }
