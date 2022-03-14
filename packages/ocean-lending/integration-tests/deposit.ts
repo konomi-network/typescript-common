@@ -1,8 +1,8 @@
-import { exit } from 'process';
-import Web3 from 'web3';
-import { Account } from 'web3-core';
-import { ERC20Token } from '../src/clients/erc20Token';
-import { OToken } from '../src/clients/oToken';
+import { expect } from "chai";
+import Web3 from "web3";
+import { Account } from "web3-core";
+import { ERC20Token } from "../src/clients/erc20Token";
+import { OToken } from "../src/clients/oToken";
 import {
   ensure,
   loadWalletFromEncyrptedJson,
@@ -32,6 +32,7 @@ async function depositWorks(account: Account, oToken: OToken, token: ERC20Token)
 
   ensure(oTokenAfter > oTokenBefore, 'invalid deposit balance');
   // oToken.convertFromUnderlying(amount);
+  expect(oTokenAfter > oTokenBefore).to.be.eq(true);
 }
 
 /**
@@ -60,40 +61,53 @@ async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Toke
   // oToken.convertFromUnderlying(amount);
 }
 
-async function main() {
-  // const config = readJsonSync('./config/config.json');
-  const config = readJsonSync('./config/config.json');
+describe("Deposit", async () => {
+  const config = readJsonSync("./config/config.json");
+  const oTokenAbi = readJsonSync("./config/oToken.json");
+  const erc20Abi = readJsonSync("./config/erc20.json");
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
   let account: Account;
-  if (config.encryptedAccountJson) {
-    const pw = await readPassword();
-    account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);
-  } else if (config.privateKey) {
-    account = loadWalletFromPrivate(config.privateKey, web3);
-  } else {
-    throw Error('Cannot setup account');
-  }
+  let oToken: OToken;
+  let erc20Token: ERC20Token;
 
-  console.log('Using account:', account.address);
+  before(async () => {
+    if (config.encryptedAccountJson) {
+      const pw = await readPassword();
+      account = loadWalletFromEncyrptedJson(
+        config.encryptedAccountJson,
+        pw,
+        web3
+      );
+    } else if (config.privateKey) {
+      account = loadWalletFromPrivate(config.privateKey, web3);
+    } else {
+      throw Error("Cannot setup account");
+    }
 
-  // load the oToken object
-  const oTokenAbi = readJsonSync('./config/oToken.json');
-  const oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
+    console.log("Using account:", account.address);
 
-  // load the erc20 token object
-  const erc20Abi = readJsonSync('./config/erc20.json');
-  const erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
+    // load the oToken object
+    oToken = new OToken(
+      web3,
+      oTokenAbi,
+      config.oTokens.oKono.address,
+      account,
+      config.oTokens.oKono.parameters
+    );
 
-  // actual tests
-  await depositWorks(account, oToken, erc20Token);
-  await redeemNoBorrow(account, oToken, erc20Token);
-}
-
-main()
-  .then(() => exit(0))
-  .catch((e) => {
-    console.log(e);
-    exit(1);
+    // load the erc20 token object
+    erc20Token = new ERC20Token(
+      web3,
+      erc20Abi,
+      oToken.parameters.underlying,
+      account
+    );
   });
+
+  it("key flow test", async () => {
+    await depositWorks(account, oToken, erc20Token);
+    // await redeemNoBorrow(account, oToken, erc20Token);
+  });
+});

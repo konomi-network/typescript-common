@@ -1,4 +1,4 @@
-## Usage
+## Install
 
 ```
 npx install-peerdeps @konomi-network/client
@@ -8,4 +8,8 @@ npx install-peerdeps @konomi-network/client
 
 ```
 npx ts-node ./integration-tests/deposit.ts
+```
+
+```
+npm run test-specific Deposit
 ```
