@@ -14,21 +14,30 @@ import {
 } from "../src/utils";
 import { JumpInterestV2 } from "../src/clients/jumpInterestV2";
 
-async function multiplierPerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
+async function multiplierPerYear(
+  jumpInterestV2: JumpInterestV2,
+  blockTime: number
+) {
   console.log("==== multiplierPerYear ====");
   const multiplier = await jumpInterestV2.multiplierPerYear(blockTime);
   console.log(`multiplierPerYear: ${multiplier}`);
   console.log("==== multiplierPerYear ====");
 }
 
-async function baseRatePerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
+async function baseRatePerYear(
+  jumpInterestV2: JumpInterestV2,
+  blockTime: number
+) {
   console.log("==== baseRatePerYear ====");
   const rate = await jumpInterestV2.baseRatePerYear(blockTime);
   console.log(`baseRatePerYear: ${rate.valueOf() / ONE_ETHER}%`);
   console.log("==== baseRatePerYear ====");
 }
 
-async function jumpMultiplierPerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
+async function jumpMultiplierPerYear(
+  jumpInterestV2: JumpInterestV2,
+  blockTime: number
+) {
   console.log("==== jumpMultiplierPerYear ====");
   const jumpMultiplier = await jumpInterestV2.jumpMultiplierPerYear(blockTime);
   console.log(`jumpMultiplierPerYear: ${jumpMultiplier}`);
@@ -120,7 +129,9 @@ async function getSupplyRateAPY(
 
 async function main() {
   // const config = readJsonSync("./config/config.json");
-  const config = readJsonSync("C:/Users/kun-d/Desktop/WFH/code/dev/client/packages/test-config/config.json");
+  const config = readJsonSync(
+    "C:/Users/kun-d/Desktop/WFH/code/dev/client/packages/test-config/config.json"
+  );
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 

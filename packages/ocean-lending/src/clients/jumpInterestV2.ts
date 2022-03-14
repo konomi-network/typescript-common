@@ -18,9 +18,9 @@ export class JumpInterestV2 extends Client {
   /**
    * Convert multiplierPerBlock into multiplierPerYear
    * @param blockTime The number of seconds per block
-   * 
-   */ 
-   public async multiplierPerYear(blockTime: number): Promise<BigInt> {
+   *
+   */
+  public async multiplierPerYear(blockTime: number): Promise<BigInt> {
     const m = await this.contract.methods.multiplierPerBlock().call();
     return this.blockToYear(BigInt(m), blockTime);
   }
@@ -36,7 +36,7 @@ export class JumpInterestV2 extends Client {
   /**
    * Convert baseRatePerBlock into baseRatePerYear
    * @param blockTime The number of seconds per block
-   */ 
+   */
   public async baseRatePerYear(blockTime: number): Promise<BigInt> {
     const b = await this.contract.methods.baseRatePerBlock().call();
     return this.blockToYear(BigInt(b), blockTime);
@@ -53,9 +53,9 @@ export class JumpInterestV2 extends Client {
   /**
    * Convert jumpMultiplierPerBlock into jumpMultiplierPerYear
    * @param blockTime The number of seconds per block
-   * 
-   */ 
-   public async jumpMultiplierPerYear(blockTime: number): Promise<BigInt> {
+   *
+   */
+  public async jumpMultiplierPerYear(blockTime: number): Promise<BigInt> {
     const b = await this.contract.methods.jumpMultiplierPerBlock().call();
     return this.blockToYear(BigInt(b), blockTime);
   }
