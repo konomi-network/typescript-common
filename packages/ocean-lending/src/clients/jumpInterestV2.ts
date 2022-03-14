@@ -4,7 +4,7 @@ import { Client } from './client';
 /**
  * JumpInterest V2 contract client.
  */
-export class JumpInterestV2 extends Client {
+class JumpInterestV2 extends Client {
   private readonly decimals = 1e18;
 
   /*
@@ -152,3 +152,6 @@ export class JumpInterestV2 extends Client {
     return BigInt(APY);
   }
 }
+
+export default JumpInterestV2;
+export { JumpInterestV2 };

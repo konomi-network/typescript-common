@@ -10,7 +10,7 @@ const PENDING = 'pending';
 /**
  * The client class for Konomi Protocol.
  */
-export class Client {
+class Client {
   // The web3 instance
   protected web3: Web3;
 
@@ -89,3 +89,6 @@ export class Client {
     return method.estimateGas(txn);
   }
 }
+
+export default Client;
+export { Client };

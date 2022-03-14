@@ -11,8 +11,7 @@ export interface OTokenParameter {
   priceOracle: string;
   decimals: number;
 }
-
-export class OToken extends Client {
+class OToken extends Client {
   readonly parameters: OTokenParameter;
 
   private readonly underlyingDecimals = 18;
@@ -126,3 +125,6 @@ export class OToken extends Client {
     return this.contract.methods.reserveFactorMantissa().call();
   }
 }
+
+export default OToken;
+export { OToken };

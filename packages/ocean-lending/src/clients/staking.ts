@@ -4,7 +4,7 @@ import { TxnOptions } from 'options';
 /**
  * Staking V1 contract client.
  */
-export class StakingV1 extends Client {
+class StakingV1 extends Client {
   /**
    * Supply reward in to the contract. Only allowed by admin.
    * @param amount The amount to withdraw
@@ -54,3 +54,6 @@ export class StakingV1 extends Client {
     return [depositedAmount, totalRewards];
   }
 }
+
+export default StakingV1;
+export { StakingV1 };

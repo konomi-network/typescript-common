@@ -1,7 +1,7 @@
 import { TxnOptions } from 'options';
 import { Client } from './client';
 
-export class ConfigCenter extends Client {
+class ConfigCenter extends Client {
   public async setFeedPriceThreshold(feedPriceThreshold: string, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.setFeedPriceThreshold(feedPriceThreshold);
     await this.send(method, await this.prepareTxn(method), options);
@@ -32,3 +32,6 @@ export class ConfigCenter extends Client {
     return this.contract.methods[field]().call();
   }
 }
+
+export default ConfigCenter;
+export { ConfigCenter };

@@ -3,7 +3,7 @@ import { PriceOracle } from './priceOracle';
 import { JumpInterestV2 } from './jumpInterestV2';
 import { TxnOptions } from 'options';
 
-export class Comptroller extends Client {
+class Comptroller extends Client {
   private readonly decimals = 1e18;
 
   public async enterMarkets(markets: string[], options: TxnOptions): Promise<void> {
@@ -131,3 +131,6 @@ export class Comptroller extends Client {
     return max;
   }
 }
+
+export default Comptroller;
+export { Comptroller };

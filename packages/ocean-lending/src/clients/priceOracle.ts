@@ -1,6 +1,6 @@
 import { Client } from './client';
 
-export class PriceOracle extends Client {
+class PriceOracle extends Client {
   private readonly decimals = 1e18;
 
   public async getUnderlyingPrice(tokenAddress: string): Promise<number> {
@@ -8,3 +8,6 @@ export class PriceOracle extends Client {
     return price / this.decimals;
   }
 }
+
+export default PriceOracle;
+export { PriceOracle };
