@@ -88,14 +88,8 @@ export class JumpInterestV2 extends Client {
    * @param oToken The ocean-lending client object
    * @return The borrow rate per block (as a percentage, and scaled by 1e18)
    */
-  public async getBorrowRate(
-    cash: BigInt,
-    borrows: BigInt,
-    reserves: BigInt
-  ): Promise<BigInt> {
-    const rate = await this.contract.methods
-      .getBorrowRate(cash, borrows, reserves)
-      .call();
+  public async getBorrowRate(cash: BigInt, borrows: BigInt, reserves: BigInt): Promise<BigInt> {
+    const rate = await this.contract.methods.getBorrowRate(cash, borrows, reserves).call();
     return BigInt(rate);
   }
 
@@ -121,9 +115,7 @@ export class JumpInterestV2 extends Client {
     reserves: BigInt,
     reserveFactorMantissa: BigInt
   ): Promise<BigInt> {
-    const rate = await this.contract.methods
-      .getSupplyRate(cash, borrows, reserves, reserveFactorMantissa)
-      .call();
+    const rate = await this.contract.methods.getSupplyRate(cash, borrows, reserves, reserveFactorMantissa).call();
     return BigInt(rate);
   }
 
@@ -133,10 +125,7 @@ export class JumpInterestV2 extends Client {
    * @param blockTime The number of seconds per block
    * @return The borrow rate per block (as a percentage, and scaled by 1e18)
    */
-  public async getBorrowRateAPY(
-    oToken: OToken,
-    blockTime: number
-  ): Promise<BigInt> {
+  public async getBorrowRateAPY(oToken: OToken, blockTime: number): Promise<BigInt> {
     const rate = await this.getBorrowRateByOToken(oToken);
     return this.blockToYear(rate, blockTime);
   }
@@ -147,10 +136,7 @@ export class JumpInterestV2 extends Client {
    * @param blockTime The number of seconds per block
    * @return The supply rate per block (as a percentage, and scaled by 1e18)
    */
-  public async getSupplyRateAPY(
-    oToken: OToken,
-    blockTime: number
-  ): Promise<BigInt> {
+  public async getSupplyRateAPY(oToken: OToken, blockTime: number): Promise<BigInt> {
     const rate = await this.getSupplyRateByOToken(oToken);
     return this.blockToYear(rate, blockTime);
   }

@@ -1,9 +1,9 @@
-import { expect } from "chai";
-import { ERC20Token } from "../src/clients/erc20Token";
-import { OToken } from "../src/clients/oToken";
-import Web3 from "web3";
-import { Account } from "web3-core";
-import { StakingV1 } from "../src/clients/staking";
+import { expect } from 'chai';
+import { ERC20Token } from '../src/clients/erc20Token';
+import { OToken } from '../src/clients/oToken';
+import Web3 from 'web3';
+import { Account } from 'web3-core';
+import { StakingV1 } from '../src/clients/staking';
 import {
   ensure,
   loadWalletFromEncyrptedJson,
@@ -13,11 +13,11 @@ import {
   readPassword
 } from '../src/utils';
 
-describe("Staking", async () => {
-  const config = readJsonSync("./config/config.json");
-  const stakingV1Abi = readJsonSync("./config/stakingV1.json");
-  const oTokenAbi = readJsonSync("./config/oToken.json");
-  const erc20Abi = readJsonSync("./config/erc20.json");
+describe('Staking', async () => {
+  const config = readJsonSync('./config/config.json');
+  const stakingV1Abi = readJsonSync('./config/stakingV1.json');
+  const oTokenAbi = readJsonSync('./config/oToken.json');
+  const erc20Abi = readJsonSync('./config/erc20.json');
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -29,46 +29,26 @@ describe("Staking", async () => {
   before(async () => {
     if (config.encryptedAccountJson) {
       const pw = await readPassword();
-      account = loadWalletFromEncyrptedJson(
-        config.encryptedAccountJson,
-        pw,
-        web3
-      );
+      account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);
     } else if (config.privateKey) {
       account = loadWalletFromPrivate(config.privateKey, web3);
     } else {
-      throw Error("Cannot setup account");
+      throw Error('Cannot setup account');
     }
 
-    console.log("Using account:", account);
+    console.log('Using account:', account);
 
     // load the stakingV1 object
-    stakingV1 = new StakingV1(
-      web3,
-      stakingV1Abi,
-      config.stakingV1.address,
-      account
-    );
+    stakingV1 = new StakingV1(web3, stakingV1Abi, config.stakingV1.address, account);
 
     // load the oToken object
-    oToken = new OToken(
-      web3,
-      oTokenAbi,
-      config.oTokens.oKono.address,
-      account,
-      config.oTokens.oKono.parameters
-    );
+    oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
 
     // load the erc20 token object
-    erc20Token = new ERC20Token(
-      web3,
-      erc20Abi,
-      oToken.parameters.underlying,
-      account
-    );
+    erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
   });
 
-  it("key flow test", async () => {
+  it('key flow test', async () => {
     const amount = 1000;
     await stakeOfTest(account, erc20Token, stakingV1);
     await depositTest(account, erc20Token, stakingV1, amount);
@@ -85,13 +65,8 @@ async function stakeOfTest(account: Account, token: ERC20Token, stakingV1: Staki
 }
 
 // Deposit some tokens
-async function depositTest(
-  account: Account,
-  token: ERC20Token,
-  stakingV1: StakingV1,
-  amount: number
-) {
-  console.log("==== deposit begin ====");
+async function depositTest(account: Account, token: ERC20Token, stakingV1: StakingV1, amount: number) {
+  console.log('==== deposit begin ====');
   const erc20Before = await token.balanceOf(account.address);
   const [depositedAmountBefore, totalRewardsBefore] = await stakingV1.stakeOf(account.address);
   console.log(
@@ -118,26 +93,15 @@ async function depositTest(
   );
 
   const expectedErc = erc20Before.valueOf() - depositAmount;
-  ensure(
-    erc20After == expectedErc,
-    `invalid erc20 balance, expected ${expectedErc}, actual: ${erc20After}`
-  );
-  ensure(
-    depositedAmountAfter > depositedAmountBefore,
-    "invalid deposit balance"
-  );
-  console.log("==== deposit end ====");
+  ensure(erc20After == expectedErc, `invalid erc20 balance, expected ${expectedErc}, actual: ${erc20After}`);
+  ensure(depositedAmountAfter > depositedAmountBefore, 'invalid deposit balance');
+  console.log('==== deposit end ====');
   expect(depositedAmountAfter > depositedAmountBefore).to.be.eq(true);
 }
 
 // WithDraw some tokens
-async function withdrawTest(
-  account: Account,
-  token: ERC20Token,
-  stakingV1: StakingV1,
-  amount: number
-) {
-  console.log("==== withdraw begin ====");
+async function withdrawTest(account: Account, token: ERC20Token, stakingV1: StakingV1, amount: number) {
+  console.log('==== withdraw begin ====');
   const erc20Before = await token.balanceOf(account.address);
   const [depositedAmountBefore, totalRewardsBefore] = await stakingV1.stakeOf(account.address);
   console.log(
@@ -168,21 +132,14 @@ async function withdrawTest(
     depositedAmountAfter == expectedDepositedAmount,
     `invalid depositedAmount, expected ${expectedDepositedAmount}, actual: ${depositedAmountAfter}`
   );
-  ensure(
-    depositedAmountAfter <= depositedAmountBefore,
-    "invalid deposit balance"
-  );
-  console.log("==== withdraw end ====");
+  ensure(depositedAmountAfter <= depositedAmountBefore, 'invalid deposit balance');
+  console.log('==== withdraw end ====');
   expect(depositedAmountAfter <= depositedAmountBefore).to.be.eq(true);
 }
 
 // WithDraw all tokens
-async function withdrawAllTest(
-  account: Account,
-  token: ERC20Token,
-  stakingV1: StakingV1
-) {
-  console.log("==== withdrawAll begin ====");
+async function withdrawAllTest(account: Account, token: ERC20Token, stakingV1: StakingV1) {
+  console.log('==== withdrawAll begin ====');
   const erc20Before = await token.balanceOf(account.address);
   const [depositedAmountBefore, totalRewardsBefore] = await stakingV1.stakeOf(account.address);
   console.log(
@@ -211,9 +168,6 @@ async function withdrawAllTest(
     depositedAmountAfter.valueOf() == BigInt(0) && totalRewardsAfter.valueOf() == BigInt(0),
     `invalid deposit balance,  expected: 0, actual: ${depositedAmountAfter},  expected: 0, actual: ${totalRewardsAfter}`
   );
-  console.log("==== withdrawAll end ====");
-  expect(
-    depositedAmountAfter.valueOf() == BigInt(0) &&
-      totalRewardsAfter.valueOf() == BigInt(0)
-  ).to.be.eq(true);
+  console.log('==== withdrawAll end ====');
+  expect(depositedAmountAfter.valueOf() == BigInt(0) && totalRewardsAfter.valueOf() == BigInt(0)).to.be.eq(true);
 }
