@@ -79,19 +79,18 @@ class Comptroller extends Client {
     return r[0];
   }
 
-  public async totalLiquidaity(priceOracle: PriceOracle) {
+  public async totalLiquidity(priceOracle: PriceOracle) {
     const tokenAddresses = await this.allMarkets();
-    let totalLiquidaity = 0;
+    let totalValue = 0;
     for (const tokenAddress of tokenAddresses) {
       const supply = await this.totalSupply(tokenAddress);
       const price = await priceOracle.getUnderlyingPrice(tokenAddress);
-      totalLiquidaity += supply * price;
+      totalValue += supply * price;
     }
-    return totalLiquidaity;
+    return totalValue;
   }
 
-  public async minBorrowAPY(jumpInterestV2: JumpInterestV2) {
-    const blockTime = 15;
+  public async minBorrowAPY(jumpInterestV2: JumpInterestV2, blockTime: number) {
     const tokenAddresses = await this.allMarkets();
     let min: BigInt = BigInt(-1);
     for (const tokenAddress of tokenAddresses) {
@@ -110,8 +109,7 @@ class Comptroller extends Client {
     return min;
   }
 
-  public async maxSupplyAPY(jumpInterestV2: JumpInterestV2) {
-    const blockTime = 15;
+  public async maxSupplyAPY(jumpInterestV2: JumpInterestV2, blockTime: number) {
     const tokenAddresses = await this.allMarkets();
     let max: BigInt = BigInt(-1);
     for (const tokenAddress of tokenAddresses) {

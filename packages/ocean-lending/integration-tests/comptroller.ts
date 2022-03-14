@@ -88,15 +88,16 @@ describe('Comptroller', async () => {
     await collateralFactor(account, oToken, erc20Token, comptroller);
     await closeFactor(account, oToken, erc20Token, comptroller);
 
-    const totalLiquidaityN = await comptroller.totalLiquidaity(priceOracle);
-    console.log('==== totalLiquidaity:', totalLiquidaityN);
+    const totalLiquidaityN = await comptroller.totalLiquidity(priceOracle);
+    console.log('==== totalLiquidity:', totalLiquidaityN);
     expect(totalLiquidaityN).to.be.gt(0);
 
-    const minBorrowRateAPY = await comptroller.minBorrowAPY(jumpInterestV2);
+    const blockTime = 15;
+    const minBorrowRateAPY = await comptroller.minBorrowAPY(jumpInterestV2, blockTime);
     console.log('==== minBorrowRateAPY:', minBorrowRateAPY);
     expect(minBorrowRateAPY > BigInt(0)).to.be.eq(true);
 
-    const maxSupplyRateAPY = await comptroller.maxSupplyAPY(jumpInterestV2);
+    const maxSupplyRateAPY = await comptroller.maxSupplyAPY(jumpInterestV2, blockTime);
     console.log('==== maxSupplyRateAPY:', maxSupplyRateAPY);
     expect(maxSupplyRateAPY > BigInt(0)).to.be.eq(true);
   });
