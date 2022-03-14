@@ -58,10 +58,10 @@ export class IntegrationClient {
     const canBeCollateral = collateralFactor != 0;
 
     return {
-      canBeCollateral: canBeCollateral,
-      collateralFactor: collateralFactor,
-      closeFactor: closeFactor,
-      liquidationIncentive: liquidationIncentive,
+      canBeCollateral,
+      collateralFactor,
+      closeFactor,
+      liquidationIncentive
     };
   }
 
@@ -78,10 +78,10 @@ export class IntegrationClient {
       ]);
 
     return {
-      baseRatePerYear: baseRatePerYear,
-      multiplierPerYear: multiplierPerYear,
-      jumpMultiplierPerYear: jumpMultiplierPerYear,
-      kink: kink,
+      baseRatePerYear,
+      multiplierPerYear,
+      jumpMultiplierPerYear,
+      kink,
     };
   }
 }
