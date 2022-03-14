@@ -1,18 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  CollateralConfig,
-  DEFAULT_PARAM,
-  Header,
-  InterestConfig,
-  PoolConfig,
-  TokenConfig,
-} from "./config";
-import { Address, Uint16, Uint64 } from "./types";
-import { isBitSet } from "./utils";
+import { CollateralConfig, DEFAULT_PARAM, Header, InterestConfig, PoolConfig, TokenConfig } from './config';
+import { Address, Uint16, Uint64 } from './types';
+import { isBitSet } from './utils';
 
 class BitMask {
   readonly mask: number;
+
   readonly index: number;
+
   constructor(mask: number, index: number) {
     this.mask = mask;
     this.index = index;
@@ -23,13 +18,13 @@ class BitMask {
  * Only 6 of the 8 bits are used, 2 extra bits are reserved
  */
 const DEFAULT_BIT_MASK: Map<string, BitMask> = new Map([
-  ["baseRatePerYear", new BitMask(0x1, 0)],
-  ["multiplierPerYear", new BitMask(0x2, 1)],
-  ["jumpMultiplierPerYear", new BitMask(0x4, 2)],
-  ["kink", new BitMask(0x8, 3)],
-  ["collateralFactor", new BitMask(0x10, 4)],
-  ["liquidationIncentive", new BitMask(0x20, 5)],
-  ["canBeCollateral", new BitMask(0x20, 6)],
+  ['baseRatePerYear', new BitMask(0x1, 0)],
+  ['multiplierPerYear', new BitMask(0x2, 1)],
+  ['jumpMultiplierPerYear', new BitMask(0x4, 2)],
+  ['kink', new BitMask(0x8, 3)],
+  ['collateralFactor', new BitMask(0x10, 4)],
+  ['liquidationIncentive', new BitMask(0x20, 5)],
+  ['canBeCollateral', new BitMask(0x20, 6)]
 ]);
 
 export class OceanEncoder {
@@ -47,7 +42,7 @@ export class OceanEncoder {
       this.encodeInterest(param.interest),
       param.underlying.toBuffer(),
       this.encodeCollateral(param.collateral),
-      param.subscriptionId.toBuffer(),
+      param.subscriptionId.toBuffer()
     ]);
   }
 
@@ -61,16 +56,16 @@ export class OceanEncoder {
     });
 
     if (!para.collateral.canBeCollateral) {
-      n = n & ~(1 << DEFAULT_BIT_MASK.get("canBeCollateral")!.index);
+      n = n & ~(1 << DEFAULT_BIT_MASK.get('canBeCollateral')!.index);
     } else if (!para.collateral.collateralFactor) {
-      n = n | (1 << DEFAULT_BIT_MASK.get("canBeCollateral")!.index);
-      n = n | (1 << DEFAULT_BIT_MASK.get("collateralFactor")!.index);
+      n = n | (1 << DEFAULT_BIT_MASK.get('canBeCollateral')!.index);
+      n = n | (1 << DEFAULT_BIT_MASK.get('collateralFactor')!.index);
     } else {
-      n = n | (1 << DEFAULT_BIT_MASK.get("canBeCollateral")!.index);
+      n = n | (1 << DEFAULT_BIT_MASK.get('canBeCollateral')!.index);
     }
 
     if (!para.collateral.liquidationIncentive) {
-      n = n | (1 << DEFAULT_BIT_MASK.get("liquidationIncentive")!.index);
+      n = n | (1 << DEFAULT_BIT_MASK.get('liquidationIncentive')!.index);
     }
 
     const b = Buffer.allocUnsafe(1);
@@ -113,10 +108,7 @@ export class OceanDecoder {
     return { tokens };
   }
 
-  public static decodeSingle(
-    buf: Buffer,
-    offset: number
-  ): [TokenConfig, number] {
+  public static decodeSingle(buf: Buffer, offset: number): [TokenConfig, number] {
     const header = this.decodeHeader(buf.readUInt8(offset));
     offset += 1;
 
@@ -139,47 +131,25 @@ export class OceanDecoder {
         underlying,
         subscriptionId,
         interest,
-        collateral,
+        collateral
       },
-      offset,
+      offset
     ];
   }
 
   public static decodeHeader(n: number): Header {
     return {
-      baseRatePerYear: isBitSet(
-        n,
-        DEFAULT_BIT_MASK.get("baseRatePerYear")!.index
-      ),
-      multiplierPerYear: isBitSet(
-        n,
-        DEFAULT_BIT_MASK.get("multiplierPerYear")!.index
-      ),
-      jumpMultiplierPerYear: isBitSet(
-        n,
-        DEFAULT_BIT_MASK.get("jumpMultiplierPerYear")!.index
-      ),
-      kink: isBitSet(n, DEFAULT_BIT_MASK.get("kink")!.index),
-      collateralFactor: isBitSet(
-        n,
-        DEFAULT_BIT_MASK.get("collateralFactor")!.index
-      ),
-      liquidationIncentive: isBitSet(
-        n,
-        DEFAULT_BIT_MASK.get("liquidationIncentive")!.index
-      ),
-      canBeCollateral: isBitSet(
-        n,
-        DEFAULT_BIT_MASK.get("canBeCollateral")!.index
-      ),
+      baseRatePerYear: isBitSet(n, DEFAULT_BIT_MASK.get('baseRatePerYear')!.index),
+      multiplierPerYear: isBitSet(n, DEFAULT_BIT_MASK.get('multiplierPerYear')!.index),
+      jumpMultiplierPerYear: isBitSet(n, DEFAULT_BIT_MASK.get('jumpMultiplierPerYear')!.index),
+      kink: isBitSet(n, DEFAULT_BIT_MASK.get('kink')!.index),
+      collateralFactor: isBitSet(n, DEFAULT_BIT_MASK.get('collateralFactor')!.index),
+      liquidationIncentive: isBitSet(n, DEFAULT_BIT_MASK.get('liquidationIncentive')!.index),
+      canBeCollateral: isBitSet(n, DEFAULT_BIT_MASK.get('canBeCollateral')!.index)
     };
   }
 
-  public static decodeCollateral(
-    buf: Buffer,
-    offset: number,
-    header: Header
-  ): [CollateralConfig, number] {
+  public static decodeCollateral(buf: Buffer, offset: number, header: Header): [CollateralConfig, number] {
     let collateralFactor;
     if (!header.canBeCollateral) {
       collateralFactor = new Uint16(0);
@@ -202,17 +172,13 @@ export class OceanDecoder {
       {
         canBeCollateral: header.canBeCollateral,
         collateralFactor,
-        liquidationIncentive,
+        liquidationIncentive
       },
-      offset,
+      offset
     ];
   }
 
-  public static decodeInterest(
-    buf: Buffer,
-    offset: number,
-    header: Header
-  ): [InterestConfig, number] {
+  public static decodeInterest(buf: Buffer, offset: number, header: Header): [InterestConfig, number] {
     let baseRatePerYear;
     if (header.baseRatePerYear) {
       baseRatePerYear = DEFAULT_PARAM.baseRatePerYear;
@@ -244,14 +210,6 @@ export class OceanDecoder {
       kink = new Uint16(buf.readUInt16BE(offset));
       offset += 2;
     }
-    return [
-      new InterestConfig(
-        baseRatePerYear,
-        multiplierPerYear,
-        jumpMultiplierPerYear,
-        kink
-      ),
-      offset,
-    ];
+    return [new InterestConfig(baseRatePerYear, multiplierPerYear, jumpMultiplierPerYear, kink), offset];
   }
 }

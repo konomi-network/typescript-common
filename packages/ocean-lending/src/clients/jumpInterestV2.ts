@@ -1,10 +1,10 @@
-import { OToken } from "./oToken";
-import { Client } from "./client";
+import { OToken } from './oToken';
+import { Client } from './client';
 
 /**
  * JumpInterest V2 contract client.
  */
-export class JumpInterestV2 extends Client {
+class JumpInterestV2 extends Client {
   private readonly decimals = 1e18;
 
   /*
@@ -18,9 +18,9 @@ export class JumpInterestV2 extends Client {
   /**
    * Convert multiplierPerBlock into multiplierPerYear
    * @param blockTime The number of seconds per block
-   * 
-   */ 
-   public async multiplierPerYear(blockTime: number): Promise<BigInt> {
+   *
+   */
+  public async multiplierPerYear(blockTime: number): Promise<BigInt> {
     const m = await this.contract.methods.multiplierPerBlock().call();
     return this.blockToYear(BigInt(m), blockTime);
   }
@@ -36,7 +36,7 @@ export class JumpInterestV2 extends Client {
   /**
    * Convert baseRatePerBlock into baseRatePerYear
    * @param blockTime The number of seconds per block
-   */ 
+   */
   public async baseRatePerYear(blockTime: number): Promise<BigInt> {
     const b = await this.contract.methods.baseRatePerBlock().call();
     return this.blockToYear(BigInt(b), blockTime);
@@ -53,9 +53,9 @@ export class JumpInterestV2 extends Client {
   /**
    * Convert jumpMultiplierPerBlock into jumpMultiplierPerYear
    * @param blockTime The number of seconds per block
-   * 
-   */ 
-   public async jumpMultiplierPerYear(blockTime: number): Promise<BigInt> {
+   *
+   */
+  public async jumpMultiplierPerYear(blockTime: number): Promise<BigInt> {
     const b = await this.contract.methods.jumpMultiplierPerBlock().call();
     return this.blockToYear(BigInt(b), blockTime);
   }
@@ -77,11 +77,9 @@ export class JumpInterestV2 extends Client {
     const [cash, borrows, reserves] = await Promise.all([
       oToken.getCash(),
       oToken.totalBorrowsCurrent(),
-      oToken.totalReserves(),
+      oToken.totalReserves()
     ]);
-    const rate = await this.contract.methods
-      .getBorrowRate(cash, borrows, reserves)
-      .call();
+    const rate = await this.contract.methods.getBorrowRate(cash, borrows, reserves).call();
     return BigInt(rate);
   }
 
@@ -90,14 +88,8 @@ export class JumpInterestV2 extends Client {
    * @param oToken The ocean-lending client object
    * @return The borrow rate per block (as a percentage, and scaled by 1e18)
    */
-  public async getBorrowRate(
-    cash: BigInt,
-    borrows: BigInt,
-    reserves: BigInt
-  ): Promise<BigInt> {
-    const rate = await this.contract.methods
-      .getBorrowRate(cash, borrows, reserves)
-      .call();
+  public async getBorrowRate(cash: BigInt, borrows: BigInt, reserves: BigInt): Promise<BigInt> {
+    const rate = await this.contract.methods.getBorrowRate(cash, borrows, reserves).call();
     return BigInt(rate);
   }
 
@@ -111,11 +103,9 @@ export class JumpInterestV2 extends Client {
       oToken.getCash(),
       oToken.totalBorrowsCurrent(),
       oToken.totalReserves(),
-      oToken.reserveFactorMantissa(),
+      oToken.reserveFactorMantissa()
     ]);
-    const rate = await this.contract.methods
-      .getSupplyRate(cash, borrows, reserves, reserveFactorMantissa)
-      .call();
+    const rate = await this.contract.methods.getSupplyRate(cash, borrows, reserves, reserveFactorMantissa).call();
     return BigInt(rate);
   }
 
@@ -125,9 +115,7 @@ export class JumpInterestV2 extends Client {
     reserves: BigInt,
     reserveFactorMantissa: BigInt
   ): Promise<BigInt> {
-    const rate = await this.contract.methods
-      .getSupplyRate(cash, borrows, reserves, reserveFactorMantissa)
-      .call();
+    const rate = await this.contract.methods.getSupplyRate(cash, borrows, reserves, reserveFactorMantissa).call();
     return BigInt(rate);
   }
 
@@ -137,10 +125,7 @@ export class JumpInterestV2 extends Client {
    * @param blockTime The number of seconds per block
    * @return The borrow rate per block (as a percentage, and scaled by 1e18)
    */
-  public async getBorrowRateAPY(
-    oToken: OToken,
-    blockTime: number
-  ): Promise<BigInt> {
+  public async getBorrowRateAPY(oToken: OToken, blockTime: number): Promise<BigInt> {
     const rate = await this.getBorrowRateByOToken(oToken);
     return this.blockToYear(rate, blockTime);
   }
@@ -151,10 +136,7 @@ export class JumpInterestV2 extends Client {
    * @param blockTime The number of seconds per block
    * @return The supply rate per block (as a percentage, and scaled by 1e18)
    */
-  public async getSupplyRateAPY(
-    oToken: OToken,
-    blockTime: number
-  ): Promise<BigInt> {
+  public async getSupplyRateAPY(oToken: OToken, blockTime: number): Promise<BigInt> {
     const rate = await this.getSupplyRateByOToken(oToken);
     return this.blockToYear(rate, blockTime);
   }
@@ -170,3 +152,6 @@ export class JumpInterestV2 extends Client {
     return BigInt(APY);
   }
 }
+
+export default JumpInterestV2;
+export { JumpInterestV2 };

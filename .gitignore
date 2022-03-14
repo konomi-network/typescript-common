@@ -107,6 +107,7 @@ packages/ocean-lending/config/config.json
 
 yarn.lock
 
+dist/
 
 # tsc files
 /lib

@@ -1,19 +1,15 @@
-import { Client } from "./client";
-import { TxnOptions } from "../options";
-import { Account } from "web3-core";
+import { Client } from './client';
+import { TxnOptions } from 'options';
 
 /**
  * Staking V1 contract client.
  */
-export class StakingV1 extends Client {
+class StakingV1 extends Client {
   /**
    * Supply reward in to the contract. Only allowed by admin.
    * @param amount The amount to withdraw
    */
-  public async supplyReward(
-    amount: string,
-    options: TxnOptions
-  ): Promise<void> {
+  public async supplyReward(amount: string, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.supplyReward(amount);
     await this.send(method, await this.prepareTxn(method), options);
   }
@@ -53,8 +49,11 @@ export class StakingV1 extends Client {
    */
   public async stakeOf(address: string): Promise<[BigInt, BigInt]> {
     const s = await this.contract.methods.getUserStake(address).call();
-    const depositedAmount = BigInt(s["0"]);
-    const totalRewards = BigInt(s["1"]);
+    const depositedAmount = BigInt(s['0']);
+    const totalRewards = BigInt(s['1']);
     return [depositedAmount, totalRewards];
   }
 }
+
+export default StakingV1;
+export { StakingV1 };

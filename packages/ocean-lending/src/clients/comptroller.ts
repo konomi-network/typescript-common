@@ -1,30 +1,23 @@
-import { Client } from "./client";
-import { TxnOptions } from "../options";
-import { PriceOracle } from "./priceOracle";
-import { JumpInterestV2 } from "./jumpInterestV2";
+import { Client } from './client';
+import { PriceOracle } from './priceOracle';
+import { JumpInterestV2 } from './jumpInterestV2';
+import { TxnOptions } from 'options';
 
-export class Comptroller extends Client {
+class Comptroller extends Client {
   private readonly decimals = 1e18;
 
-  public async enterMarkets(
-    markets: string[],
-    options: TxnOptions
-  ): Promise<void> {
+  public async enterMarkets(markets: string[], options: TxnOptions): Promise<void> {
     const method = this.contract.methods.enterMarkets(markets);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
   public async getAccountLiquidity(address: string): Promise<number> {
-    const { 1: liquidity } = await this.contract.methods
-      .getAccountLiquidity(address)
-      .call();
+    const { 1: liquidity } = await this.contract.methods.getAccountLiquidity(address).call();
     return liquidity / this.decimals;
   }
 
   public async markets(address: string): Promise<number> {
-    const { 1: collateralFactor } = await this.contract.methods
-      .markets(address)
-      .call();
+    const { 1: collateralFactor } = await this.contract.methods.markets(address).call();
     return (collateralFactor / this.decimals) * 100;
   }
 
@@ -33,9 +26,7 @@ export class Comptroller extends Client {
    * For example, if the liquidation incentive is 1.1, liquidators receive an extra 10% of the borrowers collateral for every unit they close.
    */
   public async liquidationIncentive(): Promise<BigInt> {
-    const incentive = await this.contract.methods
-      .liquidationIncentiveMantissa()
-      .call();
+    const incentive = await this.contract.methods.liquidationIncentiveMantissa().call();
     return BigInt(incentive);
   }
 
@@ -54,59 +45,52 @@ export class Comptroller extends Client {
   }
 
   public async allMarkets(): Promise<string[]> {
-    return await this.contract.methods.getAllMarkets().call();
+    return this.contract.methods.getAllMarkets().call();
   }
 
   public async totalSupply(tokenAddress: string): Promise<number> {
-    return Number(await this.callMethod(tokenAddress, "totalSupply()"));
+    return Number(await this.callMethod(tokenAddress, 'totalSupply()'));
   }
 
   public async getCash(tokenAddress: string): Promise<BigInt> {
-    return await this.callMethod(tokenAddress, "getCash()");
+    return this.callMethod(tokenAddress, 'getCash()');
   }
 
   public async totalBorrowsCurrent(tokenAddress: string): Promise<BigInt> {
-    return await this.callMethod(tokenAddress, "totalBorrowsCurrent()");
+    return this.callMethod(tokenAddress, 'totalBorrowsCurrent()');
   }
 
   public async totalReserves(tokenAddress: string): Promise<BigInt> {
-    return await this.callMethod(tokenAddress, "totalReserves()");
+    return this.callMethod(tokenAddress, 'totalReserves()');
   }
 
   public async reserveFactorMantissa(tokenAddress: string): Promise<BigInt> {
-    return await this.callMethod(tokenAddress, "reserveFactorMantissa()");
+    return this.callMethod(tokenAddress, 'reserveFactorMantissa()');
   }
 
-  private async callMethod(
-    tokenAddress: string,
-    methodName: string
-  ): Promise<BigInt> {
+  private async callMethod(tokenAddress: string, methodName: string): Promise<BigInt> {
     const method = this.web3.utils.keccak256(methodName).substr(0, 10);
     const transaction = {
       to: tokenAddress,
-      data: method,
+      data: method
     };
 
-    const r = this.web3.eth.abi.decodeParameters(
-      ["uint256"],
-      await this.web3.eth.call(transaction)
-    );
+    const r = this.web3.eth.abi.decodeParameters(['uint256'], await this.web3.eth.call(transaction));
     return r[0];
   }
 
-  public async totalLiquidaity(priceOracle: PriceOracle) {
+  public async totalLiquidity(priceOracle: PriceOracle) {
     const tokenAddresses = await this.allMarkets();
-    let totalLiquidaity = 0;
+    let totalValue = 0;
     for (const tokenAddress of tokenAddresses) {
       const supply = await this.totalSupply(tokenAddress);
       const price = await priceOracle.getUnderlyingPrice(tokenAddress);
-      totalLiquidaity += supply * price;
+      totalValue += supply * price;
     }
-    return totalLiquidaity;
+    return totalValue;
   }
 
-  public async minBorrowAPY(jumpInterestV2: JumpInterestV2) {
-    const blockTime = 15;
+  public async minBorrowAPY(jumpInterestV2: JumpInterestV2, blockTime: number) {
     const tokenAddresses = await this.allMarkets();
     let min: BigInt = BigInt(-1);
     for (const tokenAddress of tokenAddresses) {
@@ -114,11 +98,7 @@ export class Comptroller extends Client {
       const borrows = await this.totalBorrowsCurrent(tokenAddress);
       const totalReserves = await this.totalReserves(tokenAddress);
 
-      const rate = await jumpInterestV2.getBorrowRate(
-        cash,
-        borrows,
-        totalReserves
-      );
+      const rate = await jumpInterestV2.getBorrowRate(cash, borrows, totalReserves);
 
       const borrowRateAPY = jumpInterestV2.blockToYear(rate, blockTime);
 
@@ -129,24 +109,16 @@ export class Comptroller extends Client {
     return min;
   }
 
-  public async maxSupplyAPY(jumpInterestV2: JumpInterestV2) {
-    const blockTime = 15;
+  public async maxSupplyAPY(jumpInterestV2: JumpInterestV2, blockTime: number) {
     const tokenAddresses = await this.allMarkets();
     let max: BigInt = BigInt(-1);
     for (const tokenAddress of tokenAddresses) {
       const cash = await this.getCash(tokenAddress);
       const borrows = await this.totalBorrowsCurrent(tokenAddress);
       const totalReserves = await this.totalReserves(tokenAddress);
-      const reserveFactorMantissa = await this.reserveFactorMantissa(
-        tokenAddress
-      );
+      const reserveFactorMantissa = await this.reserveFactorMantissa(tokenAddress);
 
-      const rate = await jumpInterestV2.getSupplyRate(
-        cash,
-        borrows,
-        totalReserves,
-        reserveFactorMantissa
-      );
+      const rate = await jumpInterestV2.getSupplyRate(cash, borrows, totalReserves, reserveFactorMantissa);
 
       const supplyRateAPY = jumpInterestV2.blockToYear(rate, blockTime);
 
@@ -157,3 +129,6 @@ export class Comptroller extends Client {
     return max;
   }
 }
+
+export default Comptroller;
+export { Comptroller };

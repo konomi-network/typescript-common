@@ -1,4 +1,4 @@
-import { Address, Bufferable, Uint16, Uint64 } from "./types";
+import { Address, Bufferable, Uint16, Uint64 } from './types';
 
 export const DEFAULT_PARAM = {
   baseRatePerYear: new Uint16(1),
@@ -6,7 +6,7 @@ export const DEFAULT_PARAM = {
   jumpMultiplierPerYear: new Uint16(1),
   kink: new Uint16(1),
   collateralFactor: new Uint16(1),
-  liquidationIncentive: new Uint16(1),
+  liquidationIncentive: new Uint16(1)
 };
 
 export class InterestConfig {
@@ -19,10 +19,10 @@ export class InterestConfig {
     kink: Uint16 | undefined
   ) {
     this.inner = [
-      ["baseRatePerYear", baseRatePerYear],
-      ["multiplierPerYear", multiplierPerYear],
-      ["jumpMultiplierPerYear", jumpMultiplierPerYear],
-      ["kink", kink],
+      ['baseRatePerYear', baseRatePerYear],
+      ['multiplierPerYear', multiplierPerYear],
+      ['jumpMultiplierPerYear', jumpMultiplierPerYear],
+      ['kink', kink]
     ];
   }
 

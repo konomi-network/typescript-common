@@ -1,44 +1,44 @@
 {
-	"name": "@konomi-network/decentralized-fs",
-	"version": "1.0.1",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"description": "Konomi Decentralized File Storage",
-	"author": "Konomi Network",
-	"private": false,
-	"homepage": "https://github.com/konomi-network/typescript-common",
-	"license": "MIT",
-	"keywords": [
-		"KONO",
-		"konomi",
-		"ipfs",
-		"dfs",
-		"Decentralized File Storage"
-	],
-	"files": [
-		"dist"
-	],
-	"publishConfig": {
-		"access": "public"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/konomi-network/typescript-common.git"
-	},
-	"bugs": {
-		"url": "https://github.com/konomi-network/typescript-common/issues"
-	},
-	"scripts": {
-		"clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
-		"prepack": "yarn build",
-		"build": "yarn clean && tsc --build && cp \"./package.json\" ./dist/",
-		"test": "jest",
-		"lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings=0"
-	},
-	"devDependencies": {
-		"@types/node": "^16.10.1"
-	},
-	"dependencies": {
-		"ipfs-http-client": "^55.0.0"
-	}
+  "name": "@konomi-network/decentralized-fs",
+  "version": "1.0.3",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "Konomi Decentralized File Storage",
+  "author": "Konomi Network",
+  "private": false,
+  "homepage": "https://github.com/konomi-network/typescript-common",
+  "license": "MIT",
+  "keywords": [
+    "KONO",
+    "konomi",
+    "ipfs",
+    "dfs",
+    "Decentralized File Storage"
+  ],
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konomi-network/typescript-common.git"
+  },
+  "bugs": {
+    "url": "https://github.com/konomi-network/typescript-common/issues"
+  },
+  "scripts": {
+    "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
+    "prepack": "yarn build",
+    "build": "yarn clean && tsc --build tsconfig.prod.json && cp \"./package.json\" ./dist/",
+    "test": "jest",
+    "lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings=0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.10.1"
+  },
+  "dependencies": {
+    "ipfs-http-client": "^55.0.0"
+  }
 }
