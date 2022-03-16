@@ -17,6 +17,20 @@ class KonomiOceanLending extends Client {
     });
   }
 
+  public async grantRole(account: string, options: TxnOptions): Promise<void> {
+    const invokerRole = await this.invokerRole();
+    const method = this.contract.methods.grantRole(invokerRole, account);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  private async invokerRole(): Promise<string> {
+    return this.contract.methods.INVOKER_ROLE().call();
+  }
+
+  public async derivePayable(leasePeriod: BigInt): Promise<BigInt> {
+    return this.contract.methods.derivePayable(leasePeriod).call();
+  }
+
   public async activePoolIds(): Promise<string[]> {
     return this.contract.methods.getActivePoolIds().call();
   }
@@ -31,17 +45,17 @@ class KonomiOceanLending extends Client {
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  public async withdraw(amount: string, options: TxnOptions): Promise<void> {
+  public async withdraw(amount: BigInt, options: TxnOptions): Promise<void> {
     const method = this.contract.methods._withdraw(amount);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  public async setKonoPerBlock(konoPerBlock: string, options: TxnOptions): Promise<void> {
+  public async setKonoPerBlock(konoPerBlock: BigInt, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.setKonoPerBlock(konoPerBlock);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  public async setMinLeasePeriod(minLeasePeriod: string, options: TxnOptions): Promise<void> {
+  public async setMinLeasePeriod(minLeasePeriod: BigInt, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.setMinLeasePeriod(minLeasePeriod);
     await this.send(method, await this.prepareTxn(method), options);
   }
