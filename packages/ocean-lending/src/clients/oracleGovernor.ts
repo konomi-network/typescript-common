@@ -78,7 +78,7 @@ export class OracleGovernor extends Client {
   public async proposeCurrency(
     symbol: string,
     slug: string,
-    source: Array<number>,
+    sources: Array<number>,
     clientType: string,
     leasePeriod: string,
     externalStorageHash: string,
@@ -87,7 +87,7 @@ export class OracleGovernor extends Client {
     const method = this.contract.methods.proposeCurrency(
       symbol,
       slug,
-      source,
+      sources,
       clientType,
       leasePeriod,
       externalStorageHash
@@ -118,13 +118,28 @@ export class OracleGovernor extends Client {
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  public async hasVoted(proposalId: BigInt, account: Account): Promise<BigInt> {
+  /**
+   * Has the account been voted
+   * @param proposalId The id of the proposal
+   * @param account The address of the voter
+   */
+  public async hasVoted(
+    proposalId: BigInt,
+    account: Account
+  ): Promise<boolean> {
     const state = await this.contract.methods
       .hasVoted(proposalId, account.address)
       .call();
     return state;
   }
 
+  /**
+   * Cast proposal vote by the proposal id
+   * Only validator role allowed
+   * @param proposalId The id of the proposal
+   * @param voteType The type of vote
+   * @param options The transaction configuration parameters
+   */
   public async castVote(
     proposalId: BigInt,
     voteType: number,
@@ -134,6 +149,13 @@ export class OracleGovernor extends Client {
     await this.send(method, await this.prepareTxn(method), options);
   }
 
+  /**
+   * Cast proposal vote by the proposal id with a specific reason
+   * Only validator role allowed
+   * @param proposalId The id of the proposal
+   * @param voteType The type of vote
+   * @param options The transaction configuration parameters
+   */
   public async castVoteWithReason(
     proposalId: BigInt,
     voteType: number,
@@ -145,6 +167,59 @@ export class OracleGovernor extends Client {
       voteType,
       reason
     );
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  // =========================  Protocol Parameters =========================
+  /**
+   * Only admin allowed
+   * @param fee The fee needed to create a new proposal, Initial value is 1000 KONO
+   * @param options The transaction configuration parameters
+   */
+  public async setProposalPayable(
+    fee: BigInt,
+    options: TxnOptions
+  ): Promise<void> {
+    const method = this.contract.methods.setProposalPayable(fee);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  /**
+   * Only admin allowed
+   * @param cancelThreshold The number of blocks before an admin can starting canceling. Initial value is around 3 days.
+   * @param options The transaction configuration parameters
+   */
+  public async setCancelThreshold(
+    cancelThreshold: BigInt,
+    options: TxnOptions
+  ): Promise<void> {
+    const method = this.contract.methods.setCancelThreshold(cancelThreshold);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  /**
+   * Only admin allowed
+   * @param subscribe The subscription related logic.
+   * @param options The transaction configuration parameters
+   */
+  public async setSubscribe(
+    subscribe: string,
+    options: TxnOptions
+  ): Promise<void> {
+    const method = this.contract.methods.setSubscribe(subscribe);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  /**
+   * Only admin allowed
+   * @param votingPeriod The number of blocks for a voting cycle. Initial value is around 3 days.
+   * @param options The transaction configuration parameters
+   */
+  public async setVotingPeriod(
+    votingPeriod: BigInt,
+    options: TxnOptions
+  ): Promise<void> {
+    const method = this.contract.methods.setVotingPeriod(votingPeriod);
     await this.send(method, await this.prepareTxn(method), options);
   }
 }

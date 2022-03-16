@@ -73,6 +73,7 @@ async function main() {
   );
 
   const confirmations = { confirmations: 3 };
+  const blockTime = 15;
 
   // actual tests
   const integrationClient = new IntegrationClient(
@@ -81,13 +82,11 @@ async function main() {
     jumpInterestV2,
     confirmations
   );
-  const blockTime = 15;
-  const poolInfoResponse = await integrationClient.poolInfo(blockTime, oToken);
+  const poolInfoResponse = await integrationClient.poolInfo(oToken, blockTime);
   console.log(poolInfoResponse);
 
-  const collateralSettingsResponse = await integrationClient.collateralSettings(
-    blockTime
-  );
+  const collateralSettingsResponse =
+    await integrationClient.collateralSettings();
   console.log(collateralSettingsResponse);
 
   const interestRateModelResponse = await integrationClient.interestRateModel(

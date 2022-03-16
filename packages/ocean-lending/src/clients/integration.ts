@@ -4,12 +4,6 @@ import { ERC20Token } from "./erc20Token";
 import { OToken, OTokenParameter } from "./oToken";
 import { Comptroller } from "./comptroller";
 import { JumpInterestV2 } from "./jumpInterestV2";
-import {
-  loadWalletFromEncyrptedJson,
-  loadWalletFromPrivate,
-  readJsonSync,
-  readPassword,
-} from "../utils";
 import { TxnOptions } from "options";
 
 export class IntegrationClient {
@@ -34,7 +28,11 @@ export class IntegrationClient {
     this.confirmations = confirmations;
   }
 
-  public async poolInfo(blockTime: number, oToken: OToken): Promise<any> {
+  /**
+   * @param oToken The oToken client object
+   * @param blockTime The number of seconds per block
+   */
+  public async poolInfo(oToken: OToken, blockTime: number): Promise<any> {
     const [liquidity, borrowRateAPY, supplyRateAPY] = await Promise.all([
       this.comptroller.getAccountLiquidity(this.account.address),
       this.jumpInterestV2.getBorrowRateAPY(oToken, blockTime),
@@ -49,10 +47,7 @@ export class IntegrationClient {
     };
   }
 
-  public async collateralSettings(blockTime: number): Promise<any> {
-    // Not implemented in comptroller,
-    const canBecollateral = true;
-
+  public async collateralSettings(): Promise<any> {
     const [collateralFactor, closeFactor, liquidationIncentive] =
       await Promise.all([
         this.comptroller.collateralFactor(this.account.address),
@@ -60,14 +55,19 @@ export class IntegrationClient {
         this.comptroller.liquidationIncentive(),
       ]);
 
+    const canBeCollateral = collateralFactor != 0;
+
     return {
-      canBecollateral: canBecollateral,
-      collateralFactor: collateralFactor,
-      closeFactor: closeFactor,
-      liquidationIncentive: liquidationIncentive,
+      canBeCollateral,
+      collateralFactor,
+      closeFactor,
+      liquidationIncentive,
     };
   }
 
+  /**
+   * @param blockTime The number of seconds per block
+   */
   public async interestRateModel(blockTime: number): Promise<any> {
     const [baseRatePerYear, multiplierPerYear, jumpMultiplierPerYear, kink] =
       await Promise.all([
@@ -78,10 +78,10 @@ export class IntegrationClient {
       ]);
 
     return {
-      baseRatePerYear: baseRatePerYear,
-      multiplierPerYear: multiplierPerYear,
-      jumpMultiplierPerYear: jumpMultiplierPerYear,
-      kink: kink,
+      baseRatePerYear,
+      multiplierPerYear,
+      jumpMultiplierPerYear,
+      kink,
     };
   }
 }
