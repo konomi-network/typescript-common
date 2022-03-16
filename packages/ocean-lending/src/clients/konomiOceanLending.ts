@@ -15,6 +15,21 @@ class KonomiOceanLending extends Client {
     const method = this.contract.methods.extendLease(poolId, extendPeriod);
     await this.send(method, await this.prepareTxn(method), options);
   }
+
+  public async withdraw(amount: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods._withdraw(amount);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  public async setKonoPerBlock(konoPerBlock: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods.setKonoPerBlock(konoPerBlock);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  public async setMinLeasePeriod(minLeasePeriod: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods.setMinLeasePeriod(minLeasePeriod);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
 }
 
 export default KonomiOceanLending;
