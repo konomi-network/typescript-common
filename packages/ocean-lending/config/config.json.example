@@ -30,5 +30,8 @@
   },
   "feedFactory": {
     "address": ""
+  },
+  "konomiOceanLending": {
+    "address": "0x17EB891f78F32a89961a39Cabf3413B7BcD628Cb"
   }
 }

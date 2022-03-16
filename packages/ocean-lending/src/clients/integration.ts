@@ -51,7 +51,7 @@ export class IntegrationClient {
     const [collateralFactor, closeFactor, liquidationIncentive] =
       await Promise.all([
         this.comptroller.collateralFactor(this.account.address),
-        this.comptroller.closeFactor(this.account.address),
+        this.comptroller.closeFactor(),
         this.comptroller.liquidationIncentive(),
       ]);
 
