@@ -1,7 +1,7 @@
 import { Client } from './client';
-import { TxnOptions } from 'options';
-import { PoolConfig } from 'config';
-import { OceanEncoder } from 'encoding';
+import { TxnOptions } from '../options';
+import { PoolConfig } from '../config';
+import { OceanEncoder } from '../encoding';
 
 class KonomiOceanLending extends Client {
   public async create(
