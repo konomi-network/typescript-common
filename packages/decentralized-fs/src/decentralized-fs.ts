@@ -1,57 +1,56 @@
-import { Agent as httpAgent } from "http";
-import { Agent as httpsAgent } from "https";
-import { CID, create as ipfsClient, IPFSHTTPClient, Options } from "ipfs-http-client";
+import { Agent as httpAgent } from 'http';
+import { Agent as httpsAgent } from 'https';
+import { CID, create as ipfsClient, IPFSHTTPClient, Options } from 'ipfs-http-client';
 
 class DecentralizedFileStorage {
-    private ipfs: IPFSHTTPClient;
+  private ipfs: IPFSHTTPClient;
 
-    constructor(url?: string) {
-        const agentOptions = {
-            keepAlive: true,
-            keepAliveMsecs: 60 * 1000,
-            // Similar to browsers which limit connections to six per host
-            maxSockets: 6,
-        };
+  constructor(url?: string) {
+    const agentOptions = {
+      keepAlive: true,
+      keepAliveMsecs: 60 * 1000,
+      // Similar to browsers which limit connections to six per host
+      maxSockets: 6
+    };
 
-        const agent = url?.startsWith('https') ? new httpsAgent(agentOptions) : new httpAgent(agentOptions);
+    const agent = url?.startsWith('https') ? new httpsAgent(agentOptions) : new httpAgent(agentOptions);
 
-        let options: Options = {
-            agent: agent
-        };
+    let options: Options = {
+      agent: agent
+    };
 
-        if (url !== undefined) {
-            options.url = url;
-        }
-
-        this.ipfs = ipfsClient(options);
+    if (url !== undefined) {
+      options.url = url;
     }
 
-    get isOnline(): boolean {
-        return this.ipfs.isOnline();
-    }
+    this.ipfs = ipfsClient(options);
+  }
 
-    public async id() {
-        return await this.ipfs.id();
-    }
+  get isOnline(): boolean {
+    return this.ipfs.isOnline();
+  }
 
-    public async version() {
-        return await this.ipfs.version();
-    }
+  public async id() {
+    return this.ipfs.id();
+  }
 
-    public async save(content: string): Promise<string> {
-        const result = await this.ipfs.add(content);
-        return result.cid.toString();
-    }
+  public async version() {
+    return this.ipfs.version();
+  }
 
-    public async find(cid: string): Promise<string> {
-        let data = '';
-        const stream = this.ipfs.cat(CID.parse(cid));
-        for await (const chunk of stream) {
-            data += chunk.toString();
-        }
-        return data;
+  public async save(content: string): Promise<string> {
+    const result = await this.ipfs.add(content);
+    return result.cid.toString();
+  }
+
+  public async find(cid: string): Promise<string> {
+    let data = '';
+    const stream = this.ipfs.cat(CID.parse(cid));
+    for await (const chunk of stream) {
+      data += chunk.toString();
     }
+    return data;
+  }
 }
 
 export default DecentralizedFileStorage;
-

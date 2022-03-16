@@ -1,26 +1,22 @@
-import Web3 from "web3";
-import { Account } from "web3-core";
-import { Client } from "./client";
-import { TxnOptions } from "../options";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import Web3 from 'web3';
+import { Account } from 'web3-core';
+import { Client } from './client';
+import { TxnOptions } from '../options';
 
 export interface OTokenParameter {
   initialExchangeRate: number;
   underlying: string;
   comptroller: string;
+  priceOracle: string;
   decimals: number;
 }
-
-export class OToken extends Client {
+class OToken extends Client {
   readonly parameters: OTokenParameter;
+
   private readonly underlyingDecimals = 18;
 
-  constructor(
-    web3: Web3,
-    abi: any,
-    address: string,
-    account: Account,
-    parameters: OTokenParameter
-  ) {
+  constructor(web3: Web3, abi: any, address: string, account: Account, parameters: OTokenParameter) {
     super(web3, abi, address, account);
     this.parameters = parameters;
   }
@@ -33,14 +29,9 @@ export class OToken extends Client {
   public async redeem(amount: BigInt, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.redeem(amount.toString());
     let failed = null;
-    await this.send(
-      method,
-      await this.prepareTxn(method),
-      options,
-      (receipt) => {
-        failed = this.detectFailedEvents(receipt.events);
-      }
-    );
+    await this.send(method, await this.prepareTxn(method), options, (receipt) => {
+      failed = this.detectFailedEvents(receipt.events);
+    });
 
     if (failed != null) {
       throw new Error(failed);
@@ -58,14 +49,11 @@ export class OToken extends Client {
   }
 
   public async borrowBalanceCurrent(address: string): Promise<number> {
-    return await this.contract.methods.borrowBalanceCurrent(address).call();
+    return this.contract.methods.borrowBalanceCurrent(address).call();
   }
 
   public async approve(amount: number, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.approve(
-      this.address,
-      amount.toString()
-    );
+    const method = this.contract.methods.approve(this.address, amount.toString());
     await this.send(method, await this.prepareTxn(method), options);
   }
 
@@ -89,8 +77,8 @@ export class OToken extends Client {
 
   private detectFailedEvents(events: any) {
     Object.keys(events).forEach((key) => {
-      if (key === "Failure") {
-        const error = events.Failure["returnValues"];
+      if (key === 'Failure') {
+        const error = events.Failure.returnValues;
         if (error.error != 0) {
           return error.info;
         } else {
@@ -112,7 +100,7 @@ export class OToken extends Client {
    * Total Supply is the number of tokens currently in circulation in this cToken market.
    * It is part of the EIP-20 interface of the cToken contract.
    */
-  public async totalSupply(): Promise<BigInt> {
+  public async totalSupply(): Promise<number> {
     return this.contract.methods.totalSupply().call();
   }
 
@@ -137,3 +125,6 @@ export class OToken extends Client {
     return this.contract.methods.reserveFactorMantissa().call();
   }
 }
+
+export default OToken;
+export { OToken };

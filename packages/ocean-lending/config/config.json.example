@@ -2,7 +2,9 @@
   "nodeUrl": "<Your node url>",
   "privateKey": "<Your account private key>",
   "encryptedAccountJsonPath": "<Your path to encrypted json>",
-  "priceOracle": "0xd6dcd9def743e52953f265a16086c5b356c569de",
+  "priceOracle": {
+    "address":"0xd6dcd9def743e52953f265a16086c5b356c569de"
+  },
   "oTokens": {
     "oKono": {
       "address": "0x3f7307F720c340767EE6e6397599EFc95F0ABca0",

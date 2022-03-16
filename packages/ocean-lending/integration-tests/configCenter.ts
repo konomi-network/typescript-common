@@ -1,20 +1,17 @@
+import { expect } from 'chai';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { FeedFactory } from '../src/clients/feedFactory';
+import { ConfigCenter } from '../src/clients/configCenter';
 import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
 
-async function getFeedWorks(client: FeedFactory, subscriptionIds: string[]): Promise<void> {
-  await Promise.all(subscriptionIds.map((id) => client.getFeed(id)));
-}
-
-describe('FeedFactory', async () => {
+describe('ConfigCenter', async () => {
   const config = readJsonSync('./config/config.json');
-  const abi = readJsonSync('./config/feedFactory.json');
+  const abi = readJsonSync('./config/configCenter.json');
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
   let account: Account;
-  let client: FeedFactory;
+  let client: ConfigCenter;
 
   before(async () => {
     if (config.encryptedAccountJson) {
@@ -28,13 +25,11 @@ describe('FeedFactory', async () => {
 
     console.log('Using account:', account.address);
 
-    client = new FeedFactory(web3, abi, config.feedFactory.address, account);
+    client = new ConfigCenter(web3, abi, '0x3B6d7926FC8432ac38a9EC3F1DB24d3456169260', account);
   });
 
-  it('key flow test', async () => {
-    // await client.feeds("0");
-    console.log(await client.getFeed('0'));
-    // await client.submit("0", 1, "200000000", { confirmations: 3 });
-    await getFeedWorks(client, ['0', '1', '2']);
+  it('feedTimeout', async () => {
+    // await client.setFeedTimeout(2400, { confirmations: 3 });
+    expect(await client.get('feedTimeout')).to.be.eq('2400');
   });
 });

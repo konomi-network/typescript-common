@@ -1,5 +1,5 @@
-import { Client } from "./client";
-import { TxnOptions } from "../options";
+import { Client } from './client';
+import { TxnOptions } from '../options';
 
 export interface Feed {
   decimals: number;
@@ -9,12 +9,7 @@ export interface Feed {
 }
 
 export class OracleFeedV2 extends Client {
-  public async submit(
-    roundId: number,
-    value: string,
-    submitter: string,
-    options: TxnOptions
-  ): Promise<void> {
+  public async submit(roundId: number, value: string, submitter: string, options: TxnOptions): Promise<void> {
     const buf = this.encode(roundId, value);
     const method = this.contract.methods.submit(buf, submitter);
     await this.send(method, await this.prepareTxn(method), options);
@@ -26,12 +21,7 @@ export class OracleFeedV2 extends Client {
   }
 
   public async getFeed(): Promise<Feed> {
-    const {
-      0: decimals,
-      1: value,
-      2: roundId,
-      3: updateBlockNumber,
-    } = await this.contract.methods.getFeed().call();
+    const { 0: decimals, 1: value, 2: roundId, 3: updateBlockNumber } = await this.contract.methods.getFeed().call();
     return { decimals, value, roundId, updateBlockNumber };
   }
 
@@ -40,9 +30,9 @@ export class OracleFeedV2 extends Client {
     buf.writeUInt8(roundId, 0);
 
     let result = BigInt(value).toString(16);
-    result = result.padStart(64, "0");
+    result = result.padStart(64, '0');
 
-    buf.write(result, 1, "hex");
+    buf.write(result, 1, 'hex');
     return buf;
   }
 }
