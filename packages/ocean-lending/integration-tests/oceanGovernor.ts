@@ -202,7 +202,7 @@ async function main() {
   const poolOwner = account.address;
   const pool = { tokens: [tokenA, tokenB] };
 
-  // // Propose a pool
+  // Propose a pool
   // await oceanGovernor.proposePool(
   //   pool,
   //   leasePerod,
