@@ -76,7 +76,7 @@ describe('Comptroller', async () => {
     comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
 
     // load price feed object
-    priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle, account);
+    priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle.address, account);
 
     // load JumpInterestV2 object
     jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, config.JumpInterestV2.address, account);
