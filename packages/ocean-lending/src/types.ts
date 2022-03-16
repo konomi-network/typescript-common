@@ -1,4 +1,4 @@
-import { ensure } from "./utils";
+import { ensure } from './utils';
 
 export interface Bufferable {
   /**
@@ -20,7 +20,9 @@ export interface Bufferable {
 
 export class Uint16 implements Bufferable {
   public static MAX = 65535;
+
   public static BYTE_LEN = 2;
+
   private inner: number;
 
   constructor(inner: number) {
@@ -43,11 +45,7 @@ export class Uint16 implements Bufferable {
   }
 
   private isValid(): void {
-    if (
-      Number.isInteger(this.inner) &&
-      this.inner >= 0 &&
-      this.inner <= Uint16.MAX
-    ) {
+    if (Number.isInteger(this.inner) && this.inner >= 0 && this.inner <= Uint16.MAX) {
       return;
     }
     throw Error(`Invalid uint16 ${this.inner}`);
@@ -55,8 +53,10 @@ export class Uint16 implements Bufferable {
 }
 
 export class Uint64 implements Bufferable {
-  public static MAX = BigInt("18446744073709551615");
+  public static MAX = BigInt('18446744073709551615');
+
   public static BYTE_LEN = 8;
+
   private inner: BigInt;
 
   constructor(inner: BigInt) {
@@ -79,11 +79,7 @@ export class Uint64 implements Bufferable {
   }
 
   private isValid(): void {
-    if (
-      Number.isInteger(this.inner) &&
-      BigInt(0) <= this.inner &&
-      this.inner <= Uint64.MAX
-    ) {
+    if (Number.isInteger(this.inner) && BigInt(0) <= this.inner && this.inner <= Uint64.MAX) {
       return;
     }
     throw Error(`Invalid uint16 ${this.inner}`);
@@ -92,6 +88,7 @@ export class Uint64 implements Bufferable {
 
 export class Address implements Bufferable {
   public static BYTE_LEN = 20;
+
   private inner: Buffer;
 
   constructor(inner: Buffer) {
@@ -99,9 +96,9 @@ export class Address implements Bufferable {
   }
 
   public static fromString(addressStr: string): Address {
-    ensure(addressStr.startsWith("0x"), `Invalid address: ${addressStr}`);
+    ensure(addressStr.startsWith('0x'), `Invalid address: ${addressStr}`);
     ensure(addressStr.length === 42, `Invalid address: ${addressStr}`);
-    return new Address(Buffer.from(addressStr.substring(2), "hex"));
+    return new Address(Buffer.from(addressStr.substring(2), 'hex'));
   }
 
   public static fromBuffer(buf: Buffer, offset: number): Address {
@@ -122,13 +119,10 @@ export class Address implements Bufferable {
   }
 
   public toString(): string {
-    return `0x${this.inner.toString("hex")}`;
+    return `0x${this.inner.toString('hex')}`;
   }
 
   private isValid(): void {
-    ensure(
-      this.inner.length === Address.BYTE_LEN,
-      `Invalid uint16 ${this.inner}`
-    );
+    ensure(this.inner.length === Address.BYTE_LEN, `Invalid uint16 ${this.inner}`);
   }
 }

@@ -36,7 +36,7 @@ export class OceanEncoder {
     return buf;
   }
 
-  public static encodeSingle(param: TokenConfig): Buffer {
+  private static encodeSingle(param: TokenConfig): Buffer {
     return Buffer.concat([
       this.encodeHeader(param),
       this.encodeInterest(param.interest),
