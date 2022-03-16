@@ -88,9 +88,9 @@ describe('Comptroller', async () => {
     await collateralFactor(account, oToken, erc20Token, comptroller);
     await closeFactor(account, oToken, erc20Token, comptroller);
 
-    const totalLiquidaityN = await comptroller.totalLiquidity(priceOracle);
-    console.log('==== totalLiquidity:', totalLiquidaityN);
-    expect(totalLiquidaityN).to.be.gt(0);
+    const totalLiquidity = await comptroller.totalLiquidity(priceOracle);
+    console.log('==== totalLiquidity:', totalLiquidity);
+    expect(totalLiquidity).to.be.gt(0);
 
     const blockTime = 15;
     const minBorrowRateAPY = await comptroller.minBorrowAPY(jumpInterestV2, blockTime);
