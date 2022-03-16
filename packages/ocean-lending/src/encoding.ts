@@ -98,6 +98,7 @@ export class OceanEncoder {
 
 export class OceanDecoder {
   public static decode(buf: Buffer): PoolConfig {
+    console.log(buf.toString('hex'));
     let offset = 0;
     const tokens = [];
     while (offset < buf.length) {
