@@ -4,7 +4,7 @@ import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
 import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
-import { PriceOracle } from '../src/clients/priceOracle';
+import { PriceOracleAdaptor } from '../src/clients/priceOracle';
 
 async function enterMarkets(account: Account, markets: string[], comptroller: Comptroller) {
   console.log('==== enterMarkets ====');
@@ -23,7 +23,7 @@ async function borrow(
   account: Account,
   oToken: OToken,
   token: ERC20Token,
-  priceOracle: PriceOracle,
+  priceOracle: PriceOracleAdaptor,
   comptroller: Comptroller,
   underlyingToBorrow: number
 ) {
@@ -108,7 +108,7 @@ describe('Borrow', async () => {
   let oToken: OToken;
   let erc20Token: ERC20Token;
   let comptroller: Comptroller;
-  let priceOracle: PriceOracle;
+  let priceOracle: PriceOracleAdaptor;
 
   before(async () => {
     if (config.encryptedAccountJson) {
@@ -131,7 +131,7 @@ describe('Borrow', async () => {
     comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
 
     // load price feed object
-    priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle, account);
+    priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, config.priceOracle, account);
   });
 
   it('key flow test', async () => {
