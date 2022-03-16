@@ -88,6 +88,10 @@ describe('Comptroller', async () => {
     await collateralFactor(account, oToken, erc20Token, comptroller);
     await closeFactor(account, oToken, erc20Token, comptroller);
 
+    const oracleAddress = await comptroller.oracleAddress();
+    console.log('==== oracleAddress', oracleAddress);
+    expect(oracleAddress).to.be.a('string');
+
     const totalLiquidity = await comptroller.totalLiquidity(priceOracle);
     console.log('==== totalLiquidity:', totalLiquidity);
     expect(totalLiquidity).to.be.gt(0);
