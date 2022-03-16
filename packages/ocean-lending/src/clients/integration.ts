@@ -1,6 +1,5 @@
 import Web3 from "web3";
 import { Account } from "web3-core";
-import { ERC20Token } from "./erc20Token";
 import { OToken, OTokenParameter } from "./oToken";
 import { Comptroller } from "./comptroller";
 import { JumpInterestV2 } from "./jumpInterestV2";
@@ -40,7 +39,7 @@ export class IntegrationClient {
     ]);
 
     return {
-      address: oToken.address,
+      address: oToken.parameters.underlying,
       liquidity: liquidity,
       borrowAPY: borrowRateAPY,
       depositAPY: supplyRateAPY,
@@ -51,7 +50,7 @@ export class IntegrationClient {
     const [collateralFactor, closeFactor, liquidationIncentive] =
       await Promise.all([
         this.comptroller.collateralFactor(this.account.address),
-        this.comptroller.closeFactor(this.account.address),
+        this.comptroller.closeFactor(),
         this.comptroller.liquidationIncentive(),
       ]);
 
