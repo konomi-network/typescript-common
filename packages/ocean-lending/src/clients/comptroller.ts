@@ -6,6 +6,10 @@ import { TxnOptions } from 'options';
 class Comptroller extends Client {
   private readonly decimals = 1e18;
 
+  public async oracleAddress(): Promise<string> {
+    return this.contract.methods.oracle().call();
+  }
+
   public async enterMarkets(markets: string[], options: TxnOptions): Promise<void> {
     const method = this.contract.methods.enterMarkets(markets);
     await this.send(method, await this.prepareTxn(method), options);
