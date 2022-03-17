@@ -1,14 +1,19 @@
 {
   "typescript.preferences.includePackageJsonAutoImports": "on",
   "diffEditor.codeLens": true,
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
-  "editor.formatOnSave": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "editor.formatOnSave": false,
   "editor.renderWhitespace": "boundary",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
   "[typescript]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true
     }

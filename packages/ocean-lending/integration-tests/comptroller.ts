@@ -5,7 +5,7 @@ import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
 import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
-import { PriceOracle } from '../src/clients/priceOracle';
+import { PriceOracleAdaptor } from '../src/clients/priceOracle';
 import { JumpInterestV2 } from '../src/clients/jumpInterestV2';
 
 async function liquidationIncentive(account: Account, oToken: OToken, token: ERC20Token, comptroller: Comptroller) {
@@ -52,7 +52,7 @@ describe('Comptroller', async () => {
   let oToken: OToken;
   let erc20Token: ERC20Token;
   let comptroller: Comptroller;
-  let priceOracle: PriceOracle;
+  let priceOracle: PriceOracleAdaptor;
   let jumpInterestV2: JumpInterestV2;
 
   before(async () => {
@@ -76,7 +76,7 @@ describe('Comptroller', async () => {
     comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
 
     // load price feed object
-    priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle, account);
+    priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, config.priceOracle.address, account);
 
     // load JumpInterestV2 object
     jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, config.JumpInterestV2.address, account);
@@ -88,9 +88,13 @@ describe('Comptroller', async () => {
     await collateralFactor(account, oToken, erc20Token, comptroller);
     await closeFactor(account, oToken, erc20Token, comptroller);
 
-    const totalLiquidaityN = await comptroller.totalLiquidity(priceOracle);
-    console.log('==== totalLiquidity:', totalLiquidaityN);
-    expect(totalLiquidaityN).to.be.gt(0);
+    const oracleAddress = await comptroller.oracleAddress();
+    console.log('==== oracleAddress', oracleAddress);
+    expect(oracleAddress).to.be.a('string');
+
+    const totalLiquidity = await comptroller.totalLiquidity(priceOracle);
+    console.log('==== totalLiquidity:', totalLiquidity);
+    expect(totalLiquidity).to.be.gt(0);
 
     const blockTime = 15;
     const minBorrowRateAPY = await comptroller.minBorrowAPY(jumpInterestV2, blockTime);
