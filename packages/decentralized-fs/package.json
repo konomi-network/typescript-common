@@ -31,7 +31,7 @@
   "scripts": {
     "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
     "prepack": "yarn build",
-    "build": "yarn clean && tsc --build tsconfig.prod.json && cp \"./package.json\" ./dist/",
+    "build": "yarn clean && tsc --build tsconfig.prod.json",
     "test": "jest",
     "lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings=0"
   },
@@ -41,5 +41,5 @@
   "dependencies": {
     "ipfs-http-client": "^55.0.0"
   },
-  "gitHead": "463691dc5b25df5159e8a130a8a12ac5cf70e251"
+  "gitHead": "4bf5b0ed8f7f0d61fa485624424959dd8a780ca6"
 }
