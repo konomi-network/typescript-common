@@ -29,7 +29,7 @@
   "scripts": {
     "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
     "prepack": "yarn build",
-    "build": "yarn clean && tsc --build tsconfig.prod.json",
+    "build": "tsc --build tsconfig.prod.json",
     "test": "jest",
     "lint": "eslint \"./**/*.{ts,tsx}\" --max-warnings=0",
     "test-specific": "mocha -g"

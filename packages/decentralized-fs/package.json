@@ -31,7 +31,7 @@
   "scripts": {
     "clean": "rimraf dist && rimraf tsconfig.tsbuildinfo",
     "prepack": "yarn build",
-    "build": "yarn clean && tsc --build tsconfig.prod.json",
+    "build": "tsc --build tsconfig.prod.json",
     "test": "jest",
     "lint": "eslint \"./src/**/*.{ts,tsx}\" --max-warnings=0"
   },

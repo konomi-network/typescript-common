@@ -1,23 +1,23 @@
 {
-	"compilerOptions": {
-		"composite": true,
-		"target": "es2015",
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"strict": true,
-		"declaration": true,
-		"declarationMap": true,
-		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"outDir": "./dist",
-		"rootDir": "./src",
-		"baseUrl": "./src",
-		"experimentalDecorators": true
-	},
-	"exclude": ["node_modules", "**/__mocks__/*", "**/__tests__/*", "**/*.spec.ts", "**/*.test.ts"],
-	"include": ["src", "integration-test"],
-	"references": [],
-	"types": ["@types/jest", "node"]
+  "compilerOptions": {
+    "composite": true,
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": "src",
+    "experimentalDecorators": true
+  },
+  "exclude": ["node_modules", "**/__mocks__/*", "**/__tests__/*", "**/*.spec.ts", "**/*.test.ts"],
+  "include": ["src", "integration-test"],
+  "references": [],
+  "types": ["@types/jest", "node"]
 }
