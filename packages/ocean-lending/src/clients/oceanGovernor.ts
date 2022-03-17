@@ -1,10 +1,22 @@
 import { Account } from 'web3-core';
 import { PoolConfig } from 'config';
-import { OceanEncoder } from 'encoding';
+import { OceanDecoder, OceanEncoder } from '../encoding';
 import { TxnOptions } from 'options';
 import Client from './client';
 import { CREATE_POOL_ABI } from '../abi/oceanLending';
 import Web3 from 'web3';
+
+export interface ProposalDetails {
+  forVotes: number;
+  againstVotes: number;
+  proposer: string;
+  startBlock: BigInt;
+  endBlock: BigInt;
+  pool: PoolConfig;
+  targetContract: string;
+  leasePeriod: BigInt;
+  poolOwner: string;
+}
 
 /**
  * KonomiOceanGovernor contract client
@@ -28,8 +40,9 @@ export class OceanGovernor extends Client {
     confirmationCallback?: (receipt: any) => any,
     errorCallback?: (error: Error, receipt: any) => any
   ): Promise<void> {
-    const bytes = OceanEncoder.encode(pool).toString();
+    const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
     const callData = this.web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePerod, poolOwner]);
+
     const target = this.callables.oceanLending!;
     const method = this.contract.methods.propose(target, callData);
     await this.send(
@@ -44,12 +57,11 @@ export class OceanGovernor extends Client {
 
   /**
    * Hash proposal params to get proposalId
-   * @param addresses The addresses of proposed tokens
-   * @param params The configurations of proposed tokens
+   * @param address The target contract address
+   * @param pool The configurations of proposed tokens
    */
-  public async hashProposal(addresses: string[], params: PoolConfig): Promise<BigInt> {
-    const calldatas = OceanEncoder.encode(params);
-    const proposalId = await this.contract.methods.hashProposal(addresses, calldatas).call();
+  public async hashProposal(address: string, bytes: string): Promise<string> {
+    const proposalId = await this.contract.methods.hashProposal([address], [bytes]).call();
     return proposalId;
   }
 
@@ -58,7 +70,7 @@ export class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param options The transaction configuration parameters
    */
-  public async execute(proposalId: BigInt, options: TxnOptions): Promise<void> {
+  public async execute(proposalId: string, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.execute(proposalId);
     await this.send(method, await this.prepareTxn(method), options);
   }
@@ -69,7 +81,7 @@ export class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param options The transaction configuration parameters
    */
-  public async cancel(proposalId: BigInt, options: TxnOptions): Promise<void> {
+  public async cancel(proposalId: string, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.cancel(proposalId);
     await this.send(method, await this.prepareTxn(method), options);
   }
@@ -79,7 +91,7 @@ export class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param account The address of the voter
    */
-  public async hasVoted(proposalId: BigInt, account: Account): Promise<boolean> {
+  public async hasVoted(proposalId: string, account: Account): Promise<boolean> {
     const state = await this.contract.methods.hasVoted(proposalId, account.address).call();
     return state;
   }
@@ -91,7 +103,7 @@ export class OceanGovernor extends Client {
    * @param voteType The type of vote
    * @param options The transaction configuration parameters
    */
-  public async castVote(proposalId: BigInt, voteType: number, options: TxnOptions): Promise<void> {
+  public async castVote(proposalId: string, voteType: number, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.castVote(proposalId, voteType);
     await this.send(method, await this.prepareTxn(method), options);
   }
@@ -104,7 +116,7 @@ export class OceanGovernor extends Client {
    * @param options The transaction configuration parameters
    */
   public async castVoteWithReason(
-    proposalId: BigInt,
+    proposalId: string,
     voteType: number,
     reason: string,
     options: TxnOptions
@@ -119,7 +131,7 @@ export class OceanGovernor extends Client {
    * There are also no expired state. Once expired and no quorum, it is rejected
    * @param proposalId The id of the proposal
    */
-  public async getState(proposalId: BigInt): Promise<BigInt> {
+  public async getState(proposalId: string): Promise<number> {
     const state = await this.contract.methods.state(proposalId).call();
     return state;
   }
@@ -130,17 +142,21 @@ export class OceanGovernor extends Client {
    * forVotes, againstVotes, proposer, startBlock, endBlock
    * @param proposalId The id of the proposal
    */
-  public async getProposalDetail(proposalId: BigInt): Promise<Map<string, string>> {
-    const proposalDetailKey = ['forVotes', 'againstVotes', 'proposer', 'startBlock', 'endBlock'];
+  public async getProposalDetail(proposalId: string): Promise<ProposalDetails> {
+    const response = await this.contract.methods.getProposalDetails(proposalId).call();
+    const callData = this.web3.eth.abi.decodeParameters(['bytes', 'uint256', 'address'], response[6][0].substring(10));
 
-    const response = await this.contract.methods.getProposalDetail(proposalId).call();
-
-    const proposalDetail = new Map();
-    proposalDetailKey.forEach((val, index) => {
-      proposalDetail.set(val, response[index]);
-    });
-
-    return proposalDetail;
+    return {
+      forVotes: response[0],
+      againstVotes: response[1],
+      proposer: response[2],
+      startBlock: response[3],
+      endBlock: response[4],
+      targetContract: response[5][0],
+      pool: OceanDecoder.decode(Buffer.from(callData[0].substring(2), 'hex')),
+      leasePeriod: BigInt(callData[1]),
+      poolOwner: callData[2]
+    };
   }
 
   // =========================  control authorization of upgrade methods =========================
