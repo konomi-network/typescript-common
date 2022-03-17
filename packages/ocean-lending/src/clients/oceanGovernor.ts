@@ -70,7 +70,7 @@ export class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param options The transaction configuration parameters
    */
-  public async execute(proposalId: BigInt, options: TxnOptions): Promise<void> {
+  public async execute(proposalId: string, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.execute(proposalId);
     await this.send(method, await this.prepareTxn(method), options);
   }
@@ -81,7 +81,7 @@ export class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param options The transaction configuration parameters
    */
-  public async cancel(proposalId: BigInt, options: TxnOptions): Promise<void> {
+  public async cancel(proposalId: string, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.cancel(proposalId);
     await this.send(method, await this.prepareTxn(method), options);
   }
@@ -91,7 +91,7 @@ export class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param account The address of the voter
    */
-  public async hasVoted(proposalId: BigInt, account: Account): Promise<boolean> {
+  public async hasVoted(proposalId: string, account: Account): Promise<boolean> {
     const state = await this.contract.methods.hasVoted(proposalId, account.address).call();
     return state;
   }
@@ -103,7 +103,7 @@ export class OceanGovernor extends Client {
    * @param voteType The type of vote
    * @param options The transaction configuration parameters
    */
-  public async castVote(proposalId: BigInt, voteType: number, options: TxnOptions): Promise<void> {
+  public async castVote(proposalId: string, voteType: number, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.castVote(proposalId, voteType);
     await this.send(method, await this.prepareTxn(method), options);
   }
@@ -116,7 +116,7 @@ export class OceanGovernor extends Client {
    * @param options The transaction configuration parameters
    */
   public async castVoteWithReason(
-    proposalId: BigInt,
+    proposalId: string,
     voteType: number,
     reason: string,
     options: TxnOptions
@@ -131,7 +131,7 @@ export class OceanGovernor extends Client {
    * There are also no expired state. Once expired and no quorum, it is rejected
    * @param proposalId The id of the proposal
    */
-  public async getState(proposalId: BigInt): Promise<BigInt> {
+  public async getState(proposalId: string): Promise<number> {
     const state = await this.contract.methods.state(proposalId).call();
     return state;
   }

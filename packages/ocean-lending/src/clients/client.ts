@@ -57,7 +57,7 @@ class Client {
     method: any,
     txn: any,
     options: TxnOptions,
-    txnHashCallback?: (txnHash: string) => any,
+    txnHashCallback?: (txnHash: any) => any,
     confirmationCallback?: (receipt: any) => any,
     errorCallback?: (error: Error, receipt: any) => any
   ): Promise<void> {

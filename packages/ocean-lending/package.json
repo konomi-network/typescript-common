@@ -63,7 +63,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src/tests",
+    "rootDir": "integration-tests",
     "testRegex": ".ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
