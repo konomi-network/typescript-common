@@ -163,13 +163,13 @@ async function main() {
   const confirmations = { confirmations: 3 };
   //   await oceanGovernor.setVotingPeriod(BigInt(30), confirmations);
 
-  const interest = new InterestConfig();
-  const pool = [{
-    underlying: Address
-    subscriptionId: 0;
-    interest: InterestConfig;
-    collateral: CollateralConfig;
-  }];
+  // const interest = new InterestConfig();
+  // const pool = [{
+  //   underlying: Address,
+  //   subscriptionId: 0;
+  //   interest: InterestConfig;
+  //   collateral: CollateralConfig;
+  // }];
   // await oceanGovernor.pause(confirmations);
   // const hashedProposalId = await oceanGovernor.hashProposal(
   //     addresses,

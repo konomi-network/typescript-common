@@ -29,7 +29,7 @@ class OToken extends Client {
   public async redeem(amount: BigInt, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.redeem(amount.toString());
     let failed = null;
-    await this.send(method, await this.prepareTxn(method), options, (receipt) => {
+    await this.send(method, await this.prepareTxn(method), options, (receipt: any) => {
       failed = this.detectFailedEvents(receipt.events);
     });
 
