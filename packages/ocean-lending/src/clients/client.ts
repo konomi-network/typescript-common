@@ -18,9 +18,9 @@ class Client {
   protected contract: Contract;
 
   // The account to use for operations
-  protected account: Account;
+  protected account?: Account;
 
-  constructor(web3: Web3, abi: any, address: string, account: Account) {
+  constructor(web3: Web3, abi: any, address: string, account?: Account) {
     this.web3 = web3;
     this.contract = new web3.eth.Contract(abi, address);
     this.account = account;
@@ -45,7 +45,7 @@ class Client {
    */
   protected async prepareTxn(method: any): Promise<any> {
     const txn: any = {
-      from: this.account.address,
+      from: this?.account?.address || '',
       nonce: await this.deduceNonce()
     };
 
@@ -82,7 +82,7 @@ class Client {
   }
 
   private async deduceNonce(): Promise<number> {
-    return this.web3.eth.getTransactionCount(this.account.address, PENDING);
+    return this.web3.eth.getTransactionCount(this?.account?.address || '', PENDING);
   }
 
   private async estimateGas(method: any, txn: any): Promise<number> {

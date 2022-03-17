@@ -12,7 +12,7 @@ export interface OTokenParameter {
   decimals: number;
 }
 class OToken extends Client {
-  readonly parameters: OTokenParameter;
+  readonly parameters: OTokenParameter | {};
 
   private readonly underlyingDecimals = 18;
 
@@ -69,6 +69,10 @@ class OToken extends Client {
 
   public async exchangeRate(): Promise<number> {
     return this.contract.methods.exchangeRateCurrent().call();
+  }
+
+  public async underlying(): Promise<string> {
+    return this.contract.methods.underlying().call();
   }
 
   // public convertFromUnderlying(amount: BigInt): BigInt {
