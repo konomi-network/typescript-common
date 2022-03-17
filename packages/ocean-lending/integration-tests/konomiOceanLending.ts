@@ -69,9 +69,9 @@ describe('KonomiOceanLending', async () => {
         };
         
         const leasePeriod = BigInt(10);
-        expect(await konomiOceanLending.derivePayable(leasePeriod)).to.equal('77300000000000000');
+        // expect(await konomiOceanLending.derivePayable(leasePeriod)).to.equal('77300000000000000');
         // await konomiOceanLending.grantRole(account.address, { confirmations: 3 });
-        // await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
+        await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
 
     //    await konomiOceanLending.suspend(1, false, { confirmations: 3 });
     //    await konomiOceanLending.extendLease(1, BigInt(3600), { confirmations: 3 });
