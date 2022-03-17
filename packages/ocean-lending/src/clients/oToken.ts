@@ -12,7 +12,7 @@ export interface OTokenParameter {
   decimals: number;
 }
 class OToken extends Client {
-  readonly parameters: OTokenParameter | {};
+  readonly parameters: OTokenParameter;
 
   private readonly underlyingDecimals = 18;
 
