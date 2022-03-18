@@ -43,6 +43,21 @@ class OToken extends Client {
     return BigInt(borrowRate / Math.pow(10, this.underlyingDecimals));
   }
 
+  public async supplyRatePerBlock(): Promise<BigInt> {
+    const borrowRate = await this.contract.methods.supplyRatePerBlock().call();
+    return BigInt(borrowRate / Math.pow(10, this.underlyingDecimals));
+  }
+
+  public async borrowRatePerYear(blockTime: number): Promise<BigInt> {
+    const borrowRate = await this.borrowRatePerBlock();
+    return this.blockToYear(borrowRate, blockTime);
+  }
+
+  public async supplyRatePerYear(blockTime: number): Promise<BigInt> {
+    const supplyRate = await this.supplyRatePerBlock();
+    return this.blockToYear(supplyRate, blockTime);
+  }
+
   public async borrow(amount: number, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.borrow(amount.toString());
     await this.send(method, await this.prepareTxn(method), options);
@@ -127,6 +142,12 @@ class OToken extends Client {
    */
   public async reserveFactorMantissa(): Promise<BigInt> {
     return this.contract.methods.reserveFactorMantissa().call();
+  }
+
+  public blockToYear(rate: BigInt, blockTime: number): BigInt {
+    const secondsPerYear = 31536000;
+    const APY = (Number(rate) * secondsPerYear) / blockTime;
+    return BigInt(APY);
   }
 }
 
