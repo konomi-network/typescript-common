@@ -1,5 +1,5 @@
 import { Client } from './client';
-import { PriceOracle } from './priceOracle';
+import { PriceOracleAdaptor } from './priceOracle';
 import { JumpInterestV2 } from './jumpInterestV2';
 import { TxnOptions } from 'options';
 
@@ -83,12 +83,12 @@ class Comptroller extends Client {
     return r[0];
   }
 
-  public async totalLiquidity(priceOracle: PriceOracle) {
+  public async totalLiquidity(priceOracleAdaptor: PriceOracleAdaptor) {
     const tokenAddresses = await this.allMarkets();
     let totalValue = 0;
     for (const tokenAddress of tokenAddresses) {
       const supply = await this.totalSupply(tokenAddress);
-      const price = await priceOracle.getUnderlyingPrice(tokenAddress);
+      const price = await priceOracleAdaptor.getUnderlyingPrice(tokenAddress);
       totalValue += supply * price;
     }
     return totalValue;

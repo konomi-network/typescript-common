@@ -36,7 +36,7 @@ export class OceanEncoder {
     return buf;
   }
 
-  public static encodeSingle(param: TokenConfig): Buffer {
+  private static encodeSingle(param: TokenConfig): Buffer {
     return Buffer.concat([
       this.encodeHeader(param),
       this.encodeInterest(param.interest),
@@ -98,6 +98,7 @@ export class OceanEncoder {
 
 export class OceanDecoder {
   public static decode(buf: Buffer): PoolConfig {
+    console.log(buf.toString('hex'));
     let offset = 0;
     const tokens = [];
     while (offset < buf.length) {

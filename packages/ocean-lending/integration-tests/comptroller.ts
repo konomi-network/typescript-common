@@ -5,7 +5,7 @@ import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
 import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
-import { PriceOracle } from '../src/clients/priceOracle';
+import { PriceOracleAdaptor } from '../src/clients/priceOracle';
 import { JumpInterestV2 } from '../src/clients/jumpInterestV2';
 
 async function liquidationIncentive(account: Account, oToken: OToken, token: ERC20Token, comptroller: Comptroller) {
@@ -52,7 +52,7 @@ describe('Comptroller', async () => {
   let oToken: OToken;
   let erc20Token: ERC20Token;
   let comptroller: Comptroller;
-  let priceOracle: PriceOracle;
+  let priceOracle: PriceOracleAdaptor;
   let jumpInterestV2: JumpInterestV2;
 
   before(async () => {
@@ -76,7 +76,7 @@ describe('Comptroller', async () => {
     comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
 
     // load price feed object
-    priceOracle = new PriceOracle(web3, priceOracleAbi, config.priceOracle.address, account);
+    priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, config.priceOracle.address, account);
 
     // load JumpInterestV2 object
     jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, config.JumpInterestV2.address, account);

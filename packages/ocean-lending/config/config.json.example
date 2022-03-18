@@ -30,5 +30,8 @@
   },
   "feedFactory": {
     "address": ""
-  }
+  },
+  "oceanGovernor": {
+    "address": "0xCCb6203520fDB24F1830Ba67dE38214B9646b3fB"
+  },
 }

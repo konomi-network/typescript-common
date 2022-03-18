@@ -57,24 +57,32 @@ class Client {
     method: any,
     txn: any,
     options: TxnOptions,
-    receiptCallback?: (receipt: any) => any
+    txnHashCallback?: (txnHash: any) => any,
+    confirmationCallback?: (receipt: any) => any,
+    errorCallback?: (error: Error, receipt: any) => any
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       method
         .send(txn)
-        .once('transactionHash', async (txnHash: any) => {
+        .once('transactionHash', (txnHash: any) => {
+          if (txnHashCallback) {
+            txnHashCallback(txnHash);
+          }
           // logger.info('transaction hash for method: %o is %o', method, txnHash);
         })
-        .on('confirmation', (confirmations: number, receipt: any, latestBlockHash: any) => {
+        .on('confirmation', (confirmations: number, receipt: any) => {
           // logger.debug('confirmations: %o receipt: %o latestBlockHash: %o', confirmations, receipt, latestBlockHash);
           if (confirmations === options.confirmations) {
-            if (receiptCallback) {
-              receiptCallback(receipt);
+            if (confirmationCallback) {
+              confirmationCallback(receipt);
             }
             return resolve();
           }
         })
-        .on('error', (error: any, receipt: any) => {
+        .on('error', (error: Error, receipt: any) => {
+          if (errorCallback) {
+            errorCallback(error, receipt);
+          }
           // logger.warn('submit for error: %o receipt: %o', error, receipt);
           return reject(error);
         });
