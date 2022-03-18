@@ -40,12 +40,12 @@ class OToken extends Client {
 
   public async borrowRatePerBlock(): Promise<BigInt> {
     const borrowRate = await this.contract.methods.borrowRatePerBlock().call();
-    return BigInt(borrowRate / Math.pow(10, this.underlyingDecimals));
+    return BigInt(Web3.utils.fromWei(borrowRate + ''));
   }
 
   public async supplyRatePerBlock(): Promise<BigInt> {
-    const borrowRate = await this.contract.methods.supplyRatePerBlock().call();
-    return BigInt(borrowRate / Math.pow(10, this.underlyingDecimals));
+    const supplyRate = await this.contract.methods.supplyRatePerBlock().call();
+    return BigInt(Web3.utils.fromWei(supplyRate + ''));
   }
 
   public async borrowRatePerYear(blockTime: number): Promise<BigInt> {
