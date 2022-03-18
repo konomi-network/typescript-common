@@ -10,14 +10,14 @@ class KonomiOceanLending extends Client {
     onBehalfOf: string,
     options: TxnOptions
   ): Promise<void> {
-    const bytes = OceanEncoder.encode(poolData);
+    const bytes = `0x${OceanEncoder.encode(poolData).toString('hex')}`;
     const method = this.contract.methods.create(bytes, leasePeriod, onBehalfOf);
     await this.send(method, await this.prepareTxn(method), options, (receipt) => {
       console.log(`receipt: ${receipt}`);
     });
   }
 
-  public async grantRole(account: string, options: TxnOptions): Promise<void> {
+  public async grantInvokerRole(account: string, options: TxnOptions): Promise<void> {
     const invokerRole = await this.invokerRole();
     const method = this.contract.methods.grantRole(invokerRole, account);
     await this.send(method, await this.prepareTxn(method), options);

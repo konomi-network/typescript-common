@@ -34,4 +34,7 @@
   "konomiOceanLending": {
     "address": "0x17EB891f78F32a89961a39Cabf3413B7BcD628Cb"
   }
+  "oceanGovernor": {
+    "address": "0xCCb6203520fDB24F1830Ba67dE38214B9646b3fB"
+  },
 }

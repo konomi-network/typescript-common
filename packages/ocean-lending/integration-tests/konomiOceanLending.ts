@@ -31,8 +31,8 @@ describe('KonomiOceanLending', async () => {
       });
     
   
-    it('key flow test',async () => {
-       expect((await konomiOceanLending.activePoolIds()).length).to.equal(0);
+    it('create pool works',async () => {
+      //  expect((await konomiOceanLending.activePoolIds()).length).to.equal(0);
 
         const t1 = {
             underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3'),
@@ -50,7 +50,7 @@ describe('KonomiOceanLending', async () => {
             }
         };
         const t2 = {
-            underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a4'),
+            underlying: Address.fromString('0x30cDBa5e339881c707E140A5E7fe27fE1835d0dA'),
             subscriptionId: new Uint64(BigInt(1)),
             interest: new InterestConfig(
             new Uint16(1001), // baseRatePerYear
@@ -59,18 +59,33 @@ describe('KonomiOceanLending', async () => {
             new Uint16(4005) // kink
             ),
             collateral: {
-            canBeCollateral: true,
+            canBeCollateral: false,
             collateralFactor: new Uint16(1001),
             liquidationIncentive: new Uint16(2)
             }
         };
+        const t3 = {
+          underlying: Address.fromString('0x6Ed700f5b9F8A8c62419209b298Bd6080fC9ABC6'),
+          subscriptionId: new Uint64(BigInt(1)),
+          interest: new InterestConfig(
+          new Uint16(1001), // baseRatePerYear
+          new Uint16(2002), // multiplierPerYear
+          new Uint16(3003), // jumpMultiplierPerYear
+          new Uint16(4005) // kink
+          ),
+          collateral: {
+          canBeCollateral: false,
+          collateralFactor: new Uint16(1001),
+          liquidationIncentive: new Uint16(2)
+          }
+      };
         const poolConfig = {
-            tokens: [t1, t2]
+            tokens: [t1, t2, t3]
         };
         
         const leasePeriod = BigInt(10);
         // expect(await konomiOceanLending.derivePayable(leasePeriod)).to.equal('77300000000000000');
-        // await konomiOceanLending.grantRole(account.address, { confirmations: 3 });
+        // await konomiOceanLending.grantInvokerRole(account.address, { confirmations: 3 });
         await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
 
     //    await konomiOceanLending.suspend(1, false, { confirmations: 3 });
