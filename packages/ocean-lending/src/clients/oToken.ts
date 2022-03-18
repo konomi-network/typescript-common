@@ -38,22 +38,22 @@ class OToken extends Client {
     }
   }
 
-  public async borrowRatePerBlock(): Promise<BigInt> {
+  public async borrowRatePerBlock(): Promise<string> {
     const borrowRate = await this.contract.methods.borrowRatePerBlock().call();
-    return BigInt(Web3.utils.fromWei(borrowRate + ''));
+    return Web3.utils.fromWei(borrowRate + '');
   }
 
-  public async supplyRatePerBlock(): Promise<BigInt> {
+  public async supplyRatePerBlock(): Promise<string> {
     const supplyRate = await this.contract.methods.supplyRatePerBlock().call();
-    return BigInt(Web3.utils.fromWei(supplyRate + ''));
+    return Web3.utils.fromWei(supplyRate + '');
   }
 
-  public async borrowRatePerYear(blockTime: number): Promise<BigInt> {
+  public async borrowRatePerYear(blockTime: number): Promise<string> {
     const borrowRate = await this.borrowRatePerBlock();
     return this.blockToYear(borrowRate, blockTime);
   }
 
-  public async supplyRatePerYear(blockTime: number): Promise<BigInt> {
+  public async supplyRatePerYear(blockTime: number): Promise<string> {
     const supplyRate = await this.supplyRatePerBlock();
     return this.blockToYear(supplyRate, blockTime);
   }
@@ -144,10 +144,10 @@ class OToken extends Client {
     return this.contract.methods.reserveFactorMantissa().call();
   }
 
-  public blockToYear(rate: BigInt, blockTime: number): BigInt {
+  public blockToYear(rate: BigInt | string, blockTime: number): string {
     const secondsPerYear = 31536000;
-    const APY = (Number(rate) * secondsPerYear) / blockTime;
-    return BigInt(APY);
+    const APY = (Number(rate) * secondsPerYear) / blockTime + '';
+    return APY;
   }
 }
 
