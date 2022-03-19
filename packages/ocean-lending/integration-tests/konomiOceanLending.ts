@@ -107,10 +107,26 @@ describe('KonomiOceanLending', async () => {
     // await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
     // console.log('nextPoolId: ', await konomiOceanLending.nextPoolId());
 
-    expect(await konomiOceanLending.suspend(nextPoolId - 1, true, { confirmations: 3 })
-      .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-3');
+    // test suspend and extendLease
+    let poolId = 0;
+    let pool = await konomiOceanLending.getPoolById(poolId);
+    if (pool.suspended) {
+      expect(await konomiOceanLending.suspend(poolId, true, { confirmations: 3 })
+        .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-3');
     
-    expect(await konomiOceanLending.extendLease(nextPoolId - 1, leasePeriod, { confirmations: 3 })
-      .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-5');
+      expect(await konomiOceanLending.extendLease(poolId, leasePeriod, { confirmations: 3 })
+        .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-4');
+    } else {
+      await konomiOceanLending.suspend(poolId, true, { confirmations: 3 });
+      const pool = await konomiOceanLending.getPoolById(poolId);
+      expect(pool.suspended).to.true;
+    }
+
+    // test not exists pool
+    poolId = 1000000000000000;
+    pool = await konomiOceanLending.getPoolById(poolId);
+    expect(pool.suspended).to.false;
+    expect(pool.leaseStart).to.equal('0');
+    expect(pool.leaseEnd).to.equal('0');
   });
 });
