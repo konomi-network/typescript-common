@@ -101,7 +101,10 @@ describe('KonomiOceanLending', async () => {
     await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
     console.log('nextPoolId: ', await konomiOceanLending.nextPoolId());
 
-    await konomiOceanLending.suspend(nextPoolId - 1, true, { confirmations: 3 });
-    await konomiOceanLending.extendLease(nextPoolId - 1, leasePeriod, { confirmations: 3 });
+    expect(await konomiOceanLending.suspend(nextPoolId - 1, true, { confirmations: 3 })
+      .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-3');
+    
+    expect(await konomiOceanLending.extendLease(nextPoolId - 1, leasePeriod, { confirmations: 3 })
+      .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-3');
   });
 });
