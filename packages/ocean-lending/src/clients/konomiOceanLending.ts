@@ -35,6 +35,10 @@ class KonomiOceanLending extends Client {
     return this.contract.methods.getActivePoolIds().call();
   }
 
+  public async nextPoolId(): Promise<number> {
+    return this.contract.methods.nextPoolId().call();
+  }
+
   public async suspend(poolId: number, suspended: boolean, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.suspend(poolId, suspended);
     await this.send(method, await this.prepareTxn(method), options);
