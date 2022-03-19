@@ -1,7 +1,8 @@
 import { Client } from './client';
 import { TxnOptions } from '../options';
-import { PoolConfig } from '../config';
+import { PoolConfig, PoolData } from '../config';
 import { OceanEncoder } from '../encoding';
+import logger from '../logger';
 
 class KonomiOceanLending extends Client {
   public async create(
@@ -13,8 +14,12 @@ class KonomiOceanLending extends Client {
     const bytes = `0x${OceanEncoder.encode(poolData).toString('hex')}`;
     const method = this.contract.methods.create(bytes, leasePeriod, onBehalfOf);
     await this.send(method, await this.prepareTxn(method), options, (receipt) => {
-      console.log(`receipt: ${receipt}`);
+      logger.debug(`receipt: ${receipt}`);
     });
+  }
+
+  public async getPoolById(poolId: number): Promise<PoolData> {
+    return this.contract.methods.pools(poolId).call();
   }
 
   public async grantInvokerRole(account: string, options: TxnOptions): Promise<void> {

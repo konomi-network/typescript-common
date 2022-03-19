@@ -10,6 +10,7 @@ import {
 } from '../src/utils';
 import { Address, Uint16, Uint64 } from '../src/types';
 import { InterestConfig } from '../src/config';
+import logger from '../src/logger';
 
 describe('KonomiOceanLending', async () => {
   const config = readJsonSync('./config/config.json');
@@ -90,21 +91,26 @@ describe('KonomiOceanLending', async () => {
 
 
     const activePoolIds = await konomiOceanLending.activePoolIds();
+    activePoolIds.forEach(async (poolId) => {
+      const pool = await konomiOceanLending.getPoolById(Number(poolId));
+      logger.info('poolId: %s pool: %s', poolId, pool);
+    })
+
     const nextPoolId = await konomiOceanLending.nextPoolId();
     console.log('activePoolIds:', activePoolIds);
     console.log('nextPoolId: ', nextPoolId);
 
-    const leasePeriod = BigInt(2589570);
-    expect(await konomiOceanLending.derivePayable(leasePeriod)).to.equal('20017376100000000000000');
+    const leasePeriod = BigInt(3600);
+    expect(await konomiOceanLending.derivePayable(leasePeriod)).to.equal('27828000000000000000');
     // await konomiOceanLending.grantInvokerRole(account.address, { confirmations: 3 });
 
-    await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
-    console.log('nextPoolId: ', await konomiOceanLending.nextPoolId());
+    // await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
+    // console.log('nextPoolId: ', await konomiOceanLending.nextPoolId());
 
     expect(await konomiOceanLending.suspend(nextPoolId - 1, true, { confirmations: 3 })
       .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-3');
     
     expect(await konomiOceanLending.extendLease(nextPoolId - 1, leasePeriod, { confirmations: 3 })
-      .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-3');
+      .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-5');
   });
 });
