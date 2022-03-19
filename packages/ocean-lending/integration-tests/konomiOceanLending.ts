@@ -20,6 +20,9 @@ describe('KonomiOceanLending', async () => {
   let account: Account;
   let konomiOceanLending: KonomiOceanLending;
 
+  let poolId = 0;
+  const leasePeriod = BigInt(3600);
+
   before(async () => {
     if (config.encryptedAccountJson) {
       const pw = await readPassword();
@@ -38,8 +41,35 @@ describe('KonomiOceanLending', async () => {
 
 
   it('create pool works', async () => {
-    //  expect((await konomiOceanLending.activePoolIds()).length).to.equal(0);
+    let activePoolIds = await getAllActivePoolIds();
+    console.log('activePoolIds:', activePoolIds);
 
+    poolId = await konomiOceanLending.nextPoolId();
+    console.log('nextPoolId: ', poolId);
+
+    poolId = await createPool(leasePeriod);
+    console.log('createPool nextPoolId: ', poolId);
+  });
+
+  it ('testSuspend', async () => {
+    await testSuspend(poolId, true);
+    await testSuspend(poolId, true);
+    await testSuspend(poolId, false);
+  });
+
+  it ('testExtendLease', async () => {
+    await testSuspend(poolId, true);
+    await testExtendLease(poolId, leasePeriod);
+
+    await testSuspend(poolId, false);
+    await testExtendLease(poolId, leasePeriod);
+  });
+
+  it ('testNotExistsPool', async () => {
+    await testNotExistsPool();
+  });
+
+  async function createPool(leasePeriod: BigInt): Promise<number> {
     const t1 = {
       underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3'),
       subscriptionId: new Uint64(BigInt(1)),
@@ -88,45 +118,57 @@ describe('KonomiOceanLending', async () => {
     const poolConfig = {
       tokens: [t1, t2, t3]
     };
-
-
-    const activePoolIds = await konomiOceanLending.activePoolIds();
-    activePoolIds.forEach(async (poolId) => {
-      const pool = await konomiOceanLending.getPoolById(Number(poolId));
-      logger.info('poolId: %s pool: %s', poolId, pool);
-    })
-
-    const nextPoolId = await konomiOceanLending.nextPoolId();
-    console.log('activePoolIds:', activePoolIds);
-    console.log('nextPoolId: ', nextPoolId);
-
-    const leasePeriod = BigInt(3600);
+    
     expect(await konomiOceanLending.derivePayable(leasePeriod)).to.equal('27828000000000000000');
     // await konomiOceanLending.grantInvokerRole(account.address, { confirmations: 3 });
 
-    // await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
-    // console.log('nextPoolId: ', await konomiOceanLending.nextPoolId());
+    expect(await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 })
+      .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-1');
+    return await konomiOceanLending.nextPoolId();
+  }
 
-    // test suspend and extendLease
-    let poolId = 0;
-    let pool = await konomiOceanLending.getPoolById(poolId);
-    if (pool.suspended) {
-      expect(await konomiOceanLending.suspend(poolId, true, { confirmations: 3 })
-        .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-3');
-    
-      expect(await konomiOceanLending.extendLease(poolId, leasePeriod, { confirmations: 3 })
-        .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-4');
-    } else {
-      await konomiOceanLending.suspend(poolId, true, { confirmations: 3 });
-      const pool = await konomiOceanLending.getPoolById(poolId);
-      expect(pool.suspended).to.true;
+  async function getAllActivePoolIds(): Promise<number[]> {
+    const activePoolIds = await konomiOceanLending.activePoolIds();
+    let ids = [];
+    for (const poolId of activePoolIds) {
+      const id = Number(poolId);
+      ids.push(id);
+      const pool = await konomiOceanLending.getPoolById(id);
+      logger.info('poolId: %s pool: %s', poolId, pool);
     }
+    return ids;
+  }
 
-    // test not exists pool
-    poolId = 1000000000000000;
-    pool = await konomiOceanLending.getPoolById(poolId);
+  async function testNotExistsPool() {
+    const poolId = 1000000000000000;
+    const pool = await konomiOceanLending.getPoolById(poolId);
     expect(pool.suspended).to.false;
     expect(pool.leaseStart).to.equal('0');
     expect(pool.leaseEnd).to.equal('0');
-  });
+  }
+
+  async function testSuspend(poolId: number, suspend: boolean) {
+    let pool = await konomiOceanLending.getPoolById(poolId);
+    if (pool.suspended == suspend) {
+      expect(await konomiOceanLending.suspend(poolId, suspend, { confirmations: 3 })
+        .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-3');
+    } else {
+      await konomiOceanLending.suspend(poolId, suspend, { confirmations: 3 });
+      const pool = await konomiOceanLending.getPoolById(poolId);
+      expect(pool.suspended == suspend).to.true;
+    }
+  }
+
+  async function testExtendLease(poolId: number, leasePeriod: BigInt) {
+    let pool = await konomiOceanLending.getPoolById(poolId);
+    const oldLeaseEnd = pool.leaseEnd;
+    if (pool.suspended) {
+      expect(await konomiOceanLending.extendLease(poolId, leasePeriod, { confirmations: 3 })
+        .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-4');
+    } else if (pool.owner == account.address) {
+      await konomiOceanLending.extendLease(poolId, leasePeriod, { confirmations: 3 });
+      pool = await konomiOceanLending.getPoolById(poolId);
+      expect(pool.leaseEnd > oldLeaseEnd).to.true;
+    }
+  }
 });
