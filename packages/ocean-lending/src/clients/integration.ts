@@ -49,7 +49,6 @@ export class IntegrationClient {
       this.comptroller.closeFactor(),
       this.comptroller.liquidationIncentive()
     ]);
-
     const canBeCollateral = collateralFactor != 0;
 
     return {

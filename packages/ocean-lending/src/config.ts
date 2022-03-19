@@ -65,3 +65,11 @@ export interface Header {
   liquidationIncentive: boolean;
   canBeCollateral: boolean;
 }
+
+export interface PoolData {
+  owner: string;
+  leaseStart: BigInt;
+  leaseEnd: BigInt;
+  deployContract: string;
+  suspended: boolean;
+}
