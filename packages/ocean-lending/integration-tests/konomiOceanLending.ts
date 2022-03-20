@@ -70,13 +70,13 @@ describe('KonomiOceanLending', async () => {
 
 
     const markets = await getAllMarkets(pool.deployContract);
-    await displayComptrollerInfo();
 
     for (const marketAddress of markets) {
       console.log('==== oTokenAddress: ', marketAddress);
       const oToken = await makeOToken(marketAddress);
       await testMint(oToken);
       await displayOTokenInfo(oToken);
+      await displayComptrollerInfo();
       await testRedeem(oToken);
 
       // await testBorrow(oToken);
@@ -119,9 +119,6 @@ describe('KonomiOceanLending', async () => {
   }
 
   async function displayComptrollerInfo() {
-    const liquidity: number = await comptroller.getAccountLiquidity(account.address);
-    console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
-
     const totalLiquidity = await comptroller.totalLiquidity(priceOracle);
     console.log('totalLiquidity:', totalLiquidity);
 
@@ -154,6 +151,9 @@ describe('KonomiOceanLending', async () => {
   }
 
   async function displayOTokenInfo(oToken: OToken) {
+    const liquidity: number = await comptroller.getAccountLiquidity(account.address);
+    console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
+
     const oTokenBefore = await oToken.balanceOf(account.address);
     const borrowBalanceBefore = await oToken.borrowBalanceCurrent(account.address);
     const oTokenCollateralFactor = await comptroller.collateralFactor(oToken.address);
