@@ -124,6 +124,10 @@ class OToken extends Client {
   public async reserveFactorMantissa(): Promise<BigInt> {
     return this.contract.methods.reserveFactorMantissa().call();
   }
+
+  public async interestRateModel(): Promise<string> {
+    return this.contract.methods.interestRateModel().call();
+  }
 }
 
 export default OToken;
