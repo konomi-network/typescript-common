@@ -30,7 +30,7 @@ class OToken extends Client {
     const method = this.contract.methods.redeem(amount.toString());
     let failed = null;
     await this.send(method, await this.prepareTxn(method), options, (receipt: any) => {
-      failed = this.detectFailedEvents(receipt.events);
+      failed = this.detectFailedEvents(receipt);
     });
 
     if (failed != null) {

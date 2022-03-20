@@ -3,6 +3,7 @@ import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { KonomiOceanLending } from '../src/clients/konomiOceanLending';
 import {
+  ONE_ETHER,
   loadWalletFromEncyrptedJson,
   loadWalletFromPrivate,
   readJsonSync,
@@ -11,17 +12,26 @@ import {
 import { Address, Uint16, Uint64 } from '../src/types';
 import { InterestConfig } from '../src/config';
 import logger from '../src/logger';
+import Comptroller from '../src/clients/comptroller';
+import PriceOracleAdaptor from '../src/clients/priceOracle';
+import OToken from '../src/clients/oToken';
 
 describe('KonomiOceanLending', async () => {
   const config = readJsonSync('./config/config.json');
   const konomiOceanLendingAbi = readJsonSync('./config/konomiOceanLending.json');
+  const oTokenAbi = readJsonSync('./config/oToken.json');
+  const comptrollerAbi = readJsonSync('./config/comptroller.json');
+  const priceOracleAbi = readJsonSync('./config/priceOracle.json');
+
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
   let account: Account;
   let konomiOceanLending: KonomiOceanLending;
+  let comptroller: Comptroller;
+  let priceOracle: PriceOracleAdaptor;
 
   let poolId = 0;
-  const leasePeriod = BigInt(3600);
+  const leasePeriod = BigInt(2589570);
 
   before(async () => {
     if (config.encryptedAccountJson) {
@@ -47,8 +57,30 @@ describe('KonomiOceanLending', async () => {
     poolId = await konomiOceanLending.nextPoolId();
     console.log('nextPoolId: ', poolId);
 
-    poolId = await createPool(leasePeriod);
-    console.log('createPool nextPoolId: ', poolId);
+    poolId = await makePool(leasePeriod);
+    console.log('makePool nextPoolId: ', poolId);
+  });
+
+  it('testComptroller', async () => {
+    // const activePoolIds = await getAllActivePoolIds();
+    // console.log('activePoolIds:', activePoolIds);
+
+    const pool = await konomiOceanLending.getPoolById(poolId);
+    console.log('pool.deployContract: ', pool.deployContract, 'suspended:', pool.suspended);
+
+
+    const markets = await getAllMarkets(pool.deployContract);
+
+    for (const marketAddress of markets) {
+      console.log('==== oTokenAddress: ', marketAddress);
+      const oToken = await makeOToken(marketAddress);
+      await testMint(oToken);
+      await displayOTokenInfo(oToken);
+      await displayComptrollerInfo();
+      await testRedeem(oToken);
+
+      // await testBorrow(oToken);
+    }
   });
 
   it ('testSuspend', async () => {
@@ -69,7 +101,97 @@ describe('KonomiOceanLending', async () => {
     await testNotExistsPool();
   });
 
-  async function createPool(leasePeriod: BigInt): Promise<number> {
+  async function getAllMarkets(comptrollerAddress: string): Promise<string[]> {
+    comptroller = new Comptroller(web3, comptrollerAbi, comptrollerAddress, account);
+
+    const oracleAddress = await comptroller.oracleAddress();
+    console.log('comptroller address:', comptroller.address);
+    console.log('oracleAddress:', oracleAddress);
+    expect(oracleAddress).to.a('string');
+
+    priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, oracleAddress, account);
+
+    return  await comptroller.allMarkets();
+  }
+
+  async function makeOToken(oTokenAddress: string): Promise<OToken> {
+    return new OToken(web3, oTokenAbi, oTokenAddress, account, config.oTokens.oKono.parameters);
+  }
+
+  async function displayComptrollerInfo() {
+    const totalLiquidity = await comptroller.totalLiquidity(priceOracle);
+    console.log('totalLiquidity:', totalLiquidity);
+
+    const incentive = await comptroller.liquidationIncentive();
+    console.log('incentive:', incentive);
+
+    const closeFactor = await comptroller.closeFactor();
+    console.log('closeFactor:', closeFactor);
+  }
+
+  async function testMint(oToken: OToken) {
+    const oTokenBefore = await oToken.balanceOf(account.address);
+    console.log('oTokenBefore:', oTokenBefore);
+
+    const depositAmount = BigInt(1000) * ONE_ETHER;
+    await oToken.mint(depositAmount, { confirmations: 3 });
+
+    const oTokenAfter = await oToken.balanceOf(account.address);
+    console.log('oTokenAfter:', oTokenAfter);
+  }
+
+  async function testRedeem(oToken: OToken) {
+    const oTokenBefore = await oToken.balanceOf(account.address);
+    console.log('oTokenBefore:', oTokenBefore);
+
+    await oToken.redeem(oTokenBefore, { confirmations: 3 });
+
+    const oTokenAfter = await oToken.balanceOf(account.address);
+    console.log('oTokenAfter:', oTokenAfter);
+  }
+
+  async function displayOTokenInfo(oToken: OToken) {
+    const liquidity: number = await comptroller.getAccountLiquidity(account.address);
+    console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
+
+    const oTokenBefore = await oToken.balanceOf(account.address);
+    const borrowBalanceBefore = await oToken.borrowBalanceCurrent(account.address);
+    const oTokenCollateralFactor = await comptroller.collateralFactor(oToken.address);
+    const exchangeRate = await oToken.exchangeRate();
+    const underlyingPrice = await priceOracle.getUnderlyingPrice(oToken.address);
+    const underlyingDeposited = (Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals)) * exchangeRate;
+    const underlyingBorrowable = (underlyingDeposited * oTokenCollateralFactor) / 100;
+
+    console.log('oTokenBefore:', oTokenBefore);
+    console.log(`exchangeRate: ${exchangeRate / 1e28}`);
+    console.log(`underlyingPrice: ${underlyingPrice.toFixed(6)} USD`);
+    console.log(`borrowBalanceBefore: ${borrowBalanceBefore}`);
+    console.log(`oTokenCollateralFactor: ${oTokenCollateralFactor}`);
+    console.log(`underlyingDeposited: ${underlyingDeposited}`);
+    console.log(`underlyingBorrowable: ${underlyingBorrowable}`);
+    console.log('NEVER borrow near the maximum amount because your account will be instantly liquidated.');
+    expect(borrowBalanceBefore <= underlyingBorrowable).to.true;
+  }
+
+  async function testBorrow(oToken: OToken) {
+    const oTokenBefore = await oToken.balanceOf(account.address);
+
+    const underlyingDecimals = 18;
+    const underlyingToBorrow = 50;
+    const scaledUpBorrowAmount = underlyingToBorrow * Math.pow(10, underlyingDecimals);
+    await oToken.borrow(scaledUpBorrowAmount, { confirmations: 3 });
+
+    const borrowBalanceAfter = await oToken.borrowBalanceCurrent(account.address);
+    console.log(`Borrow balance after is ${borrowBalanceAfter / Math.pow(10, underlyingDecimals)}`);
+
+    await oToken.approve(scaledUpBorrowAmount, { confirmations: 3 });
+
+    const oTokenAfter = await oToken.balanceOf(account.address);
+    console.log('oTokenAfter:', oTokenAfter);
+    expect(oTokenAfter == oTokenBefore).to.true;
+  }
+
+  async function makePool(leasePeriod: BigInt): Promise<number> {
     const t1 = {
       underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3'),
       subscriptionId: new Uint64(BigInt(1)),
@@ -119,11 +241,13 @@ describe('KonomiOceanLending', async () => {
       tokens: [t1, t2, t3]
     };
     
-    expect(await konomiOceanLending.derivePayable(leasePeriod)).to.equal('27828000000000000000');
+    expect(await konomiOceanLending.derivePayable(leasePeriod)).to.equal('20017376100000000000000');
     // await konomiOceanLending.grantInvokerRole(account.address, { confirmations: 3 });
 
-    expect(await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 })
+    expect(await konomiOceanLending.create(poolConfig, BigInt(1), account.address, { confirmations: 3 })
       .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-1');
+
+    await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
     return await konomiOceanLending.nextPoolId();
   }
 
