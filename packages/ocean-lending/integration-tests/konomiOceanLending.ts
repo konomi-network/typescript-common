@@ -15,12 +15,14 @@ import logger from '../src/logger';
 import Comptroller from '../src/clients/comptroller';
 import PriceOracleAdaptor from '../src/clients/priceOracle';
 import OToken from '../src/clients/oToken';
+import JumpInterestV2 from '../src/clients/jumpInterestV2';
 
 describe('KonomiOceanLending', async () => {
   const config = readJsonSync('./config/config.json');
   const konomiOceanLendingAbi = readJsonSync('./config/konomiOceanLending.json');
   const oTokenAbi = readJsonSync('./config/oToken.json');
   const comptrollerAbi = readJsonSync('./config/comptroller.json');
+  const jumpInterestV2Abi = readJsonSync('./config/jumpInterestV2.json');
   const priceOracleAbi = readJsonSync('./config/priceOracle.json');
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
@@ -28,6 +30,7 @@ describe('KonomiOceanLending', async () => {
   let account: Account;
   let konomiOceanLending: KonomiOceanLending;
   let comptroller: Comptroller;
+  let jumpInterestV2: JumpInterestV2;
   let priceOracle: PriceOracleAdaptor;
 
   let poolId = 0;
@@ -49,7 +52,6 @@ describe('KonomiOceanLending', async () => {
     konomiOceanLending = new KonomiOceanLending(web3, konomiOceanLendingAbi, config.konomiOceanLending.address, account);
   });
 
-
   it('create pool works', async () => {
     let activePoolIds = await getAllActivePoolIds();
     console.log('activePoolIds:', activePoolIds);
@@ -57,23 +59,55 @@ describe('KonomiOceanLending', async () => {
     poolId = await konomiOceanLending.nextPoolId();
     console.log('nextPoolId: ', poolId);
 
-    poolId = await makePool(leasePeriod);
-    console.log('makePool nextPoolId: ', poolId);
+    await makePool(leasePeriod);
+
+    const pool = await konomiOceanLending.getPoolById(poolId);
+    console.log('pool.deployContract: ', pool.deployContract, 'suspended:', pool.suspended);
+
+    // check compound params
+    const markets = await getAllMarkets(pool.deployContract);
+    const blockTime = 15;
+
+    for (const marketAddress of markets) {
+      console.log('==== oTokenAddress: ', marketAddress);
+      const oToken = await makeOToken(marketAddress);
+      const JumpInterestV2Address = await oToken.interestRateModel();
+      console.log(`JumpInterestV2Address: ${JumpInterestV2Address}`);
+
+      jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, JumpInterestV2Address, account);
+      const baseRatePerYear = await jumpInterestV2.baseRatePerYear(blockTime);
+      const multiplierPerYear = await jumpInterestV2.multiplierPerYear(blockTime);
+      const jumpMultiplierPerYear = await jumpInterestV2.jumpMultiplierPerYear(blockTime);
+      const kink = await jumpInterestV2.kink();
+      console.log(`baseRatePerYear: ${Number(baseRatePerYear) / 1e18}`);
+      console.log(`multiplierPerYear: ${Number(multiplierPerYear) / 1e18}`);
+      console.log(`jumpMultiplierPerYear: ${Number(jumpMultiplierPerYear) / 1e18}`);
+      console.log(`kink: ${Number(kink) / 1e18}`);
+      
+      const incentive = await comptroller.liquidationIncentive();
+      const closeFactor = await comptroller.closeFactor();
+      const oTokenCollateralFactor = await comptroller.collateralFactor(marketAddress);
+      console.log(`incentive: ${incentive}`);
+      console.log(`closeFactor: ${closeFactor}`);
+      console.log(`oTokenCollateralFactor: ${oTokenCollateralFactor}`);
+    }
   });
 
   it('testComptroller', async () => {
-    // const activePoolIds = await getAllActivePoolIds();
-    // console.log('activePoolIds:', activePoolIds);
+    const activePoolIds = await getAllActivePoolIds();
+    console.log('activePoolIds:', activePoolIds);
 
     const pool = await konomiOceanLending.getPoolById(poolId);
     console.log('pool.deployContract: ', pool.deployContract, 'suspended:', pool.suspended);
 
 
     const markets = await getAllMarkets(pool.deployContract);
+    const blockTime = 15;
 
     for (const marketAddress of markets) {
       console.log('==== oTokenAddress: ', marketAddress);
       const oToken = await makeOToken(marketAddress);
+
       await testMint(oToken);
       await displayOTokenInfo(oToken);
       await displayComptrollerInfo();
@@ -211,14 +245,14 @@ describe('KonomiOceanLending', async () => {
       underlying: Address.fromString('0x30cDBa5e339881c707E140A5E7fe27fE1835d0dA'),
       subscriptionId: new Uint64(BigInt(1)),
       interest: new InterestConfig(
-        new Uint16(1001), // baseRatePerYear
-        new Uint16(2002), // multiplierPerYear
-        new Uint16(3003), // jumpMultiplierPerYear
-        new Uint16(4005) // kink
+        new Uint16(10001), // baseRatePerYear
+        new Uint16(20002), // multiplierPerYear
+        new Uint16(30003), // jumpMultiplierPerYear
+        new Uint16(40005) // kink
       ),
       collateral: {
-        canBeCollateral: false,
-        collateralFactor: new Uint16(1001),
+        canBeCollateral: true,
+        collateralFactor: new Uint16(2001),
         liquidationIncentive: new Uint16(2)
       }
     };
@@ -226,10 +260,10 @@ describe('KonomiOceanLending', async () => {
       underlying: Address.fromString('0x6Ed700f5b9F8A8c62419209b298Bd6080fC9ABC6'),
       subscriptionId: new Uint64(BigInt(1)),
       interest: new InterestConfig(
-        new Uint16(1001), // baseRatePerYear
-        new Uint16(2002), // multiplierPerYear
-        new Uint16(3003), // jumpMultiplierPerYear
-        new Uint16(4005) // kink
+        new Uint16(2001), // baseRatePerYear
+        new Uint16(3002), // multiplierPerYear
+        new Uint16(4003), // jumpMultiplierPerYear
+        new Uint16(5005) // kink
       ),
       collateral: {
         canBeCollateral: false,
