@@ -35,7 +35,7 @@ export function loadWalletFromPrivate(privateKey: string, web3: Web3): Account {
   return account;
 }
 
-export function readPassword(): Promise<string> | void {
+export function readPassword(): Promise<string> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const readline = typeof window === 'undefined' ? require('readline') : require('readline-browser');
 
