@@ -45,7 +45,7 @@ class Client {
    */
   protected async prepareTxn(method: any): Promise<any> {
     const txn: any = {
-      from: this?.account?.address || '',
+      from: this.account!.address,
       nonce: await this.deduceNonce()
     };
 
@@ -90,7 +90,7 @@ class Client {
   }
 
   private async deduceNonce(): Promise<number> {
-    return this.web3.eth.getTransactionCount(this?.account?.address || '', PENDING);
+    return this.web3.eth.getTransactionCount(this.account!.address || '', PENDING);
   }
 
   private async estimateGas(method: any, txn: any): Promise<number> {
