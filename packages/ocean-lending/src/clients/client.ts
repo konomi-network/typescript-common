@@ -7,6 +7,12 @@ import { TxnOptions } from '../options';
 
 const PENDING = 'pending';
 export type TAccount = Account | { address: string };
+export type TxnCallbacks = [
+  ((txnHash: string) => any) | undefined,
+  ((receipt: TransactionReceipt) => any) | undefined,
+  ((error: Error, receipt: TransactionReceipt) => any) | undefined
+];
+
 /**
  * The client class for Konomi Protocol.
  */
