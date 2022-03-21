@@ -6,7 +6,7 @@ import { TxnOptions } from '../options';
 // import logger from "../logger";
 
 const PENDING = 'pending';
-
+type TAccount = Account | { address: string };
 /**
  * The client class for Konomi Protocol.
  */
@@ -18,9 +18,9 @@ class Client {
   protected contract: Contract;
 
   // The account to use for operations
-  protected account?: Account;
+  protected account?: TAccount;
 
-  constructor(web3: Web3, abi: any, address: string, account?: Account) {
+  constructor(web3: Web3, abi: any, address: string, account?: TAccount) {
     this.web3 = web3;
     this.contract = new web3.eth.Contract(abi, address);
     this.account = account;
@@ -90,7 +90,7 @@ class Client {
   }
 
   private async deduceNonce(): Promise<number> {
-    return this.web3.eth.getTransactionCount(this.account!.address || '', PENDING);
+    return this.web3.eth.getTransactionCount(this.account!.address, PENDING);
   }
 
   private async estimateGas(method: any, txn: any): Promise<number> {
