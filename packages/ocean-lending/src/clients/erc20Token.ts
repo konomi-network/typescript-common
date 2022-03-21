@@ -1,4 +1,4 @@
-import { Client } from './client';
+import { Client, TxnCallbacks } from './client';
 import { TxnOptions } from 'options';
 
 class ERC20Token extends Client {
@@ -15,9 +15,14 @@ class ERC20Token extends Client {
     return this.contract.methods.allowance(owner, spender).call();
   }
 
-  public async increaseAllowance(spender: string, addedValue: string, options: TxnOptions): Promise<void> {
+  public async increaseAllowance(
+    spender: string,
+    addedValue: string,
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
+  ): Promise<void> {
     const method = this.contract.methods.increaseAllowance(spender, addedValue);
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 }
 
