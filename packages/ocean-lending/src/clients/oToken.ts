@@ -20,13 +20,13 @@ class OToken extends Client {
     this.parameters = parameters;
   }
 
-  public async mint(amount: BigInt, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.mint(amount.toString());
+  public async mint(amount: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods.mint(amount);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  public async redeem(amount: BigInt, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.redeem(amount.toString());
+  public async redeem(amount: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods.redeem(amount);
     let failed = null;
     await this.send(method, await this.prepareTxn(method), options, (receipt: any) => {
       failed = this.detectFailedEvents(receipt);
@@ -57,8 +57,8 @@ class OToken extends Client {
     return this.blockToYear(supplyRate, blockTime);
   }
 
-  public async borrow(amount: number, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.borrow(amount.toString());
+  public async borrow(amount: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods.borrow(amount);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
@@ -66,13 +66,13 @@ class OToken extends Client {
     return this.contract.methods.borrowBalanceCurrent(address).call();
   }
 
-  public async approve(amount: number, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.approve(this.address, amount.toString());
+  public async approve(amount: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods.approve(this.address, amount);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  public async repayBorrow(amount: BigInt, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.repayBorrow(amount.toString());
+  public async repayBorrow(amount: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods.repayBorrow(amount);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
