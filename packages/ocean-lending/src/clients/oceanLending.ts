@@ -4,7 +4,7 @@ import { PoolConfig, PoolData } from '../config';
 import { OceanEncoder } from '../encoding';
 import logger from '../logger';
 
-class KonomiOceanLending extends Client {
+class OceanLending extends Client {
   public async create(
     poolData: PoolConfig,
     leasePeriod: BigInt,
@@ -70,5 +70,5 @@ class KonomiOceanLending extends Client {
   }
 }
 
-export default KonomiOceanLending;
-export { KonomiOceanLending };
+export default OceanLending;
+export { OceanLending };
