@@ -13,5 +13,5 @@ import { Comptroller, PriceOracle } from '@konomi-network/client/dist/clients';
 ## Test integration
 
 ```
-npm run test-specific Deposit
+yarn test-specific Deposit
 ```

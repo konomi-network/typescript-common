@@ -168,7 +168,7 @@ describe('OceanLending', async () => {
     console.log('oTokenBefore:', oTokenBefore);
 
     const depositAmount = BigInt(1000) * ONE_ETHER;
-    await oToken.mint(depositAmount, { confirmations: 3 });
+    await oToken.mint(depositAmount.toString(), { confirmations: 3 });
 
     const oTokenAfter = await oToken.balanceOf(account.address);
     console.log('oTokenAfter:', oTokenAfter);
@@ -178,7 +178,7 @@ describe('OceanLending', async () => {
     const oTokenBefore = await oToken.balanceOf(account.address);
     console.log('oTokenBefore:', oTokenBefore);
 
-    await oToken.redeem(oTokenBefore, { confirmations: 3 });
+    await oToken.redeem(oTokenBefore.toString(), { confirmations: 3 });
 
     const oTokenAfter = await oToken.balanceOf(account.address);
     console.log('oTokenAfter:', oTokenAfter);
@@ -198,7 +198,7 @@ describe('OceanLending', async () => {
 
     console.log('oTokenBefore:', oTokenBefore);
     console.log(`exchangeRate: ${exchangeRate / 1e28}`);
-    console.log(`underlyingPrice: ${underlyingPrice.toFixed(6)} USD`);
+    console.log(`underlyingPrice: ${(+underlyingPrice).toFixed(6)} USD`);
     console.log(`borrowBalanceBefore: ${borrowBalanceBefore}`);
     console.log(`oTokenCollateralFactor: ${oTokenCollateralFactor}`);
     console.log(`underlyingDeposited: ${underlyingDeposited}`);
@@ -213,12 +213,12 @@ describe('OceanLending', async () => {
     const underlyingDecimals = 18;
     const underlyingToBorrow = 50;
     const scaledUpBorrowAmount = underlyingToBorrow * Math.pow(10, underlyingDecimals);
-    await oToken.borrow(scaledUpBorrowAmount, { confirmations: 3 });
+    await oToken.borrow(scaledUpBorrowAmount.toString(), { confirmations: 3 });
 
     const borrowBalanceAfter = await oToken.borrowBalanceCurrent(account.address);
     console.log(`Borrow balance after is ${borrowBalanceAfter / Math.pow(10, underlyingDecimals)}`);
 
-    await oToken.approve(scaledUpBorrowAmount, { confirmations: 3 });
+    await oToken.approve(scaledUpBorrowAmount.toString(), { confirmations: 3 });
 
     const oTokenAfter = await oToken.balanceOf(account.address);
     console.log('oTokenAfter:', oTokenAfter);
