@@ -6,7 +6,7 @@ import { TxnOptions } from '../options';
 // import logger from "../logger";
 
 const PENDING = 'pending';
-type TAccount = Account | { address: string };
+export type TAccount = Account | { address: string };
 /**
  * The client class for Konomi Protocol.
  */

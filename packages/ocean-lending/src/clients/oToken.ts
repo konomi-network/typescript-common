@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Web3 from 'web3';
-import { Account } from 'web3-core';
-import { Client } from './client';
+import { Client, TAccount } from './client';
 import { TxnOptions } from '../options';
 
 export interface OTokenParameter {
@@ -16,7 +15,7 @@ class OToken extends Client {
 
   private readonly underlyingDecimals = 18;
 
-  constructor(web3: Web3, abi: any, address: string, account: Account, parameters: OTokenParameter) {
+  constructor(web3: Web3, abi: any, address: string, account: TAccount, parameters: OTokenParameter) {
     super(web3, abi, address, account);
     this.parameters = parameters;
   }
