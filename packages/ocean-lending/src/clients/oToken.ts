@@ -90,6 +90,10 @@ class OToken extends Client {
     return this.contract.methods.underlying().call();
   }
 
+  public async underlyingBalanceCurrent(address: string): Promise<number> {
+    return this.contract.methods.balanceOfUnderlying(address).call();
+  }
+
   // public convertFromUnderlying(amount: BigInt): BigInt {
 
   // }

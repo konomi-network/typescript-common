@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { KonomiOceanLending } from '../src/clients/konomiOceanLending';
 import {
   ONE_ETHER,
   loadWalletFromEncyrptedJson,
@@ -16,10 +15,11 @@ import Comptroller from '../src/clients/comptroller';
 import PriceOracleAdaptor from '../src/clients/priceOracle';
 import OToken from '../src/clients/oToken';
 import JumpInterestV2 from '../src/clients/jumpInterestV2';
+import OceanLending from '../src/clients/oceanLending';
 
-describe('KonomiOceanLending', async () => {
+describe('OceanLending', async () => {
   const config = readJsonSync('./config/config.json');
-  const konomiOceanLendingAbi = readJsonSync('./config/konomiOceanLending.json');
+  const oceanLendingAbi = readJsonSync('./config/konomiOceanLending.json');
   const oTokenAbi = readJsonSync('./config/oToken.json');
   const comptrollerAbi = readJsonSync('./config/comptroller.json');
   const jumpInterestV2Abi = readJsonSync('./config/jumpInterestV2.json');
@@ -28,7 +28,7 @@ describe('KonomiOceanLending', async () => {
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
   let account: Account;
-  let konomiOceanLending: KonomiOceanLending;
+  let oceanLending: OceanLending;
   let comptroller: Comptroller;
   let jumpInterestV2: JumpInterestV2;
   let priceOracle: PriceOracleAdaptor;
@@ -49,19 +49,19 @@ describe('KonomiOceanLending', async () => {
     console.log('Using account:', account);
 
     // load the konomiOceanLending object
-    konomiOceanLending = new KonomiOceanLending(web3, konomiOceanLendingAbi, config.konomiOceanLending.address, account);
+    oceanLending = new OceanLending(web3, oceanLendingAbi, config.konomiOceanLending.address, account);
   });
 
   it('create pool works', async () => {
     let activePoolIds = await getAllActivePoolIds();
     console.log('activePoolIds:', activePoolIds);
 
-    poolId = await konomiOceanLending.nextPoolId();
+    poolId = await oceanLending.nextPoolId();
     console.log('nextPoolId: ', poolId);
 
     await makePool(leasePeriod);
 
-    const pool = await konomiOceanLending.getPoolById(poolId);
+    const pool = await oceanLending.getPoolById(poolId);
     console.log('pool.deployContract: ', pool.deployContract, 'suspended:', pool.suspended);
 
     // check compound params
@@ -97,7 +97,7 @@ describe('KonomiOceanLending', async () => {
     const activePoolIds = await getAllActivePoolIds();
     console.log('activePoolIds:', activePoolIds);
 
-    const pool = await konomiOceanLending.getPoolById(poolId);
+    const pool = await oceanLending.getPoolById(poolId);
     console.log('pool.deployContract: ', pool.deployContract, 'suspended:', pool.suspended);
 
 
@@ -275,23 +275,23 @@ describe('KonomiOceanLending', async () => {
       tokens: [t1, t2, t3]
     };
     
-    expect(await konomiOceanLending.derivePayable(leasePeriod)).to.equal('20017376100000000000000');
-    // await konomiOceanLending.grantInvokerRole(account.address, { confirmations: 3 });
+    expect(await oceanLending.derivePayable(leasePeriod)).to.equal('20017376100000000000000');
+    // await oceanLending.grantInvokerRole(account.address, { confirmations: 3 });
 
-    expect(await konomiOceanLending.create(poolConfig, BigInt(1), account.address, { confirmations: 3 })
+    expect(await oceanLending.create(poolConfig, BigInt(1), account.address, { confirmations: 3 })
       .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-1');
 
-    await konomiOceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
-    return await konomiOceanLending.nextPoolId();
+    await oceanLending.create(poolConfig, leasePeriod, account.address, { confirmations: 3 });
+    return await oceanLending.nextPoolId();
   }
 
   async function getAllActivePoolIds(): Promise<number[]> {
-    const activePoolIds = await konomiOceanLending.activePoolIds();
+    const activePoolIds = await oceanLending.activePoolIds();
     let ids = [];
     for (const poolId of activePoolIds) {
       const id = Number(poolId);
       ids.push(id);
-      const pool = await konomiOceanLending.getPoolById(id);
+      const pool = await oceanLending.getPoolById(id);
       logger.info('poolId: %s pool: %s', poolId, pool);
     }
     return ids;
@@ -299,33 +299,33 @@ describe('KonomiOceanLending', async () => {
 
   async function testNotExistsPool() {
     const poolId = 1000000000000000;
-    const pool = await konomiOceanLending.getPoolById(poolId);
+    const pool = await oceanLending.getPoolById(poolId);
     expect(pool.suspended).to.false;
     expect(pool.leaseStart).to.equal('0');
     expect(pool.leaseEnd).to.equal('0');
   }
 
   async function testSuspend(poolId: number, suspend: boolean) {
-    let pool = await konomiOceanLending.getPoolById(poolId);
+    let pool = await oceanLending.getPoolById(poolId);
     if (pool.suspended == suspend) {
-      expect(await konomiOceanLending.suspend(poolId, suspend, { confirmations: 3 })
+      expect(await oceanLending.suspend(poolId, suspend, { confirmations: 3 })
         .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-3');
     } else {
-      await konomiOceanLending.suspend(poolId, suspend, { confirmations: 3 });
-      const pool = await konomiOceanLending.getPoolById(poolId);
+      await oceanLending.suspend(poolId, suspend, { confirmations: 3 });
+      const pool = await oceanLending.getPoolById(poolId);
       expect(pool.suspended == suspend).to.true;
     }
   }
 
   async function testExtendLease(poolId: number, leasePeriod: BigInt) {
-    let pool = await konomiOceanLending.getPoolById(poolId);
+    let pool = await oceanLending.getPoolById(poolId);
     const oldLeaseEnd = pool.leaseEnd;
     if (pool.suspended) {
-      expect(await konomiOceanLending.extendLease(poolId, leasePeriod, { confirmations: 3 })
+      expect(await oceanLending.extendLease(poolId, leasePeriod, { confirmations: 3 })
         .catch((error: Error) => error.message)).to.equal('Returned error: execution reverted: KON-SUB-4');
     } else if (pool.owner == account.address) {
-      await konomiOceanLending.extendLease(poolId, leasePeriod, { confirmations: 3 });
-      pool = await konomiOceanLending.getPoolById(poolId);
+      await oceanLending.extendLease(poolId, leasePeriod, { confirmations: 3 });
+      pool = await oceanLending.getPoolById(poolId);
       expect(pool.leaseEnd > oldLeaseEnd).to.true;
     }
   }
