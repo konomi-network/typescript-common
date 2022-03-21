@@ -29,8 +29,8 @@ class OToken extends Client {
   public async redeem(amount: BigInt, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.redeem(amount.toString());
     let failed = null;
-    await this.send(method, await this.prepareTxn(method), options, (receipt) => {
-      failed = this.detectFailedEvents(receipt.events);
+    await this.send(method, await this.prepareTxn(method), options, (receipt: any) => {
+      failed = this.detectFailedEvents(receipt);
     });
 
     if (failed != null) {
@@ -148,6 +148,10 @@ class OToken extends Client {
     const secondsPerYear = 31536000;
     const APY = (Number(rate) * secondsPerYear) / blockTime + '';
     return APY;
+  }
+
+  public async interestRateModel(): Promise<string> {
+    return this.contract.methods.interestRateModel().call();
   }
 }
 

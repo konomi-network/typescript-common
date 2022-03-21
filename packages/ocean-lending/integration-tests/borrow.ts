@@ -13,7 +13,7 @@ async function enterMarkets(account: Account, markets: string[], comptroller: Co
   const liquidity: number = await comptroller.getAccountLiquidity(account.address);
   console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
 
-  const konoCollateralFactor: number = await comptroller.markets(markets[0]);
+  const konoCollateralFactor: number = await comptroller.collateralFactor(markets[0]);
   console.log(
     `You can borrow up to ${konoCollateralFactor}% of your TOTAL collateral supplied to the protocol as oKONO.`
   );
@@ -33,7 +33,7 @@ async function borrow(
   const erc20Before = await token.balanceOf(account.address);
   const oTokenBefore = await oToken.balanceOf(account.address);
   const borrowBalanceBefore = await oToken.borrowBalanceCurrent(account.address);
-  const konoCollateralFactor: number = await comptroller.markets(oToken.address);
+  const konoCollateralFactor: number = await comptroller.collateralFactor(oToken.address);
   const exchangeRate = await oToken.exchangeRate();
   const underlyingPrice = await priceOracle.getUnderlyingPrice(oToken.address);
 
