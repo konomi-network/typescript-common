@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
-import { Account } from 'web3-core';
+import { Account, TransactionReceipt } from 'web3-core';
 import { TxnOptions } from '../options';
 // import logger from "../logger";
 
@@ -57,14 +57,14 @@ class Client {
     method: any,
     txn: any,
     options: TxnOptions,
-    txnHashCallback?: (txnHash: any) => any,
-    confirmationCallback?: (receipt: any) => any,
-    errorCallback?: (error: Error, receipt: any) => any
+    txnHashCallback?: (txnHash: string) => any,
+    confirmationCallback?: (receipt: TransactionReceipt) => any,
+    errorCallback?: (error: Error, receipt: TransactionReceipt) => any
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       method
         .send(txn)
-        .once('transactionHash', (txnHash: any) => {
+        .on('transactionHash', (txnHash: any) => {
           if (txnHashCallback) {
             txnHashCallback(txnHash);
           }

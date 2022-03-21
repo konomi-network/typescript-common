@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Web3 from 'web3';
+import { TransactionReceipt } from 'web3-core';
 import { Client, TAccount } from './client';
 import { TxnOptions } from '../options';
 
@@ -20,21 +20,59 @@ class OToken extends Client {
     this.parameters = parameters;
   }
 
-  public async mint(amount: string, options: TxnOptions): Promise<void> {
+  public async mint(
+    amount: string,
+    options: TxnOptions,
+    txnHashCallback: (txnHash: string) => any,
+    confirmCallback: (receipt: TransactionReceipt) => any,
+    errorCallback: (error: Error, receipt: TransactionReceipt) => any
+  ): Promise<void> {
     const method = this.contract.methods.mint(amount);
-    await this.send(method, await this.prepareTxn(method), options);
+    return this.send(method, await this.prepareTxn(method), options, txnHashCallback, confirmCallback, errorCallback);
   }
 
-  public async redeem(amount: string, options: TxnOptions): Promise<void> {
+  public async redeem(
+    amount: string,
+    options: TxnOptions,
+    txnHashCallback: (txnHash: string) => any,
+    confirmCallback: (receipt: TransactionReceipt) => any,
+    errorCallback: (error: Error, receipt: TransactionReceipt) => any
+  ): Promise<void> {
     const method = this.contract.methods.redeem(amount);
-    let failed = null;
-    await this.send(method, await this.prepareTxn(method), options, (receipt: any) => {
-      failed = this.detectFailedEvents(receipt);
-    });
+    return this.send(method, await this.prepareTxn(method), options, txnHashCallback, confirmCallback, errorCallback);
+  }
 
-    if (failed != null) {
-      throw new Error(failed);
-    }
+  public async redeemUnderlying(
+    amount: string,
+    options: TxnOptions,
+    txnHashCallback: (txnHash: string) => any,
+    confirmCallback: (receipt: TransactionReceipt) => any,
+    errorCallback: (error: Error, receipt: TransactionReceipt) => any
+  ): Promise<void> {
+    const method = this.contract.methods.redeemUnderlying(amount);
+    return this.send(method, await this.prepareTxn(method), options, txnHashCallback, confirmCallback, errorCallback);
+  }
+
+  public async borrow(
+    amount: string,
+    options: TxnOptions,
+    txnHashCallback: (txnHash: string) => any,
+    confirmCallback: (receipt: TransactionReceipt) => any,
+    errorCallback: (error: Error, receipt: TransactionReceipt) => any
+  ): Promise<void> {
+    const method = this.contract.methods.borrow(amount);
+    await this.send(method, await this.prepareTxn(method), options, txnHashCallback, confirmCallback, errorCallback);
+  }
+
+  public async repayBorrow(
+    amount: string,
+    options: TxnOptions,
+    txnHashCallback: (txnHash: string) => any,
+    confirmCallback: (receipt: TransactionReceipt) => any,
+    errorCallback: (error: Error, receipt: TransactionReceipt) => any
+  ): Promise<void> {
+    const method = this.contract.methods.repayBorrow(amount);
+    await this.send(method, await this.prepareTxn(method), options, txnHashCallback, confirmCallback, errorCallback);
   }
 
   public async borrowRatePerBlock(): Promise<string> {
@@ -57,22 +95,12 @@ class OToken extends Client {
     return this.blockToYear(supplyRate, blockTime);
   }
 
-  public async borrow(amount: string, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.borrow(amount);
-    await this.send(method, await this.prepareTxn(method), options);
-  }
-
   public async borrowBalanceCurrent(address: string): Promise<number> {
     return this.contract.methods.borrowBalanceCurrent(address).call();
   }
 
   public async approve(amount: string, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.approve(this.address, amount);
-    await this.send(method, await this.prepareTxn(method), options);
-  }
-
-  public async repayBorrow(amount: string, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.repayBorrow(amount);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
