@@ -208,4 +208,14 @@ export class OceanGovernor extends Client {
     const method = this.contract.methods.setVotingPeriod(votingPeriod);
     await this.send(method, await this.prepareTxn(method), options);
   }
+
+  public async setVotingThreshold(num: number, den: number, options: TxnOptions) {
+    const method = this.contract.methods.setVotingThreshold(num, den);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  public async withdraw(amount: BigInt, options: TxnOptions) {
+    const method = this.contract.methods._withdraw(amount);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
 }

@@ -13,7 +13,7 @@ import {
   readPassword
 } from '../src/utils';
 
-describe('Staking', async () => {
+describe('Staking', () => {
   const config = readJsonSync('./config/config.json');
   const stakingV1Abi = readJsonSync('./config/stakingV1.json');
   const oTokenAbi = readJsonSync('./config/oToken.json');
@@ -26,7 +26,7 @@ describe('Staking', async () => {
   let oToken: OToken;
   let erc20Token: ERC20Token;
 
-  before(async () => {
+  beforeAll(async () => {
     if (config.encryptedAccountJson) {
       const pw = await readPassword();
       account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);
@@ -49,7 +49,7 @@ describe('Staking', async () => {
   });
 
   it('key flow test', async () => {
-    const amount = 1000;
+    const amount = 100;
     await stakeOfTest(account, erc20Token, stakingV1);
     await depositTest(account, erc20Token, stakingV1, amount);
     await withdrawTest(account, erc20Token, stakingV1, 100);

@@ -58,7 +58,7 @@ async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Toke
   expect(oEthAfter.valueOf() === BigInt(0)).to.be.eq(true);
 }
 
-describe('DepositWithEth', async () => {
+describe('DepositWithEth', () => {
   const config = readJsonSync('./config/config.json');
   const oEthAbi = readJsonSync('./config/oToken.json');
   const ethAbi = readJsonSync('./config/erc20.json');
@@ -69,7 +69,7 @@ describe('DepositWithEth', async () => {
   let oEth: OToken;
   let ethToken: ERC20Token;
 
-  before(async () => {
+  beforeAll(async () => {
     if (config.encryptedAccountJson) {
       const pw = await readPassword();
       account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);

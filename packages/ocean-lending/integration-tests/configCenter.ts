@@ -4,7 +4,7 @@ import { Account } from 'web3-core';
 import { ConfigCenter } from '../src/clients/configCenter';
 import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
 
-describe('ConfigCenter', async () => {
+describe('ConfigCenter', () => {
   const config = readJsonSync('./config/config.json');
   const abi = readJsonSync('./config/configCenter.json');
 
@@ -13,7 +13,7 @@ describe('ConfigCenter', async () => {
   let account: Account;
   let client: ConfigCenter;
 
-  before(async () => {
+  beforeAll(async () => {
     if (config.encryptedAccountJson) {
       const pw = await readPassword();
       account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);

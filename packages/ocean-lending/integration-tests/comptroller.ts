@@ -38,7 +38,7 @@ async function closeFactor(account: Account, oToken: OToken, token: ERC20Token, 
   console.log('==== closeFactor ====');
 }
 
-describe('Comptroller', async () => {
+describe('Comptroller', () => {
   const config = readJsonSync('./config/config.json');
   const oTokenAbi = readJsonSync('./config/oToken.json');
   const erc20Abi = readJsonSync('./config/erc20.json');
@@ -55,7 +55,7 @@ describe('Comptroller', async () => {
   let priceOracle: PriceOracleAdaptor;
   let jumpInterestV2: JumpInterestV2;
 
-  before(async () => {
+  beforeAll(async () => {
     if (config.encryptedAccountJson) {
       const pw = await readPassword();
       account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);
@@ -79,7 +79,7 @@ describe('Comptroller', async () => {
     priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, config.priceOracle.address, account);
 
     // load JumpInterestV2 object
-    jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, config.JumpInterestV2.address, account);
+    jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, config.jumpInterestV2.address, account);
   });
 
   it('key flow test', async () => {

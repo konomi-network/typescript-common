@@ -7,7 +7,7 @@ async function getFeedWorks(client: FeedFactory, subscriptionIds: string[]): Pro
   await Promise.all(subscriptionIds.map((id) => client.getFeed(id)));
 }
 
-describe('FeedFactory', async () => {
+describe('FeedFactory', () => {
   const config = readJsonSync('./config/config.json');
   const abi = readJsonSync('./config/feedFactory.json');
 
@@ -16,7 +16,7 @@ describe('FeedFactory', async () => {
   let account: Account;
   let client: FeedFactory;
 
-  before(async () => {
+  beforeAll(async () => {
     if (config.encryptedAccountJson) {
       const pw = await readPassword();
       account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);
