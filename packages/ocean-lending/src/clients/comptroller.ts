@@ -84,7 +84,7 @@ class Comptroller extends Client {
     for (const tokenAddress of tokenAddresses) {
       const supply = await this.totalSupply(tokenAddress);
       const price = await priceOracleAdaptor.getUnderlyingPrice(tokenAddress);
-      totalValue += supply * price;
+      totalValue += supply * +price;
     }
     return totalValue;
   }

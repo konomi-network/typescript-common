@@ -1,11 +1,12 @@
+import Web3 from 'web3';
 import { Client } from './client';
 
 class PriceOracleAdaptor extends Client {
   private readonly decimals = 1e18;
 
-  public async getUnderlyingPrice(tokenAddress: string): Promise<number> {
+  public async getUnderlyingPrice(tokenAddress: string): Promise<string> {
     const price = await this.contract.methods.getUnderlyingPrice(tokenAddress).call();
-    return price / this.decimals;
+    return Web3.utils.fromWei(price);
   }
 }
 
