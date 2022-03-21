@@ -8,9 +8,9 @@ import { TxnOptions } from '../options';
 const PENDING = 'pending';
 export type TAccount = Account | { address: string };
 export type TxnCallbacks = [
-  ((txnHash: string) => any) | undefined,
-  ((receipt: TransactionReceipt) => any) | undefined,
-  ((error: Error, receipt: TransactionReceipt) => any) | undefined
+  ((txnHash: string) => any)?,
+  ((receipt: TransactionReceipt) => any)?,
+  ((error: Error, receipt: TransactionReceipt) => any)?
 ];
 
 /**

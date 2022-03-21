@@ -19,29 +19,29 @@ class OToken extends Client {
     this.parameters = parameters;
   }
 
-  public async mint(amount: string, options: TxnOptions, ...callbackParams: TxnCallbacks): Promise<void> {
+  public async mint(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.mint(amount);
-    return this.send(method, await this.prepareTxn(method), options, ...callbackParams);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
-  public async redeem(amount: string, options: TxnOptions, ...callbackParams: TxnCallbacks): Promise<void> {
+  public async redeem(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.redeem(amount);
-    return this.send(method, await this.prepareTxn(method), options, ...callbackParams);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
-  public async redeemUnderlying(amount: string, options: TxnOptions, ...callbackParams: TxnCallbacks): Promise<void> {
+  public async redeemUnderlying(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.redeemUnderlying(amount);
-    return this.send(method, await this.prepareTxn(method), options, ...callbackParams);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
-  public async borrow(amount: string, options: TxnOptions, ...callbackParams: TxnCallbacks): Promise<void> {
+  public async borrow(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.borrow(amount);
-    await this.send(method, await this.prepareTxn(method), options, ...callbackParams);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
-  public async repayBorrow(amount: string, options: TxnOptions, ...callbackParams: TxnCallbacks): Promise<void> {
+  public async repayBorrow(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.repayBorrow(amount);
-    await this.send(method, await this.prepareTxn(method), options, ...callbackParams);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   public async borrowRatePerBlock(): Promise<string> {
