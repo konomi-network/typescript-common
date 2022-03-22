@@ -1,6 +1,6 @@
 {
 	"name": "@konomi-network/eslint-config-konomi",
-	"version": "1.0.9-alpha.0",
+	"version": "1.0.10-alpha.0",
 	"main": "lib/index.js",
 	"description": "Konomi Eslint config",
 	"author": "Konomi Network",
