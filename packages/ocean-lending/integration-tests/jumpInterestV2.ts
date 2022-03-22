@@ -107,7 +107,7 @@ async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, 
   expect(totalReserves).to.be.eq('0');
 }
 
-describe('JumpInterestV2', async () => {
+describe('JumpInterestV2', () => {
   const config = readJsonSync('./config/config.json');
   const oTokenAbi = readJsonSync('./config/oToken.json');
   const jumpInterestV2Abi = readJsonSync('./config/jumpInterestV2.json');
@@ -118,7 +118,7 @@ describe('JumpInterestV2', async () => {
   let oToken: OToken;
   let jumpInterestV2: JumpInterestV2;
 
-  before(async () => {
+  beforeAll(async () => {
     if (config.encryptedAccountJson) {
       const pw = await readPassword();
       account = loadWalletFromEncyrptedJson(config.encryptedAccountJson, pw, web3);
@@ -134,7 +134,7 @@ describe('JumpInterestV2', async () => {
     oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
 
     // load JumpInterestV2 object
-    jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, config.JumpInterestV2.address, account);
+    jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, config.jumpInterestV2.address, account);
   });
 
   it('key flow test', async () => {
