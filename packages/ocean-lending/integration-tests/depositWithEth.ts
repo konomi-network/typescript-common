@@ -20,7 +20,7 @@ async function depositWorks(account: Account, oToken: OToken, token: ERC20Token)
   console.log('ethBefore:', ethBefore, ' oEthBefore:', oEthBefore);
 
   const amount = BigInt(100) * ONE_ETHER;
-  await oToken.mint(amount, { confirmations: 3 });
+  await oToken.mint(amount.toString(), { confirmations: 3 });
 
   const ethAfter = await token.balanceOf(account.address);
   const oEthAfter = await oToken.balanceOf(account.address);
@@ -45,7 +45,7 @@ async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Toke
   const ethBefore = await token.balanceOf(account.address);
   const oEthBefore = await oToken.balanceOf(account.address);
 
-  await oToken.redeem(oEthBefore, { confirmations: 3 });
+  await oToken.redeem(oEthBefore.toString(), { confirmations: 3 });
 
   const ethAfter = await token.balanceOf(account.address);
   const oEthAfter = await oToken.balanceOf(account.address);

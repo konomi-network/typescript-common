@@ -20,11 +20,6 @@ class Comptroller extends Client {
     return liquidity / this.decimals;
   }
 
-  public async markets(address: string): Promise<number> {
-    const { 1: collateralFactor } = await this.contract.methods.markets(address).call();
-    return (collateralFactor / this.decimals) * 100;
-  }
-
   /*
    * The additional collateral given to liquidators as an incentive to perform liquidation of underwater accounts.
    * For example, if the liquidation incentive is 1.1, liquidators receive an extra 10% of the borrowers collateral for every unit they close.
@@ -89,7 +84,7 @@ class Comptroller extends Client {
     for (const tokenAddress of tokenAddresses) {
       const supply = await this.totalSupply(tokenAddress);
       const price = await priceOracleAdaptor.getUnderlyingPrice(tokenAddress);
-      totalValue += supply * price;
+      totalValue += supply * +price;
     }
     return totalValue;
   }
