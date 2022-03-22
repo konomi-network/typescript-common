@@ -19,16 +19,16 @@ async function depositWorks(account: Account, oToken: OToken, token: ERC20Token)
 
   console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
 
-  const depositAmount = BigInt(1000) * ONE_ETHER;
-  await oToken.mint(depositAmount, { confirmations: 3 });
+  const depositAmount = 1000;
+  await oToken.mint(Web3.utils.toHex(depositAmount), { confirmations: 3 });
 
   const erc20After = await token.balanceOf(account.address);
   const oTokenAfter = await oToken.balanceOf(account.address);
 
   console.log('erc20After:', erc20After, ' oTokenAfter:', oTokenAfter);
 
-  const expectedErc = erc20Before.valueOf() - depositAmount;
-  ensure(erc20After == expectedErc, `invalid erc20 balance, expected ${expectedErc}, actual: ${erc20After}`);
+  const expectedErc = +Web3.utils.fromWei(erc20Before.toString()) - depositAmount;
+  ensure(+Web3.utils.fromWei(erc20After.toString()) == expectedErc, `invalid erc20 balance, expected ${expectedErc}, actual: ${erc20After}`);
 
   ensure(oTokenAfter > oTokenBefore, 'invalid deposit balance');
   // oToken.convertFromUnderlying(amount);
@@ -46,7 +46,7 @@ async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Toke
   console.log('oToken minted: ', Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals));
   console.log('oToken to redeem: ', Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals));
 
-  await oToken.redeem(oTokenBefore, { confirmations: 3 });
+  await oToken.redeem(oTokenBefore.toString(), { confirmations: 3 });
 
   const erc20After = await token.balanceOf(account.address);
   const oTokenAfter = await oToken.balanceOf(account.address);

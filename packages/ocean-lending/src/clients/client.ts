@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
-import { Account } from 'web3-core';
+import { Account, TransactionReceipt } from 'web3-core';
 import { TxnOptions } from '../options';
 // import logger from "../logger";
 
 const PENDING = 'pending';
+export type TAccount = Account | { address: string };
+export type TxnCallbacks = [
+  ((txnHash: string) => any)?,
+  ((receipt: TransactionReceipt) => any)?,
+  ((error: Error, receipt: TransactionReceipt) => any)?
+];
 
 /**
  * The client class for Konomi Protocol.
@@ -18,9 +24,9 @@ class Client {
   protected contract: Contract;
 
   // The account to use for operations
-  protected account: Account;
+  protected account?: TAccount;
 
-  constructor(web3: Web3, abi: any, address: string, account: Account) {
+  constructor(web3: Web3, abi: any, address: string, account?: TAccount) {
     this.web3 = web3;
     this.contract = new web3.eth.Contract(abi, address);
     this.account = account;
@@ -45,7 +51,7 @@ class Client {
    */
   protected async prepareTxn(method: any): Promise<any> {
     const txn: any = {
-      from: this.account.address,
+      from: this.account!.address,
       nonce: await this.deduceNonce()
     };
 
@@ -57,14 +63,14 @@ class Client {
     method: any,
     txn: any,
     options: TxnOptions,
-    txnHashCallback?: (txnHash: any) => any,
-    confirmationCallback?: (receipt: any) => any,
-    errorCallback?: (error: Error, receipt: any) => any
+    txnHashCallback?: (txnHash: string) => any,
+    confirmationCallback?: (receipt: TransactionReceipt) => any,
+    errorCallback?: (error: Error, receipt: TransactionReceipt) => any
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       method
         .send(txn)
-        .once('transactionHash', (txnHash: any) => {
+        .on('transactionHash', (txnHash: any) => {
           if (txnHashCallback) {
             txnHashCallback(txnHash);
           }
@@ -90,7 +96,7 @@ class Client {
   }
 
   private async deduceNonce(): Promise<number> {
-    return this.web3.eth.getTransactionCount(this.account.address, PENDING);
+    return this.web3.eth.getTransactionCount(this.account!.address, PENDING);
   }
 
   private async estimateGas(method: any, txn: any): Promise<number> {

@@ -1,6 +1,6 @@
 {
 	"name": "@konomi-network/eslint-config-konomi",
-	"version": "1.0.5-alpha.0",
+	"version": "1.0.9-alpha.0",
 	"main": "lib/index.js",
 	"description": "Konomi Eslint config",
 	"author": "Konomi Network",
@@ -36,5 +36,6 @@
 		"eslint-plugin-react": "^7.28.0",
 		"eslint-plugin-react-hooks": "^4.3.0",
 		"prettier": "^2.5.1"
-	}
+	},
+	"gitHead": "4bf5b0ed8f7f0d61fa485624424959dd8a780ca6"
 }

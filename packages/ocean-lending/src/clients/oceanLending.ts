@@ -2,9 +2,8 @@ import { Client } from './client';
 import { TxnOptions } from '../options';
 import { PoolConfig, PoolData } from '../config';
 import { OceanEncoder } from '../encoding';
-import logger from '../logger';
 
-class KonomiOceanLending extends Client {
+class OceanLending extends Client {
   public async create(
     poolData: PoolConfig,
     leasePeriod: BigInt,
@@ -14,7 +13,7 @@ class KonomiOceanLending extends Client {
     const bytes = `0x${OceanEncoder.encode(poolData).toString('hex')}`;
     const method = this.contract.methods.create(bytes, leasePeriod, onBehalfOf);
     await this.send(method, await this.prepareTxn(method), options, (receipt) => {
-      logger.debug(`receipt: ${receipt}`);
+      console.debug(`receipt: ${receipt}`);
     });
   }
 
@@ -70,5 +69,5 @@ class KonomiOceanLending extends Client {
   }
 }
 
-export default KonomiOceanLending;
-export { KonomiOceanLending };
+export default OceanLending;
+export { OceanLending };

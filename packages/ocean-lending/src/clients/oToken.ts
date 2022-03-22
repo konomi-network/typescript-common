@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Web3 from 'web3';
-import { Account } from 'web3-core';
-import { Client } from './client';
+import { Client, TAccount, TxnCallbacks } from './client';
 import { TxnOptions } from '../options';
 
 export interface OTokenParameter {
@@ -16,49 +14,62 @@ class OToken extends Client {
 
   private readonly underlyingDecimals = 18;
 
-  constructor(web3: Web3, abi: any, address: string, account: Account, parameters: OTokenParameter) {
+  constructor(web3: Web3, abi: any, address: string, account: TAccount, parameters: OTokenParameter) {
     super(web3, abi, address, account);
     this.parameters = parameters;
   }
 
-  public async mint(amount: BigInt, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.mint(amount.toString());
-    await this.send(method, await this.prepareTxn(method), options);
+  public async mint(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+    const method = this.contract.methods.mint(amount);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
-  public async redeem(amount: BigInt, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.redeem(amount.toString());
-    let failed = null;
-    await this.send(method, await this.prepareTxn(method), options, (receipt: any) => {
-      failed = this.detectFailedEvents(receipt);
-    });
-
-    if (failed != null) {
-      throw new Error(failed);
-    }
+  public async redeem(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+    const method = this.contract.methods.redeem(amount);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
-  public async borrowRatePerBlock(): Promise<BigInt> {
+  public async redeemUnderlying(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+    const method = this.contract.methods.redeemUnderlying(amount);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
+  }
+
+  public async borrow(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+    const method = this.contract.methods.borrow(amount);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+  }
+
+  public async repayBorrow(amount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+    const method = this.contract.methods.repayBorrow(amount);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+  }
+
+  public async borrowRatePerBlock(): Promise<string> {
     const borrowRate = await this.contract.methods.borrowRatePerBlock().call();
-    return BigInt(borrowRate / Math.pow(10, this.underlyingDecimals));
+    return Web3.utils.fromWei(borrowRate + '');
   }
 
-  public async borrow(amount: number, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.borrow(amount.toString());
-    await this.send(method, await this.prepareTxn(method), options);
+  public async supplyRatePerBlock(): Promise<string> {
+    const supplyRate = await this.contract.methods.supplyRatePerBlock().call();
+    return Web3.utils.fromWei(supplyRate + '');
+  }
+
+  public async borrowRatePerYear(blockTime: number): Promise<string> {
+    const borrowRate = await this.borrowRatePerBlock();
+    return this.blockToYear(borrowRate, blockTime);
+  }
+
+  public async supplyRatePerYear(blockTime: number): Promise<string> {
+    const supplyRate = await this.supplyRatePerBlock();
+    return this.blockToYear(supplyRate, blockTime);
   }
 
   public async borrowBalanceCurrent(address: string): Promise<number> {
     return this.contract.methods.borrowBalanceCurrent(address).call();
   }
 
-  public async approve(amount: number, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.approve(this.address, amount.toString());
-    await this.send(method, await this.prepareTxn(method), options);
-  }
-
-  public async repayBorrow(amount: BigInt, options: TxnOptions): Promise<void> {
-    const method = this.contract.methods.repayBorrow(amount.toString());
+  public async approve(amount: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods.approve(this.address, amount);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
@@ -69,6 +80,14 @@ class OToken extends Client {
 
   public async exchangeRate(): Promise<number> {
     return this.contract.methods.exchangeRateCurrent().call();
+  }
+
+  public async underlying(): Promise<string> {
+    return this.contract.methods.underlying().call();
+  }
+
+  public async underlyingBalanceCurrent(address: string): Promise<number> {
+    return this.contract.methods.balanceOfUnderlying(address).call();
   }
 
   // public convertFromUnderlying(amount: BigInt): BigInt {
@@ -123,6 +142,12 @@ class OToken extends Client {
    */
   public async reserveFactorMantissa(): Promise<BigInt> {
     return this.contract.methods.reserveFactorMantissa().call();
+  }
+
+  public blockToYear(rate: BigInt | string, blockTime: number): string {
+    const secondsPerYear = 31536000;
+    const APY = (Number(rate) * secondsPerYear) / blockTime + '';
+    return APY;
   }
 
   public async interestRateModel(): Promise<string> {
