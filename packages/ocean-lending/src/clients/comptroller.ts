@@ -2,7 +2,6 @@ import { Client } from './client';
 import { PriceOracleAdaptor } from './priceOracle';
 import { JumpInterestV2 } from './jumpInterestV2';
 import { TxnOptions } from 'options';
-
 class Comptroller extends Client {
   private readonly decimals = 1e18;
 
@@ -48,7 +47,8 @@ class Comptroller extends Client {
   }
 
   public async totalSupply(tokenAddress: string): Promise<number> {
-    return Number(await this.callMethod(tokenAddress, 'totalSupply()'));
+    const supply = await this.callMethod(tokenAddress, 'totalSupply()');
+    return +supply / 1e8;
   }
 
   public async getCash(tokenAddress: string): Promise<BigInt> {

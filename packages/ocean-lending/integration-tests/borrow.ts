@@ -29,7 +29,7 @@ async function borrow(
 ) {
   console.log('==== borrow ====');
   const depositAmount = BigInt(1000) * ONE_ETHER;
-  await oToken.mint(depositAmount, { confirmations: 3 });
+  await oToken.mint(depositAmount.toString(), { confirmations: 3 });
   const liquidity: number = await comptroller.getAccountLiquidity(account.address);
   ensure(liquidity.valueOf() > 0, "You don't have any liquid assets pooled in the protocol.");
   const erc20Before = await token.balanceOf(account.address);
