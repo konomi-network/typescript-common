@@ -19,7 +19,7 @@ async function depositWorks(account: Account, oToken: OToken, token: ERC20Token)
 
   console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
 
-  const depositAmount = BigInt(1000) * ONE_ETHER;
+  const depositAmount = BigInt(500) * ONE_ETHER;
   await oToken.mint(depositAmount, { confirmations: 3 });
 
   const erc20After = await token.balanceOf(account.address);

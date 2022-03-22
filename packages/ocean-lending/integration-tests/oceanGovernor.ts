@@ -313,7 +313,6 @@ describe('OceanGovernor', () => {
     const voteType = 1; // approval vote
     const voteReason = " this is the vote reason."
 
-
     await admin.setVotingPeriod(BigInt(10), confirmations);
     await admin.setVotingThreshold(51, 100, confirmations);
     // Propose a pool
@@ -378,8 +377,8 @@ describe('OceanGovernor', () => {
     await hasVoted(admin, proposalId, adminAccount);
     await getState(admin, proposalId);
   });
-});
 
+});
 
 async function hasVoted(voter1: OceanGovernor, proposalId: string, account: Account) {
   const state = await voter1.getState(proposalId);
