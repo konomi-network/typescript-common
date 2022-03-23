@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
+import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword, sleep } from '../src/utils';
 import { OceanGovernor } from '../src/clients/oceanGovernor';
 import { InterestConfig, PoolConfig } from '../src/config';
 import { Address, Uint16, Uint64 } from '../src/types';
@@ -376,28 +376,28 @@ describe('OceanGovernor', () => {
 
     await hasVoted(admin, proposalId, adminAccount);
     await getState(admin, proposalId);
+    await getActiveProposals(admin);
   });
 
 });
 
-async function hasVoted(voter1: OceanGovernor, proposalId: string, account: Account) {
-  const state = await voter1.getState(proposalId);
-  const hasVoted = await voter1.hasVoted(proposalId, account);
+async function hasVoted(admin: OceanGovernor, proposalId: string, account: Account) {
+  const state = await admin.getState(proposalId);
+  const hasVoted = await admin.hasVoted(proposalId, account);
   console.log('state: ', status.get(state.toString()), 'hasVoted: ', hasVoted);
   console.log('==== hasVoted ====');
 }
 
-async function getState(voter1: OceanGovernor, proposalId: string) {
+async function getState(admin: OceanGovernor, proposalId: string) {
   console.log('==== getState begin ====');
-  const state = await voter1.getState(proposalId);
+  const state = await admin.getState(proposalId);
   console.log('state:', status.get(state.toString()));
   console.log('==== getState end ====');
 }
 
-async function sleep(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve('');
-    }, ms)
-  });
+async function getActiveProposals(admin: OceanGovernor) {
+  console.log('==== getActiveProposals begin ====');
+  const activeProposals = await admin.getActiveProposals();
+  console.log('activeProposals:', activeProposals);
+  console.log('==== getActiveProposals end ====');
 }
