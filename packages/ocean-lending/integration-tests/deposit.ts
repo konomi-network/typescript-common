@@ -74,7 +74,7 @@ async function supplyInterest(account: Account, oToken: OToken, token: ERC20Toke
   await sleep(1000);
 
   const supplyInterest = await oToken.supplyInterest(account.address);
-  ensure(supplyInterest >= 0, 'the supply supplyInterest must bigger than or equal to  zero!')
+  ensure(supplyInterest >= BigInt(0), 'the supply supplyInterest must bigger than or equal to  zero!')
   const erc20After = await token.balanceOf(account.address);
   const oTokenAfter = await oToken.balanceOf(account.address);
   console.log(`erc20After: ${erc20After}, oTokenAfter: ${oTokenAfter}, supplyInterest: ${supplyInterest}`);

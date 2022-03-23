@@ -41,25 +41,25 @@ async function borrow(
 
   ensure(oTokenBefore.valueOf() > BigInt(0), "You don't have any KONO as collateral");
   console.log('erc20Before:', erc20Before, 'oTokenBefore:', oTokenBefore);
-  console.log(`exchangeRate: ${exchangeRate / 1e28}`);
+  console.log(`exchangeRate: ${Number(exchangeRate) / 1e28}`);
   console.log(`underlyingPrice: ${(+underlyingPrice).toFixed(6)} USD`);
   console.log('NEVER borrow near the maximum amount because your account will be instantly liquidated.');
 
-  const underlyingDeposited = (Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals)) * exchangeRate;
+  const underlyingDeposited = (Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals)) * Number(exchangeRate);
   const underlyingBorrowable = (underlyingDeposited * konoCollateralFactor) / 100;
   // const underlyingToBorrow = 500;
   const underlyingDecimals = 18;
   const toBorrowLiquid = (underlyingToBorrow * +underlyingPrice * konoCollateralFactor) / 100;
-  console.log(`Borrow balance currently is ${borrowBalanceBefore / Math.pow(10, underlyingDecimals)}`);
+  console.log(`Borrow balance currently is ${Number(borrowBalanceBefore) / Math.pow(10, underlyingDecimals)}`);
 
-  ensure(borrowBalanceBefore <= underlyingBorrowable, 'Borrow balance exceeded collateral factor');
+  ensure(Number(borrowBalanceBefore) <= underlyingBorrowable, 'Borrow balance exceeded collateral factor');
   ensure(toBorrowLiquid < liquidity, 'Borrowing amount exceed account liquid');
 
   const scaledUpBorrowAmount = Web3.utils.toWei(Web3.utils.toBN(underlyingToBorrow));
   await oToken.borrow(scaledUpBorrowAmount.toString(), { confirmations: 3 });
 
   const borrowBalanceAfter = await oToken.borrowBalanceCurrent(account.address);
-  console.log(`Borrow balance after is ${borrowBalanceAfter / Math.pow(10, underlyingDecimals)}`);
+  console.log(`Borrow balance after is ${Number(borrowBalanceAfter) / Math.pow(10, underlyingDecimals)}`);
 
   await oToken.approve(scaledUpBorrowAmount.toString(), { confirmations: 3 });
 
@@ -81,10 +81,10 @@ async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token) 
   console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
 
   const balance = await oToken.borrowBalanceCurrent(account.address);
-  console.log(`borrow balance to repay ${balance / 1e18}`);
-  ensure(balance > 0, 'invalid borrow balance to repay, expected more than zero');
+  console.log(`borrow balance to repay ${Number(balance) / 1e18}`);
+  ensure(balance > BigInt(0), 'invalid borrow balance to repay, expected more than zero');
 
-  await oToken.repayBorrow(Web3.utils.toHex(balance), { confirmations: 3 });
+  await oToken.repayBorrow(Web3.utils.toHex(balance.toString()), { confirmations: 3 });
 
   const erc20After = await token.balanceOf(account.address);
   const oTokenAfter = await oToken.balanceOf(account.address);
@@ -110,7 +110,7 @@ async function borrowInterest(account: Account, oToken: OToken, token: ERC20Toke
   await sleep(1000);
   
   const borrowInterest = await oToken.borrowInterest(account.address);
-  ensure(borrowInterest >= 0, 'the borrow supplyInterest must bigger than or equal to  zero!')
+  ensure(borrowInterest >= BigInt(0), 'the borrow supplyInterest must bigger than or equal to zero!')
 
 
   const erc20After = await token.balanceOf(account.address);

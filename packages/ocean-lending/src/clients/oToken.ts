@@ -72,8 +72,9 @@ class OToken extends Client {
     return this.blockToYear(supplyRate, blockTime);
   }
 
-  public async borrowBalanceCurrent(address: string): Promise<number> {
-    return this.contract.methods.borrowBalanceCurrent(address).call();
+  public async borrowBalanceCurrent(address: string): Promise<BigInt> {
+    const balance = await this.contract.methods.borrowBalanceCurrent(address).call();
+    return BigInt(balance);
   }
 
   public async approve(amount: string, options: TxnOptions): Promise<void> {
@@ -86,21 +87,19 @@ class OToken extends Client {
     return BigInt(b);
   }
 
-  public async exchangeRate(): Promise<number> {
-    return this.contract.methods.exchangeRateCurrent().call();
+  public async exchangeRate(): Promise<BigInt> {
+    const rate = await this.contract.methods.exchangeRateCurrent().call();
+    return BigInt(rate);
   }
 
   public async underlying(): Promise<string> {
     return this.contract.methods.underlying().call();
   }
 
-  public async underlyingBalanceCurrent(address: string): Promise<number> {
-    return this.contract.methods.balanceOfUnderlying(address).call();
+  public async underlyingBalanceCurrent(address: string): Promise<BigInt> {
+    const balance = await this.contract.methods.balanceOfUnderlying(address).call();
+    return BigInt(balance);
   }
-
-  // public convertFromUnderlying(amount: BigInt): BigInt {
-
-  // }
 
   private detectFailedEvents(events: any) {
     Object.keys(events).forEach((key) => {
@@ -127,8 +126,9 @@ class OToken extends Client {
    * Total Supply is the number of tokens currently in circulation in this cToken market.
    * It is part of the EIP-20 interface of the cToken contract.
    */
-  public async totalSupply(): Promise<number> {
-    return this.contract.methods.totalSupply().call();
+  public async totalSupply(): Promise<BigInt> {
+    const supply = this.contract.methods.totalSupply().call();
+    return BigInt(supply);
   }
 
   /**
@@ -162,23 +162,31 @@ class OToken extends Client {
     return this.contract.methods.interestRateModel().call();
   }
 
-  public async borrowInterest(address: string): Promise<number> {
+  /**
+   * get the interest of total borrowBalance.
+   * @param address address of user to operation.
+   * @returns the decimals of interest is same as underlying asset. 
+   */
+  public async borrowInterest(address: string): Promise<BigInt> {
     const [exchangeRateCurrent, borrowAmount] = await Promise.all([this.exchangeRate(), this.borrowBalanceCurrent(address)]);
 
     const mantissa = this.COMPOUND_BASE_DECIMALS + this.UNDERLYING_DECIMALS - this.OTOKEN_DECIMALS;
-    const oneOTokenInUnderlying = exchangeRateCurrent / Math.pow(10, mantissa);
-    const underlyingTokensAfter = Number(borrowAmount) * oneOTokenInUnderlying;
-    const interest = underlyingTokensAfter - borrowAmount;
+    const underlyingTokensAfter = borrowAmount.valueOf() * exchangeRateCurrent.valueOf() / BigInt(Math.pow(10, mantissa));
+    const interest = underlyingTokensAfter - borrowAmount.valueOf();
     return interest;
   }
 
-  public async supplyInterest(address: string): Promise<number> {
+  /**
+   * get the interest of total supply.
+   * @param address address of user to operation.
+   * @returns the decimals of interest is same as underlying asset. 
+   */
+  public async supplyInterest(address: string): Promise<BigInt> {
     const [exchangeRateCurrent, supplyAmount] = await Promise.all([this.exchangeRate(), this.balanceOf(address)]);
 
     const mantissa = this.COMPOUND_BASE_DECIMALS + this.UNDERLYING_DECIMALS - this.OTOKEN_DECIMALS;
-    const oneOTokenInUnderlying = exchangeRateCurrent / Math.pow(10, mantissa);
-    const underlyingTokensAfter = Number(supplyAmount) * oneOTokenInUnderlying;
-    const interest = underlyingTokensAfter - Number(supplyAmount)
+    const underlyingTokensAfter = supplyAmount.valueOf() * exchangeRateCurrent.valueOf() / BigInt(Math.pow(10, mantissa));
+    const interest = underlyingTokensAfter - supplyAmount.valueOf();
     return interest;
   }
 
