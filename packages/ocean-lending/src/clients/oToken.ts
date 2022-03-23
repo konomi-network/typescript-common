@@ -12,7 +12,15 @@ export interface OTokenParameter {
 class OToken extends Client {
   readonly parameters: OTokenParameter;
 
-  private readonly underlyingDecimals = 18;
+  /**
+   * Reference in compound docs: https://compound.finance/docs.
+   * All oTokens have 8 decimal places.
+   * Underlying tokens have 18 Decimal places.
+   */
+  private readonly COMPOUND_BASE_DECIMALS = 18
+  private readonly UNDERLYING_DECIMALS = 18;
+  private readonly OTOKEN_DECIMALS = 8;
+
 
   constructor(web3: Web3, abi: any, address: string, account: TAccount, parameters: OTokenParameter) {
     super(web3, abi, address, account);
@@ -153,6 +161,27 @@ class OToken extends Client {
   public async interestRateModel(): Promise<string> {
     return this.contract.methods.interestRateModel().call();
   }
+
+  public async borrowInterest(address: string): Promise<number> {
+    const [exchangeRateCurrent, borrowAmount] = await Promise.all([this.exchangeRate(), this.borrowBalanceCurrent(address)]);
+
+    const mantissa = this.COMPOUND_BASE_DECIMALS + this.UNDERLYING_DECIMALS - this.OTOKEN_DECIMALS;
+    const oneOTokenInUnderlying = exchangeRateCurrent / Math.pow(10, mantissa);
+    const underlyingTokensAfter = Number(borrowAmount) * oneOTokenInUnderlying;
+    const interest = underlyingTokensAfter - borrowAmount;
+    return interest;
+  }
+
+  public async supplyInterest(address: string): Promise<number> {
+    const [exchangeRateCurrent, supplyAmount] = await Promise.all([this.exchangeRate(), this.balanceOf(address)]);
+
+    const mantissa = this.COMPOUND_BASE_DECIMALS + this.UNDERLYING_DECIMALS - this.OTOKEN_DECIMALS;
+    const oneOTokenInUnderlying = exchangeRateCurrent / Math.pow(10, mantissa);
+    const underlyingTokensAfter = Number(supplyAmount) * oneOTokenInUnderlying;
+    const interest = underlyingTokensAfter - Number(supplyAmount)
+    return interest;
+  }
+
 }
 
 export default OToken;

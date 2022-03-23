@@ -9,7 +9,8 @@ import {
   loadWalletFromPrivate,
   ONE_ETHER,
   readJsonSync,
-  readPassword
+  readPassword,
+  sleep
 } from '../src/utils';
 
 async function depositWorks(account: Account, oToken: OToken, token: ERC20Token) {
@@ -61,6 +62,25 @@ async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Toke
   // oToken.convertFromUnderlying(amount);
 }
 
+async function supplyInterest(account: Account, oToken: OToken, token: ERC20Token) {
+  console.log('==== supplyInterest begin ====');
+  const erc20Before = await token.balanceOf(account.address);
+  const oTokenBefore = await oToken.balanceOf(account.address);
+  const depositAmount = Number(ONE_ETHER) * 100;
+  console.log(`erc20Before: ${erc20Before}, oTokenBefore: ${oTokenBefore}, depositAmount: ${depositAmount}`);
+
+  await oToken.mint(depositAmount.toString(), { confirmations: 3 });
+  // waiting for a while causes interest to accrue
+  await sleep(1000);
+
+  const supplyInterest = await oToken.supplyInterest(account.address);
+  ensure(supplyInterest >= 0, 'the supply supplyInterest must bigger than or equal to  zero!')
+  const erc20After = await token.balanceOf(account.address);
+  const oTokenAfter = await oToken.balanceOf(account.address);
+  console.log(`erc20After: ${erc20After}, oTokenAfter: ${oTokenAfter}, supplyInterest: ${supplyInterest}`);
+  console.log('==== supplyInterest end ====');
+}
+
 describe('Deposit', () => {
   const config = readJsonSync('./config/config.json');
   const oTokenAbi = readJsonSync('./config/oToken.json');
@@ -91,8 +111,12 @@ describe('Deposit', () => {
     erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
   });
 
-  it('key flow test', async () => {
-    await depositWorks(account, oToken, erc20Token);
-    await redeemNoBorrow(account, oToken, erc20Token);
+  // it('key flow test', async () => {
+  //   await depositWorks(account, oToken, erc20Token);
+  //   await redeemNoBorrow(account, oToken, erc20Token);
+  // });
+
+  it('supply interest', async () => {
+    await supplyInterest(account, oToken, erc20Token);
   });
 });

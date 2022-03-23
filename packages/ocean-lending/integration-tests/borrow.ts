@@ -3,7 +3,7 @@ import { Account } from 'web3-core';
 import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
-import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword } from '../src/utils';
+import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword, sleep } from '../src/utils';
 import { PriceOracleAdaptor } from '../src/clients/priceOracle';
 
 async function enterMarkets(account: Account, markets: string[], comptroller: Comptroller) {
@@ -29,7 +29,7 @@ async function borrow(
 ) {
   console.log('==== borrow ====');
   const depositAmount = BigInt(1000) * ONE_ETHER;
-  await oToken.mint(depositAmount, { confirmations: 3 });
+  await oToken.mint(depositAmount.toString(), { confirmations: 3 });
   const liquidity: number = await comptroller.getAccountLiquidity(account.address);
   ensure(liquidity.valueOf() > 0, "You don't have any liquid assets pooled in the protocol.");
   const erc20Before = await token.balanceOf(account.address);
@@ -97,6 +97,29 @@ async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token) 
   );
 }
 
+async function borrowInterest(account: Account, oToken: OToken, token: ERC20Token) {
+  console.log('==== borrowInterest begin ====');
+  const erc20Before = await token.balanceOf(account.address);
+  const oTokenBefore = await oToken.balanceOf(account.address);
+  const borrowBalanceBefore = await oToken.borrowBalanceCurrent(account.address);
+  const borrowAmount = Number(ONE_ETHER) * 100;
+  console.log(`erc20Before: ${erc20Before}, oTokenBefore: ${oTokenBefore}, borrowBalanceBefore: ${borrowBalanceBefore}, amount to borrow: ${borrowAmount}`);
+
+  await oToken.borrow(borrowAmount.toString(), { confirmations: 3 });
+  // waiting for a while causes interest to accrue
+  await sleep(1000);
+  
+  const borrowInterest = await oToken.borrowInterest(account.address);
+  ensure(borrowInterest >= 0, 'the borrow supplyInterest must bigger than or equal to  zero!')
+
+
+  const erc20After = await token.balanceOf(account.address);
+  const oTokenAfter = await oToken.balanceOf(account.address);
+  const borrowBalanceAfter = await oToken.borrowBalanceCurrent(account.address);
+  console.log(`erc20After: ${erc20After}, oTokenAfter: ${oTokenAfter}, borrowBalanceAfter: ${borrowBalanceAfter}, borrowInterest: ${borrowInterest}`);
+  console.log('==== borrowInterest end ====');
+}
+
 describe('Borrow', () => {
   const config = readJsonSync('./config/config.json');
   const oTokenAbi = readJsonSync('./config/oToken.json');
@@ -142,4 +165,9 @@ describe('Borrow', () => {
     await borrow(account, oToken, erc20Token, priceOracle, comptroller, 50);
     await repayBorrow(account, oToken, erc20Token);
   });
+
+  it('borrow interest', async () => {
+    await borrowInterest(account, oToken, erc20Token);
+  });
+
 });
