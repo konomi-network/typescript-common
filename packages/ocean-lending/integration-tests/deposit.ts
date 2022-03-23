@@ -111,10 +111,10 @@ describe('Deposit', () => {
     erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
   });
 
-  // it('key flow test', async () => {
-  //   await depositWorks(account, oToken, erc20Token);
-  //   await redeemNoBorrow(account, oToken, erc20Token);
-  // });
+  it('key flow test', async () => {
+    await depositWorks(account, oToken, erc20Token);
+    await redeemNoBorrow(account, oToken, erc20Token);
+  });
 
   it('supply interest', async () => {
     await supplyInterest(account, oToken, erc20Token);
