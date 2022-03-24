@@ -1,4 +1,4 @@
-import { Client } from './client';
+import { Client, TxnCallbacks } from './client';
 import { TxnOptions } from '../options';
 import { PoolConfig, PoolData } from '../config';
 import { OceanEncoder } from '../encoding';
@@ -8,13 +8,12 @@ class OceanLending extends Client {
     poolData: PoolConfig,
     leasePeriod: BigInt,
     onBehalfOf: string,
-    options: TxnOptions
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
   ): Promise<void> {
     const bytes = `0x${OceanEncoder.encode(poolData).toString('hex')}`;
     const method = this.contract.methods.create(bytes, leasePeriod, onBehalfOf);
-    await this.send(method, await this.prepareTxn(method), options, (receipt) => {
-      console.debug(`receipt: ${receipt}`);
-    });
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   public async getPoolById(poolId: number): Promise<PoolData> {
