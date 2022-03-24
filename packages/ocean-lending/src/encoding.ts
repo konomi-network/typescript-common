@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Buffer } from 'buffer';
 import { CollateralConfig, DEFAULT_PARAM, Header, InterestConfig, PoolConfig, TokenConfig } from './config';
 import { Address, Uint16, Uint64 } from './types';
 import { isBitSet } from './utils';
