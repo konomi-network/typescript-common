@@ -58,12 +58,12 @@ class OToken extends Client {
 
   public async borrowRatePerYear(blockTime: number): Promise<number> {
     const borrowRate = await this.borrowRatePerBlock();
-    return this.ratePerBlockToAPY(borrowRate, blockTime);
+    return OToken.ratePerBlockToAPY(borrowRate, blockTime);
   }
 
   public async supplyRatePerYear(blockTime: number): Promise<number> {
     const supplyRate = await this.supplyRatePerBlock();
-    return this.ratePerBlockToAPY(supplyRate, blockTime);
+    return OToken.ratePerBlockToAPY(supplyRate, blockTime);
   }
 
   public async borrowBalanceCurrent(address: string): Promise<number> {
@@ -146,7 +146,7 @@ class OToken extends Client {
     return this.contract.methods.reserveFactorMantissa().call();
   }
 
-  public ratePerBlockToAPY(rate: BigInt | string | number, blockTime: number): number {
+  public static ratePerBlockToAPY(rate: BigInt | string | number, blockTime: number): number {
     const daysPerYear = 365;
     const blocksPerDay = parseInt(86400 / blockTime + '');
     const APY = (Math.pow(Number(rate) * blocksPerDay + 1, daysPerYear) - 1) * 100;
