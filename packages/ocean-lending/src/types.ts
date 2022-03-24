@@ -1,5 +1,5 @@
 import { ensure } from './utils';
-
+import { Buffer } from 'buffer';
 export interface Bufferable {
   /**
    * Append to the buffer
