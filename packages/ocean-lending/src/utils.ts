@@ -75,3 +75,15 @@ export function ensure(predicate: boolean, errorMessage: string) {
 export function isBitSet(n: number, offset: number): boolean {
   return ((n >> offset) & 1) === 1;
 }
+
+/**
+ * pause the current thread for a while.
+ * @param ms The millisecond to sleep.
+ */
+export async function sleep(ms: number) {
+  return new Promise((resolve) => {
+      setTimeout(() => {
+          resolve('');
+      }, ms)
+  });
+}
