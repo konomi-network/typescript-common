@@ -1,8 +1,8 @@
-import { Account } from 'web3-core';
+  import { Account } from 'web3-core';
 import { PoolConfig } from 'config';
 import { OceanDecoder, OceanEncoder } from '../encoding';
 import { TxnOptions } from 'options';
-import Client from './client';
+import Client, { TxnCallbacks } from './client';
 import { CREATE_POOL_ABI } from '../abi/oceanLending';
 import Web3 from 'web3';
 
@@ -21,7 +21,7 @@ export interface ProposalDetails {
 /**
  * KonomiOceanGovernor contract client
  */
-export class OceanGovernor extends Client {
+class OceanGovernor extends Client {
   // Object contains the target contract for the proposals
   // Keys are the proposal type and values are the contract addresses
   private callables: any;
@@ -36,9 +36,7 @@ export class OceanGovernor extends Client {
     leasePerod: string,
     poolOwner: string,
     options: TxnOptions,
-    txnHashCallback?: (txnHash: string) => any,
-    confirmationCallback?: (receipt: any) => any,
-    errorCallback?: (error: Error, receipt: any) => any
+    ...callbacks: TxnCallbacks
   ): Promise<void> {
     const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
     const callData = this.web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePerod, poolOwner]);
@@ -49,9 +47,7 @@ export class OceanGovernor extends Client {
       method,
       await this.prepareTxn(method),
       options,
-      txnHashCallback,
-      confirmationCallback,
-      errorCallback
+      ...callbacks
     );
   }
 
@@ -70,9 +66,9 @@ export class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param options The transaction configuration parameters
    */
-  public async execute(proposalId: string, options: TxnOptions): Promise<void> {
+  public async execute(proposalId: string, options: TxnOptions,...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.execute(proposalId);
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options,...callbacks);
   }
 
   /**
@@ -81,9 +77,9 @@ export class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param options The transaction configuration parameters
    */
-  public async cancel(proposalId: string, options: TxnOptions): Promise<void> {
+  public async cancel(proposalId: string, options: TxnOptions,...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.cancel(proposalId);
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options,...callbacks);
   }
 
   /**
@@ -103,9 +99,9 @@ export class OceanGovernor extends Client {
    * @param voteType The type of vote
    * @param options The transaction configuration parameters
    */
-  public async castVote(proposalId: string, voteType: number, options: TxnOptions): Promise<void> {
+  public async castVote(proposalId: string, voteType: number, options: TxnOptions,...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.castVote(proposalId, voteType);
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -119,10 +115,11 @@ export class OceanGovernor extends Client {
     proposalId: string,
     voteType: number,
     reason: string,
-    options: TxnOptions
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
   ): Promise<void> {
     const method = this.contract.methods.castVoteWithReason(proposalId, voteType, reason);
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   // ========================= Proposal lifecycle =========================
@@ -192,9 +189,9 @@ export class OceanGovernor extends Client {
    * @param fee The fee needed to create a new proposal, Initial value is 1000 KONO
    * @param options The transaction configuration parameters
    */
-  public async setProposalPayable(fee: BigInt, options: TxnOptions): Promise<void> {
+  public async setProposalPayable(fee: BigInt, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.setProposalPayable(fee);
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -235,3 +232,6 @@ export class OceanGovernor extends Client {
     await this.send(method, await this.prepareTxn(method), options);
   }
 }
+
+export default OceanGovernor;
+export { OceanGovernor };
