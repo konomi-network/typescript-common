@@ -1,5 +1,4 @@
 import { ensure } from './utils';
-
 export interface Bufferable {
   /**
    * Append to the buffer

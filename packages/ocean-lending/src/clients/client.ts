@@ -8,9 +8,9 @@ import { TxnOptions } from '../options';
 const PENDING = 'pending';
 export type TAccount = Account | { address: string };
 export type TxnCallbacks = [
-  ((txnHash: string) => any)?,
-  ((receipt: TransactionReceipt) => any)?,
-  ((error: Error, receipt: TransactionReceipt) => any)?
+  ((txnHash: string) => any | void)?,
+  ((receipt: TransactionReceipt) => any | void)?,
+  ((error: Error, receipt: TransactionReceipt) => any | void)?
 ];
 
 /**
@@ -63,9 +63,9 @@ class Client {
     method: any,
     txn: any,
     options: TxnOptions,
-    txnHashCallback?: (txnHash: string) => any,
-    confirmationCallback?: (receipt: TransactionReceipt) => any,
-    errorCallback?: (error: Error, receipt: TransactionReceipt) => any
+    txnHashCallback?: (txnHash: string) => any | void,
+    confirmationCallback?: (receipt: TransactionReceipt) => any | void,
+    errorCallback?: (error: Error, receipt: TransactionReceipt) => any | void
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       method
