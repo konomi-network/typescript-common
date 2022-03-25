@@ -1,6 +1,7 @@
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword, sleep } from '../src/utils';
+import { ensure,sleep } from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 import { OceanGovernor } from '../src/clients/oceanGovernor';
 import { InterestConfig, PoolConfig } from '../src/config';
 import { Address, Uint16, Uint64 } from '../src/types';

@@ -1,13 +1,8 @@
 import { expect } from 'chai';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import {
-  ONE_ETHER,
-  loadWalletFromEncyrptedJson,
-  loadWalletFromPrivate,
-  readJsonSync,
-  readPassword
-} from '../src/utils';
+import {ONE_ETHER} from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading";
 import { Address, Uint16, Uint64 } from '../src/types';
 import { InterestConfig } from '../src/config';
 import logger from '../src/logger';
@@ -193,18 +188,18 @@ describe('OceanLending', async () => {
     const oTokenCollateralFactor = await comptroller.collateralFactor(oToken.address);
     const exchangeRate = await oToken.exchangeRate();
     const underlyingPrice = await priceOracle.getUnderlyingPrice(oToken.address);
-    const underlyingDeposited = (Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals)) * exchangeRate;
+    const underlyingDeposited = (Number(oTokenBefore) / Math.pow(10, oToken.parameters.decimals)) * +exchangeRate;
     const underlyingBorrowable = (underlyingDeposited * oTokenCollateralFactor) / 100;
 
     console.log('oTokenBefore:', oTokenBefore);
-    console.log(`exchangeRate: ${exchangeRate / 1e28}`);
+    console.log(`exchangeRate: ${+exchangeRate / 1e28}`);
     console.log(`underlyingPrice: ${(+underlyingPrice).toFixed(6)} USD`);
     console.log(`borrowBalanceBefore: ${borrowBalanceBefore}`);
     console.log(`oTokenCollateralFactor: ${oTokenCollateralFactor}`);
     console.log(`underlyingDeposited: ${underlyingDeposited}`);
     console.log(`underlyingBorrowable: ${underlyingBorrowable}`);
     console.log('NEVER borrow near the maximum amount because your account will be instantly liquidated.');
-    expect(borrowBalanceBefore <= underlyingBorrowable).to.true;
+    expect(+borrowBalanceBefore <= underlyingBorrowable).to.true;
   }
 
   async function testBorrow(oToken: OToken) {
@@ -216,7 +211,7 @@ describe('OceanLending', async () => {
     await oToken.borrow(scaledUpBorrowAmount.toString(), { confirmations: 3 });
 
     const borrowBalanceAfter = await oToken.borrowBalanceCurrent(account.address);
-    console.log(`Borrow balance after is ${borrowBalanceAfter / Math.pow(10, underlyingDecimals)}`);
+    console.log(`Borrow balance after is ${+borrowBalanceAfter / Math.pow(10, underlyingDecimals)}`);
 
     await oToken.approve(scaledUpBorrowAmount.toString(), { confirmations: 3 });
 

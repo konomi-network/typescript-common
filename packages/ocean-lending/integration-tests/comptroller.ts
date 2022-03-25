@@ -4,7 +4,7 @@ import { Account } from 'web3-core';
 import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
-import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 import { PriceOracleAdaptor } from '../src/clients/priceOracle';
 import { JumpInterestV2 } from '../src/clients/jumpInterestV2';
 

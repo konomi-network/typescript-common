@@ -17,10 +17,11 @@ class OToken extends Client {
    * All oTokens have 8 decimal places.
    * Underlying tokens have 18 Decimal places.
    */
-  private readonly COMPOUND_BASE_DECIMALS = 18
-  private readonly UNDERLYING_DECIMALS = 18;
-  private readonly OTOKEN_DECIMALS = 8;
+  private readonly COMPOUND_BASE_DECIMALS = 18;
 
+  private readonly UNDERLYING_DECIMALS = 18;
+
+  private readonly OTOKEN_DECIMALS = 8;
 
   private readonly underlyingMantissa = 1e18;
 
@@ -168,13 +169,17 @@ class OToken extends Client {
   /**
    * get the interest of total borrowBalance.
    * @param address address of user to operation.
-   * @returns the decimals of interest is same as underlying asset. 
+   * @returns the decimals of interest is same as underlying asset.
    */
   public async borrowInterest(address: string): Promise<BigInt> {
-    const [exchangeRateCurrent, borrowAmount] = await Promise.all([this.exchangeRate(), this.borrowBalanceCurrent(address)]);
+    const [exchangeRateCurrent, borrowAmount] = await Promise.all([
+      this.exchangeRate(),
+      this.borrowBalanceCurrent(address)
+    ]);
 
     const mantissa = this.COMPOUND_BASE_DECIMALS + this.UNDERLYING_DECIMALS - this.OTOKEN_DECIMALS;
-    const underlyingTokensAfter = borrowAmount.valueOf() * exchangeRateCurrent.valueOf() / BigInt(Math.pow(10, mantissa));
+    const underlyingTokensAfter =
+      (borrowAmount.valueOf() * exchangeRateCurrent.valueOf()) / BigInt(Math.pow(10, mantissa));
     const interest = underlyingTokensAfter - borrowAmount.valueOf();
     return interest;
   }
@@ -182,17 +187,17 @@ class OToken extends Client {
   /**
    * get the interest of total supply.
    * @param address address of user to operation.
-   * @returns the decimals of interest is same as underlying asset. 
+   * @returns the decimals of interest is same as underlying asset.
    */
   public async supplyInterest(address: string): Promise<BigInt> {
     const [exchangeRateCurrent, supplyAmount] = await Promise.all([this.exchangeRate(), this.balanceOf(address)]);
 
     const mantissa = this.COMPOUND_BASE_DECIMALS + this.UNDERLYING_DECIMALS - this.OTOKEN_DECIMALS;
-    const underlyingTokensAfter = supplyAmount.valueOf() * exchangeRateCurrent.valueOf() / BigInt(Math.pow(10, mantissa));
+    const underlyingTokensAfter =
+      (supplyAmount.valueOf() * exchangeRateCurrent.valueOf()) / BigInt(Math.pow(10, mantissa));
     const interest = underlyingTokensAfter - supplyAmount.valueOf();
     return interest;
   }
-
 }
 
 export default OToken;

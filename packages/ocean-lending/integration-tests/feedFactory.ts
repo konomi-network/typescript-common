@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { FeedFactory } from '../src/clients/feedFactory';
-import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 
 async function getFeedWorks(client: FeedFactory, subscriptionIds: string[]): Promise<void> {
   await Promise.all(subscriptionIds.map((id) => client.getFeed(id)));

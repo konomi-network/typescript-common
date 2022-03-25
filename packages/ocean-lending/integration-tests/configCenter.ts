@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { ConfigCenter } from '../src/clients/configCenter';
-import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 
 describe('ConfigCenter', () => {
   const config = readJsonSync('./config/config.json');

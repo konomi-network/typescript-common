@@ -3,13 +3,8 @@ import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { JumpInterestV2 } from '../src/clients/jumpInterestV2';
 import { OToken } from '../src/clients/oToken';
-import {
-  loadWalletFromEncyrptedJson,
-  loadWalletFromPrivate,
-  ONE_ETHER,
-  readJsonSync,
-  readPassword
-} from '../src/utils';
+import { ONE_ETHER } from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 
 async function multiplierPerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
   console.log('==== multiplierPerYear ====');
