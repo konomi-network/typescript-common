@@ -1,8 +1,7 @@
-  import { Account } from 'web3-core';
 import { PoolConfig } from 'config';
 import { OceanDecoder, OceanEncoder } from '../encoding';
 import { TxnOptions } from 'options';
-import Client, { TxnCallbacks } from './client';
+import Client, { TxnCallbacks, TAccount } from './client';
 import { CREATE_POOL_ABI } from '../abi/oceanLending';
 import Web3 from 'web3';
 
@@ -26,7 +25,7 @@ class OceanGovernor extends Client {
   // Keys are the proposal type and values are the contract addresses
   private callables: any;
 
-  constructor(callables: any, web3: Web3, abi: any, address: string, account: Account) {
+  constructor(callables: any, web3: Web3, abi: any, address: string, account: TAccount) {
     super(web3, abi, address, account);
     this.callables = callables;
   }
@@ -87,8 +86,8 @@ class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param account The address of the voter
    */
-  public async hasVoted(proposalId: string, account: Account): Promise<boolean> {
-    const state = await this.contract.methods.hasVoted(proposalId, account.address).call();
+  public async hasVoted(proposalId: string, account: string): Promise<boolean> {
+    const state = await this.contract.methods.hasVoted(proposalId, account).call();
     return state;
   }
 
