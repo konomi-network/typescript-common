@@ -159,6 +159,14 @@ export class OceanGovernor extends Client {
     };
   }
 
+  /**
+   * get all active proposals from contract.
+   */
+   public async getActiveProposals(): Promise<Array<string>> {
+    const activeProposals = await this.contract.methods.getActiveProposals().call();
+    return activeProposals;
+  }
+
   // =========================  control authorization of upgrade methods =========================
   /**
    * Only admin allowed
