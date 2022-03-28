@@ -43,6 +43,10 @@ export class Uint16 implements Bufferable {
     return Uint16.BYTE_LEN;
   }
 
+  public toNumber(): number {
+    return this.inner;
+  }
+
   private isValid(): void {
     if (Number.isInteger(this.inner) && this.inner >= 0 && this.inner <= Uint16.MAX) {
       return;
@@ -75,6 +79,10 @@ export class Uint64 implements Bufferable {
 
   public byteLen(): number {
     return Uint64.BYTE_LEN;
+  }
+
+  public toNumber(): number {
+    return Number(this.inner);
   }
 
   private isValid(): void {
