@@ -246,7 +246,7 @@ describe('OceanGovernor', () => {
 
     await sleep(15000);
 
-    const hasVoted = await admin.hasVoted(proposalId, adminAccount);
+    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
 
     const stateAfter = status.get((await admin.getState(proposalId)).toString());
     const proposalDetailAfter = await admin.getProposalDetail(proposalId);
@@ -296,7 +296,7 @@ describe('OceanGovernor', () => {
 
     await sleep(15000);
 
-    const hasVoted = await admin.hasVoted(proposalId, adminAccount);
+    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
 
     const stateAfter = status.get((await admin.getState(proposalId)).toString());
     const proposalDetailAfter = await admin.getProposalDetail(proposalId);
@@ -346,7 +346,7 @@ describe('OceanGovernor', () => {
 
     await sleep(20000);
 
-    const hasVoted = await admin.hasVoted(proposalId, adminAccount);
+    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
 
     const stateAfter = status.get((await admin.getState(proposalId)).toString());
     const proposalDetailAfter = await admin.getProposalDetail(proposalId);
@@ -384,7 +384,7 @@ describe('OceanGovernor', () => {
 
 async function hasVoted(admin: OceanGovernor, proposalId: string, account: Account) {
   const state = await admin.getState(proposalId);
-  const hasVoted = await admin.hasVoted(proposalId, account);
+  const hasVoted = await admin.hasVoted(proposalId, account.address);
   console.log('state: ', status.get(state.toString()), 'hasVoted: ', hasVoted);
   console.log('==== hasVoted ====');
 }

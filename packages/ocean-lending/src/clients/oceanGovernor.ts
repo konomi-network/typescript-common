@@ -11,9 +11,9 @@ export interface ProposalDetails {
   proposer: string;
   startBlock: BigInt;
   endBlock: BigInt;
+  leasePeriod: BigInt;
   pool: PoolConfig;
   targetContract: string;
-  leasePeriod: BigInt;
   poolOwner: string;
 }
 
