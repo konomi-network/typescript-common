@@ -8,12 +8,7 @@ class ERC20Token extends Client {
   }
 
   public async symbol(): Promise<string> {
-    try {
-      const symbol = await this.contract.methods.symbol().call();
-      return symbol;
-    } catch (error) {
-      return ''
-    }
+    return this.contract.methods.symbol().call();
   }
 
   public async allowance(owner: string, spender: string): Promise<number> {
