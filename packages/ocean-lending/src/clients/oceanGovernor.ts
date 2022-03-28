@@ -9,9 +9,9 @@ export interface ProposalDetails {
   forVotes: number;
   againstVotes: number;
   proposer: string;
-  startBlock: BigInt;
-  endBlock: BigInt;
-  leasePeriod: BigInt;
+  startBlock: number;
+  endBlock: number;
+  leasePeriod: number;
   pool: PoolConfig;
   targetContract: string;
   poolOwner: string;
@@ -143,14 +143,14 @@ class OceanGovernor extends Client {
     const callData = this.web3.eth.abi.decodeParameters(['bytes', 'uint256', 'address'], response[6][0].substring(10));
 
     return {
-      forVotes: response[0],
-      againstVotes: response[1],
       proposer: response[2],
-      startBlock: response[3],
-      endBlock: response[4],
+      forVotes: Number(response[0]),
+      againstVotes: Number(response[1]),
+      startBlock: Number(response[3]),
+      endBlock: Number(response[4]),
+      leasePeriod: Number(callData[1]),
       targetContract: response[5][0],
       pool: OceanDecoder.decode(Buffer.from(callData[0].substring(2), 'hex')),
-      leasePeriod: BigInt(callData[1]),
       poolOwner: callData[2]
     };
   }
