@@ -163,8 +163,19 @@ class OceanGovernor extends Client {
     return activeProposals;
   }
 
-  public async getPayable():Promise<string> {
+  /**
+   * Derive proposing fee value
+   */
+  public async getPayable(): Promise<string> {
     const result = this.contract.methods.proposalPayable().call();
+    return result
+  }
+
+  /**
+   * Check role of address is validator or not
+   */
+   public async isValidator(address: string): Promise<boolean> {
+    const result = this.contract.methods.hasRole("VALIDATOR", address).call();
     return result
   }
 
