@@ -163,7 +163,7 @@ class OceanGovernor extends Client {
     return activeProposals;
   }
 
-  public async getPayable():Promise<number> {
+  public async getPayable():Promise<string> {
     const result = this.contract.methods.proposalPayable().call();
     return result
   }
