@@ -1,14 +1,13 @@
 import Web3 from 'web3';
 import { Account } from 'web3-core';
+import { randomInt } from 'crypto';
 import { ensure,sleep } from '../src/utils';
 import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 import { OceanGovernor } from '../src/clients/oceanGovernor';
-import { InterestConfig, PoolConfig } from '../src/config';
+import { InterestConfig } from '../src/config';
 import { Address, Uint16, Uint64 } from '../src/types';
 import { OceanEncoder } from '../src/encoding';
 import { CREATE_POOL_ABI } from '../src/abi/oceanLending';
-import { TxnOptions } from '../src/options';
-import { randomInt } from 'crypto';
 
 const status = new Map([
   ['0', 'Active'],
@@ -138,7 +137,7 @@ describe('OceanGovernor', () => {
     expect(actualPool).toEqual(expectPool);
   });
 
-  it('excute', async () => {
+  it('execute', async () => {
     const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
     const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePerod, poolOwner]);
 
@@ -152,6 +151,9 @@ describe('OceanGovernor', () => {
       (receipt) => console.log("confirmed"),
       (error, receipt) => console.log("error", error)
     );
+
+    console.log("execute start")
+
     const proposalId = await admin.hashProposal(callables.oceanLending, callData);
 
     const voteType = 1;
@@ -159,6 +161,9 @@ describe('OceanGovernor', () => {
       await voter.castVote(proposalId, voteType, confirmations)
     }
     await sleep(15000);
+
+    const s =  await admin.getState(proposalId);
+    console.log("🚀 ~ file: oceanGovernor.ts ~ line 163 ~ it ~ s", s, typeof s)
 
     const stateBefore = status.get((await admin.getState(proposalId)).toString());
     console.log('state before execute: ', stateBefore);

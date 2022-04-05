@@ -163,6 +163,11 @@ class OceanGovernor extends Client {
     return activeProposals;
   }
 
+  public async getPayable():Promise<number> {
+    const result = this.contract.methods.proposalPayable().call();
+    return result
+  }
+
   // =========================  control authorization of upgrade methods =========================
   /**
    * Only admin allowed
