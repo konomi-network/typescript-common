@@ -128,8 +128,8 @@ class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    */
   public async getState(proposalId: string): Promise<number> {
-    const state = await this.contract.methods.state(proposalId).call();
-    return state;
+    const state: string = await this.contract.methods.state(proposalId).call();
+    return +state;
   }
 
   /**
