@@ -14,6 +14,10 @@ class BitMask {
   }
 }
 
+// The starting 4 bits are reserved
+const CloseFactorIndex = 4;
+const LiquidationIncentiveIndex = 5;
+
 /**
  * Only 6 of the 8 bits are used, 2 extra bits are reserved
  */
@@ -23,17 +27,43 @@ const DEFAULT_BIT_MASK: Map<string, BitMask> = new Map([
   ['jumpMultiplierPerYear', new BitMask(0x4, 2)],
   ['kink', new BitMask(0x8, 3)],
   ['collateralFactor', new BitMask(0x10, 4)],
-  ['liquidationIncentive', new BitMask(0x20, 5)],
-  ['canBeCollateral', new BitMask(0x20, 6)]
+  ['canBeCollateral', new BitMask(0x20, 5)]
 ]);
 
 export class OceanEncoder {
   public static encode(params: PoolConfig): Buffer {
-    let buf = Buffer.allocUnsafe(0);
+    let buf = OceanEncoder.encodeOceanConfig(params);
     for (const token of params.tokens) {
       buf = Buffer.concat([buf, OceanEncoder.encodeSingle(token)]);
     }
     return buf;
+  }
+
+  private static encodeOceanConfig(params: PoolConfig): Buffer {
+    const oceanHeader = Buffer.allocUnsafe(1);
+    let oceanData = Buffer.allocUnsafe(0);
+
+    let header = 0;
+
+    if (params.closeFactor === undefined) {
+      header = header | (1 << CloseFactorIndex);
+    } else {
+      oceanData = Buffer.concat([oceanData, params.closeFactor.toBuffer()]);
+    }
+
+    if (params.liquidationIncentive === undefined) {
+      header = header | (1 << LiquidationIncentiveIndex);
+    } else {
+      oceanData = Buffer.concat([oceanData, params.liquidationIncentive.toBuffer()]);
+    }
+
+    oceanHeader.writeUInt8(header);
+
+    let data = Buffer.allocUnsafe(0);
+    data = Buffer.concat([data, oceanHeader]);
+    data = Buffer.concat([data, oceanData]);
+
+    return data;
   }
 
   private static encodeSingle(param: TokenConfig): Buffer {
@@ -64,10 +94,6 @@ export class OceanEncoder {
       n = n | (1 << DEFAULT_BIT_MASK.get('canBeCollateral')!.index);
     }
 
-    if (!para.collateral.liquidationIncentive) {
-      n = n | (1 << DEFAULT_BIT_MASK.get('liquidationIncentive')!.index);
-    }
-
     const b = Buffer.allocUnsafe(1);
     b.writeUInt8(n, 0);
 
@@ -89,24 +115,52 @@ export class OceanEncoder {
     if (param.canBeCollateral && param.collateralFactor) {
       buf = Buffer.concat([buf, param.collateralFactor.toBuffer()]);
     }
-    if (param.liquidationIncentive) {
-      buf = Buffer.concat([buf, param.liquidationIncentive.toBuffer()]);
-    }
     return buf;
   }
 }
 
 export class OceanDecoder {
   public static decode(buf: Buffer): PoolConfig {
-    console.log(buf.toString('hex'));
     let offset = 0;
+
+    const config: PoolConfig = {
+      liquidationIncentive: undefined,
+      closeFactor: undefined,
+      tokens: []
+    };
+
+    offset = OceanDecoder.decodeOceanConfig(config, buf, offset);
+
     const tokens = [];
     while (offset < buf.length) {
       const r = OceanDecoder.decodeSingle(buf, offset);
       tokens.push(r[0]);
       offset = r[1];
     }
-    return { tokens };
+    config.tokens = tokens;
+
+    return config;
+  }
+
+  public static decodeOceanConfig(config: PoolConfig, buf: Buffer, offset: number): number {
+    const header = buf.readUInt8(offset);
+    offset += 1;
+
+    if (isBitSet(header, CloseFactorIndex)) {
+      config.closeFactor = DEFAULT_PARAM.closeFactor;
+    } else {
+      config.closeFactor = new Uint16(buf.readUInt16BE(offset));
+      offset += 2;
+    }
+
+    if (isBitSet(header, LiquidationIncentiveIndex)) {
+      config.liquidationIncentive = DEFAULT_PARAM.liquidationIncentive;
+    } else {
+      config.liquidationIncentive = new Uint16(buf.readUInt16BE(offset));
+      offset += 2;
+    }
+
+    return offset;
   }
 
   public static decodeSingle(buf: Buffer, offset: number): [TokenConfig, number] {
@@ -145,7 +199,6 @@ export class OceanDecoder {
       jumpMultiplierPerYear: isBitSet(n, DEFAULT_BIT_MASK.get('jumpMultiplierPerYear')!.index),
       kink: isBitSet(n, DEFAULT_BIT_MASK.get('kink')!.index),
       collateralFactor: isBitSet(n, DEFAULT_BIT_MASK.get('collateralFactor')!.index),
-      liquidationIncentive: isBitSet(n, DEFAULT_BIT_MASK.get('liquidationIncentive')!.index),
       canBeCollateral: isBitSet(n, DEFAULT_BIT_MASK.get('canBeCollateral')!.index)
     };
   }
@@ -161,19 +214,10 @@ export class OceanDecoder {
       offset += 2;
     }
 
-    let liquidationIncentive;
-    if (header.liquidationIncentive) {
-      liquidationIncentive = DEFAULT_PARAM.liquidationIncentive;
-    } else {
-      liquidationIncentive = new Uint16(buf.readUInt16BE(offset));
-      offset += 2;
-    }
-
     return [
       {
         canBeCollateral: header.canBeCollateral,
-        collateralFactor,
-        liquidationIncentive
+        collateralFactor
       },
       offset
     ];

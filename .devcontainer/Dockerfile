@@ -1,3 +1,3 @@
-FROM node:14.17.0
+FROM node:16
 
 RUN npm install -g lerna
