@@ -3,7 +3,8 @@ import { Account } from 'web3-core';
 import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
-import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, ONE_ETHER, readJsonSync, readPassword, sleep } from '../src/utils';
+import { ensure,  ONE_ETHER,  sleep } from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 import { PriceOracleAdaptor } from '../src/clients/priceOracle';
 
 async function enterMarkets(account: Account, markets: string[], comptroller: Comptroller) {

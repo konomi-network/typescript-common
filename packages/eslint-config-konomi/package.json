@@ -1,6 +1,6 @@
 {
 	"name": "@konomi-network/eslint-config-konomi",
-	"version": "1.0.10-alpha.0",
+	"version": "1.1.0",
 	"main": "lib/index.js",
 	"description": "Konomi Eslint config",
 	"author": "Konomi Network",
@@ -27,7 +27,7 @@
 	"dependencies": {
 		"@typescript-eslint/eslint-plugin": "^5.8.1",
 		"@typescript-eslint/parser": "^5.8.1",
-		"eslint": "7.32",
+		"eslint": "^8.11.0",
 		"eslint-config-airbnb-typescript": "^16.1.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-import": "^2.25.3",

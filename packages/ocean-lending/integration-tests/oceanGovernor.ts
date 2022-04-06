@@ -1,13 +1,13 @@
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import { ensure, loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword, sleep } from '../src/utils';
+import { randomInt } from 'crypto';
+import { ensure,sleep } from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 import { OceanGovernor } from '../src/clients/oceanGovernor';
-import { InterestConfig, PoolConfig } from '../src/config';
+import { InterestConfig } from '../src/config';
 import { Address, Uint16, Uint64 } from '../src/types';
 import { OceanEncoder } from '../src/encoding';
 import { CREATE_POOL_ABI } from '../src/abi/oceanLending';
-import { TxnOptions } from '../src/options';
-import { randomInt } from 'crypto';
 
 const status = new Map([
   ['0', 'Active'],
@@ -137,7 +137,7 @@ describe('OceanGovernor', () => {
     expect(actualPool).toEqual(expectPool);
   });
 
-  it('excute', async () => {
+  it('execute', async () => {
     const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
     const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePerod, poolOwner]);
 
@@ -151,6 +151,9 @@ describe('OceanGovernor', () => {
       (receipt) => console.log("confirmed"),
       (error, receipt) => console.log("error", error)
     );
+
+    console.log("execute start")
+
     const proposalId = await admin.hashProposal(callables.oceanLending, callData);
 
     const voteType = 1;
@@ -158,6 +161,9 @@ describe('OceanGovernor', () => {
       await voter.castVote(proposalId, voteType, confirmations)
     }
     await sleep(15000);
+
+    const s =  await admin.getState(proposalId);
+    console.log("🚀 ~ file: oceanGovernor.ts ~ line 163 ~ it ~ s", s, typeof s)
 
     const stateBefore = status.get((await admin.getState(proposalId)).toString());
     console.log('state before execute: ', stateBefore);
@@ -245,7 +251,7 @@ describe('OceanGovernor', () => {
 
     await sleep(15000);
 
-    const hasVoted = await admin.hasVoted(proposalId, adminAccount);
+    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
 
     const stateAfter = status.get((await admin.getState(proposalId)).toString());
     const proposalDetailAfter = await admin.getProposalDetail(proposalId);
@@ -295,7 +301,7 @@ describe('OceanGovernor', () => {
 
     await sleep(15000);
 
-    const hasVoted = await admin.hasVoted(proposalId, adminAccount);
+    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
 
     const stateAfter = status.get((await admin.getState(proposalId)).toString());
     const proposalDetailAfter = await admin.getProposalDetail(proposalId);
@@ -345,7 +351,7 @@ describe('OceanGovernor', () => {
 
     await sleep(20000);
 
-    const hasVoted = await admin.hasVoted(proposalId, adminAccount);
+    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
 
     const stateAfter = status.get((await admin.getState(proposalId)).toString());
     const proposalDetailAfter = await admin.getProposalDetail(proposalId);
@@ -383,7 +389,7 @@ describe('OceanGovernor', () => {
 
 async function hasVoted(admin: OceanGovernor, proposalId: string, account: Account) {
   const state = await admin.getState(proposalId);
-  const hasVoted = await admin.hasVoted(proposalId, account);
+  const hasVoted = await admin.hasVoted(proposalId, account.address);
   console.log('state: ', status.get(state.toString()), 'hasVoted: ', hasVoted);
   console.log('==== hasVoted ====');
 }

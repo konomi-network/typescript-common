@@ -4,14 +4,8 @@ import { OToken } from '../src/clients/oToken';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { StakingV1 } from '../src/clients/staking';
-import {
-  ensure,
-  loadWalletFromEncyrptedJson,
-  loadWalletFromPrivate,
-  ONE_ETHER,
-  readJsonSync,
-  readPassword
-} from '../src/utils';
+import {ensure,ONE_ETHER} from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading";
 
 describe('Staking', () => {
   const config = readJsonSync('./config/config.json');

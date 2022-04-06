@@ -10,7 +10,7 @@ import {
   loadWalletFromPrivate,
   readJsonSync,
   readPassword,
-} from "../src/utils";
+} from "../src/reading";
 
 async function poolInfo( integrationClient: IntegrationClient, oToken: OToken, blockTime: number) {
   console.log('==== poolInfo begin ====');

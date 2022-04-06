@@ -10,7 +10,7 @@ export const DEFAULT_PARAM = {
 };
 
 export class InterestConfig {
-  private inner: [string, Bufferable | undefined][];
+  private inner: [string, Uint16 | undefined][];
 
   constructor(
     baseRatePerYear: Uint16 | undefined,
@@ -26,11 +26,11 @@ export class InterestConfig {
     ];
   }
 
-  public dump(): [string, Bufferable | undefined][] {
+  public dump(): [string, Uint16 | undefined][] {
     return this.inner;
   }
 
-  public values(): (Bufferable | undefined)[] {
+  public values(): (Uint16 | undefined)[] {
     return this.inner.map((v) => v[1]);
   }
 
