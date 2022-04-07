@@ -1,7 +1,7 @@
 import { Client } from './client';
 import { PriceOracleAdaptor } from './priceOracle';
 import { JumpInterestV2 } from './jumpInterestV2';
-import { TxnOptions } from 'options';
+import { TxnOptions } from '../options';
 class Comptroller extends Client {
   private readonly decimals = 1e18;
 
