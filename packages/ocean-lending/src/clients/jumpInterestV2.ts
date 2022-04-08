@@ -6,13 +6,17 @@ import { Client } from './client';
  */
 class JumpInterestV2 extends Client {
   private readonly decimals = 1e18;
+  private totalBlocksPerYear = BigInt(-1);
 
   /*
    * The approximate number of blocks per year.
    */
   public async blocksPerYear(): Promise<BigInt> {
-    const blocks = await this.contract.methods.blocksPerYear().call();
-    return BigInt(blocks);
+    if(this.totalBlocksPerYear == BigInt(-1)){
+      const blocks = await this.contract.methods.blocksPerYear().call();
+      this.totalBlocksPerYear = BigInt(blocks);
+    }
+    return this.totalBlocksPerYear;
   }
 
   /*
