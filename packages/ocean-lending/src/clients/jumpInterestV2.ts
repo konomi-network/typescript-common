@@ -24,11 +24,12 @@ class JumpInterestV2 extends Client {
   }
 
   /**
-   * Convert multiplierPerBlock into multiplierPerYear
-   */
-  public async multiplierPerYear(): Promise<BigInt> {
-    const m = await this.contract.methods.multiplierPerBlock().call();
-    return this.blockToYear(BigInt(m));
+ * Convert multiplierPerBlock into multiplierPerYear
+ */
+    public async multiplierPerYear(): Promise<BigInt> {
+    const [multiplierPerBlock, blocksPerYear, kink] = await Promise.all([this.multiplierPerBlock(),  this.blocksPerYear(), this.kink()]);
+    const multiplierPerYear = multiplierPerBlock.valueOf() * blocksPerYear.valueOf() * kink.valueOf() / this.decimals;
+    return multiplierPerYear;
   }
 
   /**
