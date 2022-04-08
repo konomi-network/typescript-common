@@ -42,12 +42,7 @@ class OceanGovernor extends Client {
 
     const target = this.callables.oceanLending!;
     const method = this.contract.methods.propose(target, callData);
-    await this.send(
-      method,
-      await this.prepareTxn(method),
-      options,
-      ...callbacks
-    );
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -65,9 +60,9 @@ class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param options The transaction configuration parameters
    */
-  public async execute(proposalId: string, options: TxnOptions,...callbacks: TxnCallbacks): Promise<void> {
+  public async execute(proposalId: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.execute(proposalId);
-    await this.send(method, await this.prepareTxn(method), options,...callbacks);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -76,9 +71,9 @@ class OceanGovernor extends Client {
    * @param proposalId The id of the proposal
    * @param options The transaction configuration parameters
    */
-  public async cancel(proposalId: string, options: TxnOptions,...callbacks: TxnCallbacks): Promise<void> {
+  public async cancel(proposalId: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.cancel(proposalId);
-    await this.send(method, await this.prepareTxn(method), options,...callbacks);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -98,7 +93,12 @@ class OceanGovernor extends Client {
    * @param voteType The type of vote
    * @param options The transaction configuration parameters
    */
-  public async castVote(proposalId: string, voteType: number, options: TxnOptions,...callbacks: TxnCallbacks): Promise<void> {
+  public async castVote(
+    proposalId: string,
+    voteType: number,
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
+  ): Promise<void> {
     const method = this.contract.methods.castVote(proposalId, voteType);
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
@@ -158,7 +158,7 @@ class OceanGovernor extends Client {
   /**
    * get all active proposals from contract.
    */
-   public async getActiveProposals(): Promise<Array<string>> {
+  public async getActiveProposals(): Promise<Array<string>> {
     const activeProposals = await this.contract.methods.getActiveProposals().call();
     return activeProposals;
   }
@@ -168,15 +168,15 @@ class OceanGovernor extends Client {
    */
   public async getPayable(): Promise<string> {
     const result = this.contract.methods.proposalPayable().call();
-    return result
+    return result;
   }
 
   /**
    * Check role of address is validator or not
    */
-   public async isValidator(address: string): Promise<boolean> {
-    const result = this.contract.methods.hasRole("VALIDATOR", address).call();
-    return result
+  public async isValidator(address: string): Promise<boolean> {
+    const result = this.contract.methods.hasRole('VALIDATOR', address).call();
+    return result;
   }
 
   // =========================  control authorization of upgrade methods =========================

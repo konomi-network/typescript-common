@@ -1,4 +1,4 @@
-import { Address, Bufferable, Uint16, Uint64 } from './types';
+import { Address, Uint16, Uint64 } from './types';
 
 export const DEFAULT_PARAM = {
   baseRatePerYear: new Uint16(1),

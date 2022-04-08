@@ -44,7 +44,6 @@ describe('Comptroller', () => {
   const erc20Abi = readJsonSync('./config/erc20.json');
   const comptrollerAbi = readJsonSync('./config/comptroller.json');
   const priceOracleAbi = readJsonSync('./config/priceOracle.json');
-  const jumpInterestV2Abi = readJsonSync('./config/jumpInterestV2.json');
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -53,7 +52,6 @@ describe('Comptroller', () => {
   let erc20Token: ERC20Token;
   let comptroller: Comptroller;
   let priceOracle: PriceOracleAdaptor;
-  let jumpInterestV2: JumpInterestV2;
 
   beforeAll(async () => {
     if (config.encryptedAccountJson) {
@@ -67,42 +65,43 @@ describe('Comptroller', () => {
 
     console.log('Using account:', account.address);
 
-    // load the oToken object
-    oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
+    // // load the oToken object
+    // oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
 
-    // load the erc20 token object
-    erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
+    // // load the erc20 token object
+    // erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
 
-    comptroller = new Comptroller(web3, comptrollerAbi, oToken.parameters.comptroller, account);
+    comptroller = new Comptroller(web3, comptrollerAbi, config.comptroller.address, account);
 
     // load price feed object
     priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, config.priceOracle.address, account);
-
-    // load JumpInterestV2 object
-    jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, config.jumpInterestV2.address, account);
   });
 
   it('key flow test', async () => {
-    // actual tests
-    await liquidationIncentive(account, oToken, erc20Token, comptroller);
-    await collateralFactor(account, oToken, erc20Token, comptroller);
-    await closeFactor(account, oToken, erc20Token, comptroller);
+    // // actual tests
+    // await liquidationIncentive(account, oToken, erc20Token, comptroller);
+    // await collateralFactor(account, oToken, erc20Token, comptroller);
+    // await closeFactor(account, oToken, erc20Token, comptroller);
 
-    const oracleAddress = await comptroller.oracleAddress();
-    console.log('==== oracleAddress', oracleAddress);
-    expect(oracleAddress).to.be.a('string');
+    // const oracleAddress = await comptroller.oracleAddress();
+    // console.log('==== oracleAddress', oracleAddress);
+    // expect(oracleAddress).to.be.a('string');
 
-    const totalLiquidity = await comptroller.totalLiquidity(priceOracle);
-    console.log('==== totalLiquidity:', totalLiquidity);
-    expect(totalLiquidity).to.be.gt(0);
+    // const totalLiquidity = await comptroller.totalLiquidity(priceOracle);
+    // console.log('==== totalLiquidity:', totalLiquidity);
+    // expect(totalLiquidity).to.be.gt(0);
 
-    const blockTime = 15;
-    const minBorrowRateAPY = await comptroller.minBorrowAPY(jumpInterestV2, blockTime);
-    console.log('==== minBorrowRateAPY:', minBorrowRateAPY);
-    expect(minBorrowRateAPY > BigInt(0)).to.be.eq(true);
+    // const blockTime = 3;
+    // const minBorrowRateAPY = await comptroller.minBorrowAPY(blockTime);
+    // console.log('==== minBorrowRateAPY:', minBorrowRateAPY);
+    // expect(minBorrowRateAPY >= BigInt(0)).to.be.eq(true);
 
-    const maxSupplyRateAPY = await comptroller.maxSupplyAPY(jumpInterestV2, blockTime);
-    console.log('==== maxSupplyRateAPY:', maxSupplyRateAPY);
-    expect(maxSupplyRateAPY > BigInt(0)).to.be.eq(true);
+    // const maxSupplyRateAPY = await comptroller.maxSupplyAPY(blockTime);
+    // console.log('==== maxSupplyRateAPY:', maxSupplyRateAPY);
+    // expect(maxSupplyRateAPY >= BigInt(0)).to.be.eq(true);
+
+    const blockTime = 3;
+    const summary = await comptroller.getOceanMarketSummary(blockTime, priceOracle);
+    console.log(summary);
   });
 });
