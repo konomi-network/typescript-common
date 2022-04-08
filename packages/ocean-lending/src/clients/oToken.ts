@@ -130,7 +130,7 @@ class OToken extends Client {
    * It is part of the EIP-20 interface of the cToken contract.
    */
   public async totalSupply(): Promise<BigInt> {
-    const supply = this.contract.methods.totalSupply().call();
+    const supply = await this.contract.methods.totalSupply().call();
     return BigInt(supply);
   }
 
@@ -138,21 +138,24 @@ class OToken extends Client {
    * Cash is the amount of underlying balance owned by this cToken contract.
    */
   public async getCash(): Promise<BigInt> {
-    return this.contract.methods.getCash().call();
+    const cash =  await this.contract.methods.getCash().call();
+    return BigInt(cash);
   }
 
   /**
    * The total amount of reserves held in the market.
    */
   public async totalReserves(): Promise<BigInt> {
-    return this.contract.methods.totalReserves().call();
+    const totalReserves = await this.contract.methods.totalReserves().call();
+    return BigInt(totalReserves);
   }
 
   /**
    * The reserve factor defines the portion of borrower interest that is converted into reserves.
    */
   public async reserveFactorMantissa(): Promise<BigInt> {
-    return this.contract.methods.reserveFactorMantissa().call();
+    const reserveFactorMantissa = await this.contract.methods.reserveFactorMantissa().call();
+    return BigInt(reserveFactorMantissa);
   }
 
   public static ratePerBlockToAPY(rate: BigInt | string | number, blockTime: number): number {
