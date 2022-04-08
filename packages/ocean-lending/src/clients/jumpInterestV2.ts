@@ -8,6 +8,14 @@ class JumpInterestV2 extends Client {
   private readonly decimals = 1e18;
 
   /*
+   * The approximate number of blocks per year.
+   */
+  public async blocksPerYear(): Promise<BigInt> {
+    const blocks = await this.contract.methods.blocksPerYear().call();
+    return BigInt(blocks);
+  }
+
+  /*
    * The multiplier of utilization rate that gives the slope of the interest rate.
    */
   public async multiplierPerBlock(): Promise<BigInt> {
@@ -17,12 +25,10 @@ class JumpInterestV2 extends Client {
 
   /**
    * Convert multiplierPerBlock into multiplierPerYear
-   * @param blockTime The number of seconds per block
-   *
    */
-  public async multiplierPerYear(blockTime: number): Promise<BigInt> {
+  public async multiplierPerYear(): Promise<BigInt> {
     const m = await this.contract.methods.multiplierPerBlock().call();
-    return this.blockToYear(BigInt(m), blockTime);
+    return this.blockToYear(BigInt(m));
   }
 
   /**
@@ -35,11 +41,10 @@ class JumpInterestV2 extends Client {
 
   /**
    * Convert baseRatePerBlock into baseRatePerYear
-   * @param blockTime The number of seconds per block
    */
-  public async baseRatePerYear(blockTime: number): Promise<BigInt> {
+  public async baseRatePerYear(): Promise<BigInt> {
     const b = await this.contract.methods.baseRatePerBlock().call();
-    return this.blockToYear(BigInt(b), blockTime);
+    return this.blockToYear(BigInt(b));
   }
 
   /**
@@ -52,12 +57,11 @@ class JumpInterestV2 extends Client {
 
   /**
    * Convert jumpMultiplierPerBlock into jumpMultiplierPerYear
-   * @param blockTime The number of seconds per block
    *
    */
-  public async jumpMultiplierPerYear(blockTime: number): Promise<BigInt> {
+  public async jumpMultiplierPerYear(): Promise<BigInt> {
     const b = await this.contract.methods.jumpMultiplierPerBlock().call();
-    return this.blockToYear(BigInt(b), blockTime);
+    return this.blockToYear(BigInt(b));
   }
 
   /**
@@ -122,34 +126,31 @@ class JumpInterestV2 extends Client {
   /**
    * Calculates the current borrow interest rate APY
    * @param oToken The ocean-lending client object
-   * @param blockTime The number of seconds per block
    * @return The borrow rate per block (as a percentage, and scaled by 1e18)
    */
-  public async getBorrowRateAPY(oToken: OToken, blockTime: number): Promise<BigInt> {
+  public async getBorrowRateAPY(oToken: OToken): Promise<BigInt> {
     const rate = await this.getBorrowRateByOToken(oToken);
-    return this.blockToYear(rate, blockTime);
+    return this.blockToYear(rate);
   }
 
   /**
    * Calculates the current supply interest rate APY
    * @param oToken The ocean-lending client object
-   * @param blockTime The number of seconds per block
    * @return The supply rate per block (as a percentage, and scaled by 1e18)
    */
-  public async getSupplyRateAPY(oToken: OToken, blockTime: number): Promise<BigInt> {
+  public async getSupplyRateAPY(oToken: OToken): Promise<BigInt> {
     const rate = await this.getSupplyRateByOToken(oToken);
-    return this.blockToYear(rate, blockTime);
+    return this.blockToYear(rate);
   }
 
   /**
    * Convert rate per block to rate APY
-   *@param rate The rate per block
-   *@param blockTime The number of seconds per block
+   *@param ratePerBlock The rate per block
    */
-  public blockToYear(rate: BigInt, blockTime: number): BigInt {
-    const secondsPerYear = 31536000;
-    const APY = (Number(rate) * secondsPerYear) / blockTime;
-    return BigInt(APY);
+  public async blockToYear(ratePerBlock: BigInt): Promise<BigInt> {
+    const blocksPerYear = await this.blocksPerYear();
+    const APY = blocksPerYear.valueOf() * ratePerBlock.valueOf();
+    return APY;
   }
 }
 
