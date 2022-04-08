@@ -37,7 +37,7 @@ class JumpInterestV2 extends Client {
       this.blocksPerYear(),
       this.kink()
     ]);
-    const multiplierPerYear = (multiplierPerBlock.valueOf() * blocksPerYear.valueOf() * kink.valueOf()) / this.decimals;
+    const multiplierPerYear = (multiplierPerBlock.valueOf() * blocksPerYear.valueOf() * kink.valueOf()) / BigInt(this.decimals);
     return multiplierPerYear;
   }
 
