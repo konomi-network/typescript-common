@@ -39,7 +39,7 @@ describe('Encoding', () => {
       tokens: [t1, t2]
     };
     const buf = OceanEncoder.encode(poolConfig);
-    console.log(buf.toString('hex'));
+    console.log('works:', buf.toString('hex'));
 
     const decodeed = OceanDecoder.decode(buf);
     expect(poolConfig).toEqual(decodeed);
@@ -81,6 +81,7 @@ describe('Encoding', () => {
       tokens: [t1, t2]
     };
     const buf = OceanEncoder.encode(poolConfig);
+    console.log('default:', buf.toString('hex'));
 
     const expected = {
       closeFactor: DEFAULT_PARAM.closeFactor,
