@@ -4,46 +4,46 @@ import { OceanDecoder, OceanEncoder } from '../src/encoding';
 import { Address, Uint16, Uint64 } from '../src/types';
 
 describe('Encoding', () => {
-  // it('works', () => {
-  //   const t1 = {
-  //     underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3'),
-  //     subscriptionId: new Uint16(1),
-  //     interest: new InterestConfig(
-  //       new Uint16(1001), // baseRatePerYear
-  //       new Uint16(2002), // multiplierPerYear
-  //       new Uint16(3003), // jumpMultiplierPerYear
-  //       new Uint16(4004) // kink
-  //     ),
-  //     collateral: {
-  //       canBeCollateral: true,
-  //       collateralFactor: new Uint16(1001),
-  //     }
-  //   };
-  //   const t2 = {
-  //     underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a4'),
-  //     subscriptionId: new Uint16(1),
-  //     interest: new InterestConfig(
-  //       new Uint16(1001), // baseRatePerYear
-  //       new Uint16(2002), // multiplierPerYear
-  //       new Uint16(3003), // jumpMultiplierPerYear
-  //       new Uint16(4005) // kink
-  //     ),
-  //     collateral: {
-  //       canBeCollateral: true,
-  //       collateralFactor: new Uint16(1001)
-  //     }
-  //   };
-  //   const poolConfig = {
-  //     closeFactor: new Uint16(5000),
-  //     liquidationIncentive: new Uint16(1080),
-  //     tokens: [t1, t2]
-  //   };
-  //   const buf = OceanEncoder.encode(poolConfig);
-  //   console.log('works:', buf.toString('hex'));
+  it('works', () => {
+    const t1 = {
+      underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3'),
+      subscriptionId: new Uint16(1),
+      interest: new InterestConfig(
+        new Uint16(1001), // baseRatePerYear
+        new Uint16(2002), // multiplierPerYear
+        new Uint16(3003), // jumpMultiplierPerYear
+        new Uint16(4004) // kink
+      ),
+      collateral: {
+        canBeCollateral: true,
+        collateralFactor: new Uint16(1001),
+      }
+    };
+    const t2 = {
+      underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a4'),
+      subscriptionId: new Uint16(1),
+      interest: new InterestConfig(
+        new Uint16(1001), // baseRatePerYear
+        new Uint16(2002), // multiplierPerYear
+        new Uint16(3003), // jumpMultiplierPerYear
+        new Uint16(4005) // kink
+      ),
+      collateral: {
+        canBeCollateral: true,
+        collateralFactor: new Uint16(1001)
+      }
+    };
+    const poolConfig = {
+      closeFactor: new Uint16(5000),
+      liquidationIncentive: new Uint16(1080),
+      tokens: [t1, t2]
+    };
+    const buf = OceanEncoder.encode(poolConfig);
+    console.log('works:', buf.toString('hex'));
 
-  //   const decodeed = OceanDecoder.decode(buf);
-  //   expect(poolConfig).toEqual(decodeed);
-  // });
+    const decodeed = OceanDecoder.decode(buf);
+    expect(poolConfig).toEqual(decodeed);
+  });
 
   it('with default', () => {
     const t1 = {
