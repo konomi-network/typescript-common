@@ -26,7 +26,7 @@ describe('OceanGovernor', () => {
   const confirmations = { confirmations: 3 };
   const tokenA = {
     underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3'),
-    subscriptionId: new Uint64(BigInt(1)),
+    subscriptionId: new Uint16(1),
     interest: new InterestConfig(
       new Uint16(1001), // baseRatePerYear
       new Uint16(2002), // multiplierPerYear
@@ -41,7 +41,7 @@ describe('OceanGovernor', () => {
   };
   const tokenB = {
     underlying: Address.fromString('0x30cDBa5e339881c707E140A5E7fe27fE1835d0dA'),
-    subscriptionId: new Uint64(BigInt(1)),
+    subscriptionId: new Uint16(1),
     interest: new InterestConfig(
       new Uint16(1001), // baseRatePerYear
       new Uint16(2002), // multiplierPerYear
@@ -51,10 +51,13 @@ describe('OceanGovernor', () => {
     collateral: {
       canBeCollateral: true,
       collateralFactor: new Uint16(1001),
-      liquidationIncentive: new Uint16(1060)
     }
   };
-  const pool = { tokens: [tokenA, tokenB] };
+  const pool = { 
+    closeFactor: new Uint16(5000),
+    liquidationIncentive: new Uint16(1080),
+    tokens: [tokenA, tokenB]
+  };
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
   let adminAccount: Account;

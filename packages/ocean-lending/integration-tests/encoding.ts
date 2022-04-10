@@ -1,7 +1,7 @@
 import 'jest';
 import { DEFAULT_PARAM, InterestConfig } from '../src/config';
 import { OceanDecoder, OceanEncoder } from '../src/encoding';
-import { Address, Uint16, Uint64 } from '../src/types';
+import { Address, Uint16 } from '../src/types';
 
 describe('Encoding', () => {
   it('works', () => {
