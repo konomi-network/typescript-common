@@ -1,4 +1,4 @@
-import { Address, Bufferable, Uint16, Uint64 } from './types';
+import { Address, Bufferable, Uint16 } from './types';
 
 export const DEFAULT_PARAM = {
   baseRatePerYear: new Uint16(1),
@@ -47,7 +47,7 @@ export interface CollateralConfig {
 
 export interface TokenConfig {
   underlying: Address;
-  subscriptionId: Uint64;
+  subscriptionId: Uint16;
   interest: InterestConfig;
   collateral: CollateralConfig;
 }

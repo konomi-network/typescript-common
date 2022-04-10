@@ -82,8 +82,8 @@ export function isBitSet(n: number, offset: number): boolean {
  */
 export async function sleep(ms: number) {
   return new Promise((resolve) => {
-      setTimeout(() => {
-          resolve('');
-      }, ms)
+    setTimeout(() => {
+      resolve('');
+    }, ms);
   });
 }

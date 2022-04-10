@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { CollateralConfig, DEFAULT_PARAM, Header, InterestConfig, PoolConfig, TokenConfig } from './config';
-import { Address, Uint16, Uint64 } from './types';
+import { Address, Uint16 } from './types';
 import { isBitSet } from './utils';
 
 class BitMask {
@@ -71,8 +71,8 @@ export class OceanEncoder {
       this.encodeHeader(param),
       this.encodeInterest(param.interest),
       param.underlying.toBuffer(),
-      this.encodeCollateral(param.collateral),
-      param.subscriptionId.toBuffer()
+      param.subscriptionId.toBuffer(),
+      this.encodeCollateral(param.collateral)
     ]);
   }
 
@@ -174,12 +174,12 @@ export class OceanDecoder {
     const underlying = Address.fromBuffer(buf, offset);
     offset += 20;
 
+    const subscriptionId = new Uint16(buf.readUInt16BE(offset));
+    offset += 2;
+
     const c = this.decodeCollateral(buf, offset, header);
     const collateral = c[0];
     offset = c[1];
-
-    const subscriptionId = new Uint64(buf.readBigUInt64BE(offset));
-    offset += 8;
 
     return [
       {
