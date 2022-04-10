@@ -3,31 +3,33 @@ import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { JumpInterestV2 } from '../src/clients/jumpInterestV2';
 import { OToken } from '../src/clients/oToken';
-import {
-  loadWalletFromEncyrptedJson,
-  loadWalletFromPrivate,
-  ONE_ETHER,
-  readJsonSync,
-  readPassword
-} from '../src/utils';
+import { ONE_ETHER } from '../src/utils';
+import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
 
-async function multiplierPerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
+async function blocksPerYear(jumpInterestV2: JumpInterestV2) {
+  console.log('==== blocksPerYear ====');
+  const blocks = await jumpInterestV2.blocksPerYear();
+  console.log(`blocksPerYear: ${blocks}`);
+  console.log('==== blocksPerYear ====');
+}
+
+async function multiplierPerYear(jumpInterestV2: JumpInterestV2) {
   console.log('==== multiplierPerYear ====');
-  const multiplier = await jumpInterestV2.multiplierPerYear(blockTime);
+  const multiplier = await jumpInterestV2.multiplierPerYear();
   console.log(`multiplierPerYear: ${multiplier}`);
   console.log('==== multiplierPerYear ====');
 }
 
-async function baseRatePerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
+async function baseRatePerYear(jumpInterestV2: JumpInterestV2) {
   console.log('==== baseRatePerYear ====');
-  const rate = await jumpInterestV2.baseRatePerYear(blockTime);
-  console.log(`baseRatePerYear: ${rate.valueOf() / ONE_ETHER}%`);
+  const rate = await jumpInterestV2.baseRatePerYear();
+  console.log(`baseRatePerYear: ${rate.valueOf()}`);
   console.log('==== baseRatePerYear ====');
 }
 
-async function jumpMultiplierPerYear(jumpInterestV2: JumpInterestV2, blockTime: number) {
+async function jumpMultiplierPerYear(jumpInterestV2: JumpInterestV2) {
   console.log('==== jumpMultiplierPerYear ====');
-  const jumpMultiplier = await jumpInterestV2.jumpMultiplierPerYear(blockTime);
+  const jumpMultiplier = await jumpInterestV2.jumpMultiplierPerYear();
   console.log(`jumpMultiplierPerYear: ${jumpMultiplier}`);
   console.log('==== jumpMultiplierPerYear ====');
 }
@@ -48,12 +50,11 @@ async function getBorrowRate(jumpInterestV2: JumpInterestV2, oToken: OToken) {
   ]);
   const rate = await jumpInterestV2.getBorrowRateByOToken(oToken);
   console.log(
-    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, borrowRate: ${
-      rate.valueOf() / ONE_ETHER
-    }%`
+    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, borrowRate: ${rate
+    }`
   );
   console.log('==== getBorrowRate ====');
-  expect(totalReserves).to.be.eq('0');
+  expect(totalReserves).to.be.eq(BigInt(0));
 }
 
 async function getSupplyRate(jumpInterestV2: JumpInterestV2, oToken: OToken, reserveFactorMantissa: BigInt) {
@@ -65,46 +66,43 @@ async function getSupplyRate(jumpInterestV2: JumpInterestV2, oToken: OToken, res
   ]);
   const rate = await jumpInterestV2.getSupplyRateByOToken(oToken);
   console.log(
-    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, reserveFactorMantissa: ${reserveFactorMantissa} supplyRate: ${
-      rate.valueOf() / ONE_ETHER
-    }%`
+    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, reserveFactorMantissa: ${reserveFactorMantissa} supplyRate: ${rate
+    }`
   );
   console.log('==== getSupplyRate ====');
-  expect(totalReserves).to.be.eq('0');
+  expect(totalReserves).to.be.eq(BigInt(0));
 }
 
-async function getBorrowRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, blockTime: number) {
+async function getBorrowRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken) {
   console.log('==== getBorrowRateAPY ====');
   const [cash, totalBorrows, totalReserves] = await Promise.all([
     oToken.getCash(),
     oToken.totalBorrowsCurrent(),
     oToken.totalReserves()
   ]);
-  const rate = await jumpInterestV2.getBorrowRateAPY(oToken, blockTime);
+  const rate = await jumpInterestV2.getBorrowRateAPY(oToken);
   console.log(
-    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, BorrowRateAPY: ${
-      rate.valueOf() / ONE_ETHER
-    }%`
+    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, BorrowRateAPY: ${rate
+    }`
   );
   console.log('==== getBorrowRateAPY ====');
-  expect(totalReserves).to.be.eq('0');
+  expect(totalReserves).to.be.eq(BigInt(0));
 }
 
-async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken, blockTime: number) {
+async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken) {
   console.log('==== getSupplyRateAPY ====');
   const [cash, totalBorrows, totalReserves] = await Promise.all([
     oToken.getCash(),
     oToken.totalBorrowsCurrent(),
     oToken.totalReserves()
   ]);
-  const rate = await jumpInterestV2.getSupplyRateAPY(oToken, blockTime);
+  const rate = await jumpInterestV2.getSupplyRateAPY(oToken);
   console.log(
-    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, supplyRateAPY: ${
-      rate.valueOf() / ONE_ETHER
-    }%`
+    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, supplyRateAPY: ${rate
+    }`
   );
   console.log('==== getSupplyRateAPY ====');
-  expect(totalReserves).to.be.eq('0');
+  expect(totalReserves).to.be.eq(BigInt(0));
 }
 
 describe('JumpInterestV2', () => {
@@ -148,14 +146,15 @@ describe('JumpInterestV2', () => {
       `cash: ${cash}, totalBorrows: ${totalBorrows}, totalSupply: ${totalSupply}, reserveFactorMantissa: ${reserveFactorMantissa}, totalReserves: ${totalReserves}`
     );
 
-    await multiplierPerYear(jumpInterestV2, blockTime);
-    await baseRatePerYear(jumpInterestV2, blockTime);
-    await jumpMultiplierPerYear(jumpInterestV2, blockTime);
+    await blocksPerYear(jumpInterestV2);
+    await multiplierPerYear(jumpInterestV2);
+    await baseRatePerYear(jumpInterestV2);
+    await jumpMultiplierPerYear(jumpInterestV2);
     await kink(jumpInterestV2);
 
     await getBorrowRate(jumpInterestV2, oToken);
-    await getBorrowRateAPY(jumpInterestV2, oToken, blockTime);
+    await getBorrowRateAPY(jumpInterestV2, oToken);
     await getSupplyRate(jumpInterestV2, oToken, reserveFactorMantissa);
-    await getSupplyRateAPY(jumpInterestV2, oToken, blockTime);
+    await getSupplyRateAPY(jumpInterestV2, oToken);
   });
 });

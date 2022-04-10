@@ -31,10 +31,13 @@
   "feedFactory": {
     "address": ""
   },
-  "konomiOceanLending": {
-    "address": "0x17EB891f78F32a89961a39Cabf3413B7BcD628Cb"
-  }
   "oceanGovernor": {
-    "address": "0xCCb6203520fDB24F1830Ba67dE38214B9646b3fB"
+      "address": "0x532066DB72205810bbF391FC5646a3B46e06823A"
   },
+  "konomiOceanLending": {
+      "address": "0x8E089BceF0784C3AF6bA4617a91E28Bd86923654"
+  },
+  "comptroller": {
+    "address": "0xbF152b2d09067FB6470475d1980e0328D5dB7215"
+  }
 }

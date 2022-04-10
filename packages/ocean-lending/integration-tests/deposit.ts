@@ -5,13 +5,10 @@ import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import {
   ensure,
-  loadWalletFromEncyrptedJson,
-  loadWalletFromPrivate,
   ONE_ETHER,
-  readJsonSync,
-  readPassword,
   sleep
 } from '../src/utils';
+import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 
 async function depositWorks(account: Account, oToken: OToken, token: ERC20Token) {
   console.log('==== deposit ====');
