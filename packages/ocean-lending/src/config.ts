@@ -1,4 +1,4 @@
-import { Address, Uint16, Uint64 } from './types';
+import { Address, Uint16 } from './types';
 
 export const DEFAULT_PARAM = {
   baseRatePerYear: new Uint16(1),
@@ -6,7 +6,8 @@ export const DEFAULT_PARAM = {
   jumpMultiplierPerYear: new Uint16(1),
   kink: new Uint16(1),
   collateralFactor: new Uint16(1),
-  liquidationIncentive: new Uint16(1)
+  liquidationIncentive: new Uint16(1006),
+  closeFactor: new Uint16(5000)
 };
 
 export class InterestConfig {
@@ -42,17 +43,18 @@ export class InterestConfig {
 export interface CollateralConfig {
   canBeCollateral: boolean;
   collateralFactor: Uint16 | undefined;
-  liquidationIncentive: Uint16 | undefined;
 }
 
 export interface TokenConfig {
   underlying: Address;
-  subscriptionId: Uint64;
+  subscriptionId: Uint16;
   interest: InterestConfig;
   collateral: CollateralConfig;
 }
 
 export interface PoolConfig {
+  liquidationIncentive: Uint16 | undefined;
+  closeFactor: Uint16 | undefined;
   tokens: TokenConfig[];
 }
 
@@ -62,7 +64,6 @@ export interface Header {
   jumpMultiplierPerYear: boolean;
   kink: boolean;
   collateralFactor: boolean;
-  liquidationIncentive: boolean;
   canBeCollateral: boolean;
 }
 

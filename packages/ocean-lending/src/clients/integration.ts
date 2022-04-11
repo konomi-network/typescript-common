@@ -2,7 +2,7 @@ import { Account } from 'web3-core';
 import { OToken } from './oToken';
 import { Comptroller } from './comptroller';
 import { JumpInterestV2 } from './jumpInterestV2';
-import { TxnOptions } from 'options';
+import { TxnOptions } from '../options';
 
 export class IntegrationClient {
   // The account to use for operations
