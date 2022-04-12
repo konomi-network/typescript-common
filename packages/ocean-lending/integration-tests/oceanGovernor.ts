@@ -35,8 +35,7 @@ describe('OceanGovernor', () => {
     ),
     collateral: {
       canBeCollateral: false,
-      collateralFactor: new Uint16(0),
-      liquidationIncentive: new Uint16(1060)
+      collateralFactor: new Uint16(0)
     }
   };
   const tokenB = {
