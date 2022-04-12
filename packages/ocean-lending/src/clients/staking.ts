@@ -1,5 +1,5 @@
 import { Client } from './client';
-import { TxnOptions } from 'options';
+import { TxnOptions } from '../options';
 
 /**
  * Staking V1 contract client.

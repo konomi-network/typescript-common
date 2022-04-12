@@ -1,5 +1,5 @@
 import { Client, TxnCallbacks } from './client';
-import { TxnOptions } from 'options';
+import { TxnOptions } from '../options';
 
 class ERC20Token extends Client {
   public async balanceOf(address: string): Promise<BigInt> {

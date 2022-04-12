@@ -1,4 +1,4 @@
-import { TxnOptions } from 'options';
+import { TxnOptions } from '../options';
 import { Client } from './client';
 
 class ConfigCenter extends Client {

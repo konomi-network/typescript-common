@@ -16,8 +16,20 @@
     "baseUrl": "src",
     "experimentalDecorators": true
   },
-  "exclude": ["node_modules", "**/__mocks__/*", "**/__tests__/*", "**/*.spec.ts", "**/*.test.ts"],
-  "include": ["src", "integration-test"],
+  "exclude": [
+    "node_modules",
+    "**/__mocks__/*",
+    "**/__tests__/*",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+  "include": [
+    "src",
+    "integration-test"
+  ],
   "references": [],
-  "types": ["@types/jest", "node"]
+  "types": [
+    "@types/jest",
+    "node"
+  ]
 }
