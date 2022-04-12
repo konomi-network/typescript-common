@@ -8,13 +8,13 @@ import Web3 from 'web3';
 export interface ProposalDetails {
   forVotes: number;
   againstVotes: number;
-  proposer: string;
   startBlock: number;
   endBlock: number;
   leasePeriod: number;
-  pool: PoolConfig;
-  targetContract: string;
+  proposer: string;
   poolOwner: string;
+  targetContract: string;
+  pool: PoolConfig;
 }
 
 /**

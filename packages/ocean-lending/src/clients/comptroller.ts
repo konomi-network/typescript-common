@@ -7,6 +7,8 @@ export interface OceanMarketSummary {
   totalLiquidity: BigInt;
   maxSupplyAPY: number;
   minBorrowAPY: number;
+  liquidationIncentive: number;
+  closeFactor: number;
   markets: OTokenMarketSummary[];
 }
 
@@ -41,7 +43,12 @@ class Comptroller extends Client {
     priceOracleAdaptor: PriceOracleAdaptor
   ): Promise<OceanMarketSummary> {
     const markets = await this.allMarkets();
-    const promises: Promise<any>[] = [this.maxSupplyAPY(blockTime, markets), this.minBorrowAPY(blockTime, markets)];
+    const promises: Promise<any>[] = [
+      this.liquidationIncentive(),
+      this.closeFactor(),
+      this.maxSupplyAPY(blockTime, markets),
+      this.minBorrowAPY(blockTime, markets)
+    ];
 
     markets.forEach((m) => {
       promises.push(this.getOTokenMarketSummary(m, priceOracleAdaptor));
@@ -49,15 +56,17 @@ class Comptroller extends Client {
 
     const values = await Promise.all(promises);
 
-    const otokens: OTokenMarketSummary[] = values.slice(2);
+    const oTokens: OTokenMarketSummary[] = values.slice(4);
     let totalLiquidity = BigInt(0);
-    otokens.forEach((o) => (totalLiquidity += o.totalLiquidity.valueOf()));
+    oTokens.forEach((o) => (totalLiquidity += o.totalLiquidity.valueOf()));
 
     return {
       totalLiquidity,
-      maxSupplyAPY: values[0],
-      minBorrowAPY: values[1],
-      markets: otokens
+      liquidationIncentive: values[0],
+      closeFactor: values[1],
+      maxSupplyAPY: values[2],
+      minBorrowAPY: values[3],
+      markets: oTokens
     };
   }
 
