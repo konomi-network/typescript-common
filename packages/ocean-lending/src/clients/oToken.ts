@@ -17,6 +17,7 @@ export interface OTokenDetails {
   borrowInterest: number;
   supplyAmount: string;
   borrowAmount: string;
+  liquidity: string;
 }
 
 class OToken extends Client {
@@ -213,14 +214,16 @@ class OToken extends Client {
   }
 
   public async getOTokenSummary(blockTime: number, account: string): Promise<OTokenDetails> {
-    const [supplyAPY, borrowAPY, supplyAmount, borrowAmount, supplyInterest, borrowInterest] = await Promise.all([
-      this.supplyAPY(blockTime),
-      this.borrowAPY(blockTime),
-      this.underlyingBalanceCurrent(account),
-      this.borrowBalanceCurrent(account),
-      this.supplyInterest(account),
-      this.borrowInterest(account)
-    ]);
+    const [supplyAPY, borrowAPY, supplyAmount, borrowAmount, supplyInterest, borrowInterest, liquidity] =
+      await Promise.all([
+        this.supplyAPY(blockTime),
+        this.borrowAPY(blockTime),
+        this.underlyingBalanceCurrent(account),
+        this.borrowBalanceCurrent(account),
+        this.supplyInterest(account),
+        this.borrowInterest(account),
+        this.getCash()
+      ]);
 
     return {
       supplyAPY,
@@ -228,7 +231,8 @@ class OToken extends Client {
       supplyInterest: Number(supplyInterest),
       borrowInterest: Number(borrowInterest),
       supplyAmount: supplyAmount.toString(),
-      borrowAmount: borrowAmount.toString()
+      borrowAmount: borrowAmount.toString(),
+      liquidity: liquidity.toString()
     };
   }
 }
