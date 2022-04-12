@@ -104,7 +104,7 @@ class Comptroller extends Client {
    */
   public async liquidationIncentive(): Promise<number> {
     const incentive = await this.contract.methods.liquidationIncentiveMantissa().call();
-    return (incentive / this.DEFAULT_MANTISSA) * 100;
+    return incentive / this.DEFAULT_MANTISSA;
   }
 
   /**
