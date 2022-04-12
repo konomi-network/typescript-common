@@ -32,13 +32,13 @@ class OceanGovernor extends Client {
 
   public async proposePool(
     pool: PoolConfig,
-    leasePerod: string,
+    leasePeriod: string,
     poolOwner: string,
     options: TxnOptions,
     ...callbacks: TxnCallbacks
   ): Promise<void> {
     const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
-    const callData = this.web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePerod, poolOwner]);
+    const callData = this.web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
 
     const target = this.callables.oceanLending!;
     const method = this.contract.methods.propose(target, callData);
