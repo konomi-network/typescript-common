@@ -10,6 +10,15 @@ export interface OTokenParameter {
   decimals: number;
 }
 
+export interface OTokenDetails {
+  supplyAPY: number;
+  borrowAPY: number;
+  supplyInterest: number;
+  borrowInterest: number;
+  supplyAmount: string;
+  borrowAmount: string;
+}
+
 class OToken extends Client {
   readonly parameters: OTokenParameter;
 
@@ -201,6 +210,26 @@ class OToken extends Client {
       (supplyAmount.valueOf() * exchangeRateCurrent.valueOf()) / BigInt(Math.pow(10, mantissa));
     const interest = underlyingTokensAfter - supplyAmount.valueOf();
     return interest;
+  }
+
+  public async getOTokenSummary(blockTime: number, account: string): Promise<OTokenDetails> {
+    const [supplyAPY, borrowAPY, supplyAmount, borrowAmount, supplyInterest, borrowInterest] = await Promise.all([
+      this.supplyAPY(blockTime),
+      this.borrowAPY(blockTime),
+      this.underlyingBalanceCurrent(account),
+      this.borrowBalanceCurrent(account),
+      this.supplyInterest(account),
+      this.borrowInterest(account)
+    ]);
+
+    return {
+      supplyAPY,
+      borrowAPY,
+      supplyInterest: Number(supplyInterest),
+      borrowInterest: Number(borrowInterest),
+      supplyAmount: supplyAmount.toString(),
+      borrowAmount: borrowAmount.toString()
+    };
   }
 }
 
