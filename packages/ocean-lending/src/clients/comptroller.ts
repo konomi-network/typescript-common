@@ -77,26 +77,26 @@ class Comptroller extends Client {
   ): Promise<OTokenMarketSummary> {
     const items = await Promise.all([
       this.callMethod<BigInt>(market, 'totalSupply()'),
+      this.callMethod<BigInt>(market, 'totalBorrows()'),
       this.callMethod<BigInt>(market, 'exchangeRateCurrent()'),
       this.callMethod<string>(market, 'underlying()', ['address']),
-      this.callMethod<BigInt>(market, 'totalBorrows()'),
       priceOracleAdaptor.getUnderlyingPrice(market)
     ]);
 
-    const underlyingDecimals = Number(await this.callMethod<number>(items[2], 'decimals()'));
+    const underlyingDecimals = Number(await this.callMethod<number>(items[3], 'decimals()'));
 
     const mantissa = 18 + underlyingDecimals - OToken.OTOKEN_DECIMALS;
-    const num = Number(items[0]) * Number(items[1]);
+    const num = Number(items[0]) * Number(items[2]);
     const totalUnderlying = num / Math.pow(10, mantissa);
-    const totalLiquidity = totalUnderlying * Number(items[3]);
+    const totalLiquidity = totalUnderlying * Number(items[4]);
 
     return {
       address: market,
       decimals: OToken.OTOKEN_DECIMALS,
-      underlying: items[2],
+      underlying: items[3],
       underlyingDecimals,
       totalSupply: Number(items[0]),
-      totalBorrow: Number(items[3]),
+      totalBorrow: Number(items[1]),
       totalLiquidity: totalLiquidity / 1e8
     };
   }
