@@ -4,7 +4,7 @@ import { TxnOptions } from 'options';
 import OToken from './oToken';
 
 export interface OceanMarketSummary {
-  totalLiquidity: BigInt;
+  totalLiquidity: number;
   maxSupplyAPY: number;
   minBorrowAPY: number;
   markets: OTokenMarketSummary[];
@@ -15,8 +15,9 @@ export interface OTokenMarketSummary {
   decimals: number;
   underlying: string;
   underlyingDecimals: number;
-  totalSupply: BigInt;
-  totalLiquidity: BigInt;
+  totalSupply: number;
+  totalBorrow: number;
+  totalLiquidity: number;
 }
 
 class Comptroller extends Client {
@@ -50,8 +51,8 @@ class Comptroller extends Client {
     const values = await Promise.all(promises);
 
     const otokens: OTokenMarketSummary[] = values.slice(2);
-    let totalLiquidity = BigInt(0);
-    otokens.forEach((o) => (totalLiquidity += o.totalLiquidity.valueOf()));
+    let totalLiquidity = 0;
+    otokens.forEach((o) => (totalLiquidity += o.totalLiquidity));
 
     return {
       totalLiquidity,
@@ -69,23 +70,25 @@ class Comptroller extends Client {
       this.callMethod<BigInt>(market, 'totalSupply()'),
       this.callMethod<BigInt>(market, 'exchangeRateCurrent()'),
       this.callMethod<string>(market, 'underlying()', ['address']),
+      this.callMethod<BigInt>(market, 'totalBorrows()'),
       priceOracleAdaptor.getUnderlyingPrice(market)
     ]);
 
     const underlyingDecimals = Number(await this.callMethod<number>(items[2], 'decimals()'));
 
     const mantissa = 18 + underlyingDecimals - OToken.OTOKEN_DECIMALS;
-    const num = items[0].valueOf() * items[1].valueOf();
-    const totalUnderlying = BigInt(num) / BigInt(Math.pow(10, mantissa));
-    const totalLiquidity = (totalUnderlying * BigInt(Number(items[3]) * 1e8)) / BigInt(1e8);
+    const num = Number(items[0]) * Number(items[1]);
+    const totalUnderlying = num / Math.pow(10, mantissa);
+    const totalLiquidity = totalUnderlying * Number(items[3]);
 
     return {
       address: market,
       decimals: OToken.OTOKEN_DECIMALS,
       underlying: items[2],
       underlyingDecimals,
-      totalSupply: items[0],
-      totalLiquidity: totalLiquidity.valueOf() / BigInt(1e8)
+      totalSupply: Number(items[0]),
+      totalBorrow: Number(items[3]),
+      totalLiquidity: totalLiquidity / 1e8
     };
   }
 
