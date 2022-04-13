@@ -8,6 +8,7 @@ import { InterestConfig } from '../src/config';
 import { Address, Uint16, Uint64 } from '../src/types';
 import { OceanEncoder } from '../src/encoding';
 import { CREATE_POOL_ABI } from '../src/abi/oceanLending';
+import _ from 'lodash';
 
 const status = new Map([
   ['0', 'Active'],
@@ -125,18 +126,19 @@ describe('OceanGovernor', () => {
     // Get proposal detail
     const proposalDetail = await admin.getProposalDetail(hash);
 
-    const expectPool = JSON.stringify(pool, (_, v) => typeof v === 'bigint' ? v.toString() : v);
-    const actualPool = JSON.stringify(proposalDetail.pool, (_, v) => typeof v === 'bigint' ? v.toString() : v)
+    const expectPool = pool;
+    const actualPool = proposalDetail.pool;
+    const expectPoolStr = JSON.stringify(expectPool, (_, v) => typeof v === 'bigint' ? v.toString() : v);
+    const actualPoolStr = JSON.stringify(actualPool, (_, v) => typeof v === 'bigint' ? v.toString() : v)
 
-    // assert expected are equal
+    // Assert expected and actual proposal are equal
     ensure(
       proposalDetail.leasePeriod.toString() == leasePerod &&
-      expectPool == actualPool &&
+      _.isEqual(actualPool, expectPool) &&
       proposalDetail.poolOwner == poolOwner &&
       proposalDetail.againstVotes == 0 &&
       proposalDetail.forVotes == 0,
-      `The properties of the proposal are inconsistent with the parameters, \n expected:\n ${expectPool}, \nactual:\n ${actualPool}`);
-    expect(actualPool).toEqual(expectPool);
+      `The properties of the proposal are inconsistent with the parameters, \n expected:\n ${expectPoolStr}, \nactual:\n ${actualPoolStr}`);
   });
 
   it('execute', async () => {
