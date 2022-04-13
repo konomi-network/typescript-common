@@ -3,7 +3,7 @@ import Web3 from 'web3';
 import { Account } from 'web3-core';
 import {ONE_ETHER} from '../src/utils';
 import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading";
-import { Address, Uint16, Uint64 } from '../src/types';
+import { Address, Uint16 } from '../src/types';
 import { InterestConfig } from '../src/config';
 import logger from '../src/logger';
 import Comptroller from '../src/clients/comptroller';
@@ -70,9 +70,9 @@ describe('OceanLending', async () => {
       console.log(`JumpInterestV2Address: ${JumpInterestV2Address}`);
 
       jumpInterestV2 = new JumpInterestV2(web3, jumpInterestV2Abi, JumpInterestV2Address, account);
-      const baseRatePerYear = await jumpInterestV2.baseRatePerYear(blockTime);
-      const multiplierPerYear = await jumpInterestV2.multiplierPerYear(blockTime);
-      const jumpMultiplierPerYear = await jumpInterestV2.jumpMultiplierPerYear(blockTime);
+      const baseRatePerYear = await jumpInterestV2.baseRatePerYear();
+      const multiplierPerYear = await jumpInterestV2.multiplierPerYear();
+      const jumpMultiplierPerYear = await jumpInterestV2.jumpMultiplierPerYear();
       const kink = await jumpInterestV2.kink();
       console.log(`baseRatePerYear: ${Number(baseRatePerYear) / 1e18}`);
       console.log(`multiplierPerYear: ${Number(multiplierPerYear) / 1e18}`);
@@ -94,7 +94,6 @@ describe('OceanLending', async () => {
 
     const pool = await oceanLending.getPoolById(poolId);
     console.log('pool.deployContract: ', pool.deployContract, 'suspended:', pool.suspended);
-
 
     const markets = await getAllMarkets(pool.deployContract);
     const blockTime = 15;
@@ -148,9 +147,6 @@ describe('OceanLending', async () => {
   }
 
   async function displayComptrollerInfo() {
-    const totalLiquidity = await comptroller.totalLiquidity(priceOracle);
-    console.log('totalLiquidity:', totalLiquidity);
-
     const incentive = await comptroller.liquidationIncentive();
     console.log('incentive:', incentive);
 
@@ -223,7 +219,7 @@ describe('OceanLending', async () => {
   async function makePool(leasePeriod: BigInt): Promise<number> {
     const t1 = {
       underlying: Address.fromString('0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3'),
-      subscriptionId: new Uint64(BigInt(1)),
+      subscriptionId: new Uint16(1),
       interest: new InterestConfig(
         new Uint16(1001), // baseRatePerYear
         new Uint16(2002), // multiplierPerYear
@@ -233,12 +229,11 @@ describe('OceanLending', async () => {
       collateral: {
         canBeCollateral: true,
         collateralFactor: new Uint16(1001),
-        liquidationIncentive: new Uint16(2)
       }
     };
     const t2 = {
       underlying: Address.fromString('0x30cDBa5e339881c707E140A5E7fe27fE1835d0dA'),
-      subscriptionId: new Uint64(BigInt(1)),
+      subscriptionId: new Uint16(1),
       interest: new InterestConfig(
         new Uint16(10001), // baseRatePerYear
         new Uint16(20002), // multiplierPerYear
@@ -248,12 +243,11 @@ describe('OceanLending', async () => {
       collateral: {
         canBeCollateral: true,
         collateralFactor: new Uint16(2001),
-        liquidationIncentive: new Uint16(2)
       }
     };
     const t3 = {
       underlying: Address.fromString('0x6Ed700f5b9F8A8c62419209b298Bd6080fC9ABC6'),
-      subscriptionId: new Uint64(BigInt(1)),
+      subscriptionId: new Uint16(1),
       interest: new InterestConfig(
         new Uint16(2001), // baseRatePerYear
         new Uint16(3002), // multiplierPerYear
@@ -263,10 +257,12 @@ describe('OceanLending', async () => {
       collateral: {
         canBeCollateral: false,
         collateralFactor: new Uint16(1001),
-        liquidationIncentive: new Uint16(2)
+        
       }
     };
     const poolConfig = {
+      liquidationIncentive: new Uint16(1080),
+      closeFactor: new Uint16(2002),
       tokens: [t1, t2, t3]
     };
     

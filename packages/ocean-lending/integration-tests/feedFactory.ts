@@ -33,7 +33,7 @@ describe('FeedFactory', () => {
 
   it('key flow test', async () => {
     // await client.feeds("0");
-    console.log(await client.getFeed('0'));
+    console.log(await client.getFeed('2'));
     // await client.submit("0", 1, "200000000", { confirmations: 3 });
     await getFeedWorks(client, ['0', '1', '2']);
   });

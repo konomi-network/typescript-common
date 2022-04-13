@@ -6,7 +6,6 @@ import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
 import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
 import { PriceOracleAdaptor } from '../src/clients/priceOracle';
-import { JumpInterestV2 } from '../src/clients/jumpInterestV2';
 
 async function liquidationIncentive(account: Account, oToken: OToken, token: ERC20Token, comptroller: Comptroller) {
   console.log('==== liquidationIncentive ====');
