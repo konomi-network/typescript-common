@@ -41,19 +41,25 @@ async function closeFactor(account: Account, oToken: OToken, token: ERC20Token, 
 async function getHypotheticalAccountLiquidity(account: Account, TETH: OToken, TBTC: OToken, comptroller: Comptroller) {
   console.log('==== getHypotheticalAccountLiquidity start ====');
   const option = { confirmations: 1 }
+  const redeemTokens = BigInt(0);
+  const borrowAmount = BigInt(100);
 
   await comptroller.enterMarkets([TETH.address, TBTC.address], option);
-  await TETH.mint('1000000000', option);
-  await TETH.borrow("10", option);
+  await TETH.mint('100', option);
+  // await TETH.borrow("10", option);
+  await TBTC.borrow(borrowAmount.toString(), option);
 
-  const liquidity = await comptroller.getAccountLiquidity(account.address);
-  const borrowBalanceCurrent = await TETH.borrowBalanceCurrent(account.address);
-  const balance = await TETH.balanceOf(account.address);
-  console.log(`balance: ${balance}, borrowBalanceCurrent: ${borrowBalanceCurrent}, liquidity: ${liquidity} `)
+  const TETHLiquidity = await comptroller.getAccountLiquidity(account.address);
+  const TETHBorrowBalanceCurrent = await TETH.borrowBalanceCurrent(account.address);
+  const TETHBalance = await TETH.balanceOf(account.address);
+  console.log(`TETHBalance: ${TETHBalance}, TETHBorrowBalanceCurrent: ${TETHBorrowBalanceCurrent}, TETHLiquidity: ${TETHLiquidity} `)
 
-  const redeemTokens = BigInt(100);
-  const borrowAmount = BigInt(100);
-  const hypotheticalAccountLiquidity = await comptroller.getHypotheticalAccountLiquidity(account.address, TETH.address, redeemTokens, borrowAmount)
+  const TBTCLiquidity = await comptroller.getAccountLiquidity(account.address);
+  const TBTCBorrowBalanceCurrent = await TBTC.borrowBalanceCurrent(account.address);
+  const TBTCBalance = await TBTC.balanceOf(account.address);
+  console.log(`TBTCBalance: ${TBTCBalance}, TBTCBorrowBalanceCurrent: ${TBTCBorrowBalanceCurrent}, TBTCLiquidity: ${TBTCLiquidity} `)
+
+  const hypotheticalAccountLiquidity = await comptroller.getHypotheticalAccountLiquidity(account.address, TBTC.address, redeemTokens, borrowAmount)
   console.log("hypotheticalAccountLiquidity: ", hypotheticalAccountLiquidity);
 
   ensure(
