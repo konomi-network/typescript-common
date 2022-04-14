@@ -95,8 +95,8 @@ class Comptroller extends Client {
       decimals: OToken.OTOKEN_DECIMALS,
       underlying: items[3],
       underlyingDecimals,
-      totalSupply: Number(items[0]),
-      totalBorrow: Number(items[1]),
+      totalSupply: Number(items[0]) / 1e10,
+      totalBorrow: Number(items[1]) / 1e10,
       totalLiquidity: totalLiquidity / 1e8
     };
   }
