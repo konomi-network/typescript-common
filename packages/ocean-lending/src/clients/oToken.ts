@@ -86,9 +86,9 @@ class OToken extends Client {
     return OToken.ratePerBlockToAPY(supplyRate, blockTime);
   }
 
-  public async borrowBalanceCurrent(address: string): Promise<BigInt> {
+  public async borrowBalanceCurrent(address: string): Promise<string> {
     const balance = await this.contract.methods.borrowBalanceCurrent(address).call();
-    return BigInt(balance);
+    return balance;
   }
 
   public async approve(amount: string, options: TxnOptions): Promise<void> {
@@ -110,9 +110,9 @@ class OToken extends Client {
     return this.contract.methods.underlying().call();
   }
 
-  public async underlyingBalanceCurrent(address: string): Promise<BigInt> {
+  public async underlyingBalanceCurrent(address: string): Promise<string> {
     const balance = await this.contract.methods.balanceOfUnderlying(address).call();
-    return BigInt(balance);
+    return balance;
   }
 
   private detectFailedEvents(events: any) {
@@ -148,9 +148,9 @@ class OToken extends Client {
   /**
    * Cash is the amount of underlying balance owned by this cToken contract.
    */
-  public async getCash(): Promise<BigInt> {
+  public async getCash(): Promise<string> {
     const cash = await this.contract.methods.getCash().call();
-    return BigInt(cash);
+    return cash;
   }
 
   /**
@@ -193,8 +193,8 @@ class OToken extends Client {
 
     const mantissa = OToken.COMPOUND_BASE_DECIMALS + OToken.UNDERLYING_DECIMALS - OToken.OTOKEN_DECIMALS;
     const underlyingTokensAfter =
-      (borrowAmount.valueOf() * exchangeRateCurrent.valueOf()) / BigInt(Math.pow(10, mantissa));
-    const interest = underlyingTokensAfter - borrowAmount.valueOf();
+      (BigInt(borrowAmount).valueOf() * exchangeRateCurrent.valueOf()) / BigInt(Math.pow(10, mantissa));
+    const interest = underlyingTokensAfter - BigInt(borrowAmount).valueOf();
     return interest;
   }
 
@@ -228,11 +228,11 @@ class OToken extends Client {
     return {
       supplyAPY,
       borrowAPY,
+      supplyAmount,
+      borrowAmount,
+      liquidity,
       supplyInterest: Number(supplyInterest),
-      borrowInterest: Number(borrowInterest),
-      supplyAmount: supplyAmount.toString(),
-      borrowAmount: borrowAmount.toString(),
-      liquidity: liquidity.toString()
+      borrowInterest: Number(borrowInterest)
     };
   }
 }
