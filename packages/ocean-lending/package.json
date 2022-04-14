@@ -1,6 +1,6 @@
 {
   "name": "@konomi-network/client",
-  "version": "0.8.17",
+  "version": "0.8.18",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "description": "Konomi Protocol Client",
