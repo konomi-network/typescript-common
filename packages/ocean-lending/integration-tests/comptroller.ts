@@ -4,8 +4,9 @@ import { Account } from 'web3-core';
 import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
-import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
+import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
 import { PriceOracleAdaptor } from '../src/clients/priceOracle';
+import { ensure } from '../src/utils';
 
 async function liquidationIncentive(account: Account, oToken: OToken, token: ERC20Token, comptroller: Comptroller) {
   console.log('==== liquidationIncentive ====');
@@ -37,6 +38,32 @@ async function closeFactor(account: Account, oToken: OToken, token: ERC20Token, 
   console.log('==== closeFactor ====');
 }
 
+async function getHypotheticalAccountLiquidity(account: Account, TETH: OToken, TBTC: OToken, comptroller: Comptroller) {
+  console.log('==== getHypotheticalAccountLiquidity start ====');
+  const option = { confirmations: 1 }
+
+  await comptroller.enterMarkets([TETH.address, TBTC.address], option);
+  await TETH.mint('1000000000', option);
+  await TETH.borrow("10", option);
+
+  const liquidity = await comptroller.getAccountLiquidity(account.address);
+  const borrowBalanceCurrent = await TETH.borrowBalanceCurrent(account.address);
+  const balance = await TETH.balanceOf(account.address);
+  console.log(`balance: ${balance}, borrowBalanceCurrent: ${borrowBalanceCurrent}, liquidity: ${liquidity} `)
+
+  const redeemTokens = BigInt(100);
+  const borrowAmount = BigInt(100);
+  const hypotheticalAccountLiquidity = await comptroller.getHypotheticalAccountLiquidity(account.address, TETH.address, redeemTokens, borrowAmount)
+  console.log("hypotheticalAccountLiquidity: ", hypotheticalAccountLiquidity);
+
+  ensure(
+    hypotheticalAccountLiquidity.sucess == true &&
+    !(hypotheticalAccountLiquidity.liquidity == BigInt('0') && hypotheticalAccountLiquidity.shortfall == BigInt('0')),
+    `At most one of liquidity or shortfall shall be non-zero, actual liquidity: ${hypotheticalAccountLiquidity.liquidity}, actual shortfall: ${hypotheticalAccountLiquidity.shortfall}`
+  )
+  console.log('==== getHypotheticalAccountLiquidity end ====');
+}
+
 describe('Comptroller', () => {
   const config = readJsonSync('./config/config.json');
   const oTokenAbi = readJsonSync('./config/oToken.json');
@@ -48,6 +75,8 @@ describe('Comptroller', () => {
 
   let account: Account;
   let oToken: OToken;
+  let TBTC: OToken;
+  let TETH: OToken;
   let erc20Token: ERC20Token;
   let comptroller: Comptroller;
   let priceOracle: PriceOracleAdaptor;
@@ -64,8 +93,12 @@ describe('Comptroller', () => {
 
     console.log('Using account:', account.address);
 
-    // // load the oToken object
-    // oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
+    // load the oToken object
+    oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
+
+    TETH = new OToken(web3, oTokenAbi, config.oTokens.TETH.address, account, config.oTokens.TETH.parameters);
+
+    TBTC = new OToken(web3, oTokenAbi, config.oTokens.TBTC.address, account, config.oTokens.TBTC.parameters);
 
     // // load the erc20 token object
     // erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
@@ -102,5 +135,7 @@ describe('Comptroller', () => {
     const blockTime = 3;
     const summary = await comptroller.getOceanMarketSummary(blockTime, priceOracle);
     console.log(summary);
+
+    await getHypotheticalAccountLiquidity(account, TETH, TBTC, comptroller)
   });
 });

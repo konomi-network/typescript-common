@@ -39,6 +39,27 @@ class Comptroller extends Client {
     return liquidity / this.DEFAULT_MANTISSA;
   }
 
+  /**
+   * Determine what the account liquidity would be if the given amounts were redeemed/borrowed
+   * @param account The account to determine liquidity for
+   * @param cTokenModify The market to hypothetically redeem/borrow in
+   * @param redeemTokens The number of tokens to hypothetically redeem
+   * @param borrowAmount The amount of underlying to hypothetically borrow
+   * @return Tuple of values (error, liquidity, shortfall).
+   * The error shall be 0 on success, otherwise an error code.
+   * A non-zero liquidity value indicates the account has available account liquidity. 
+   * A non-zero shortfall value indicates the account is currently below his/her collateral requirement and is subject to liquidation. 
+   * At most one of liquidity or shortfall shall be non-zero.
+   */
+  public async getHypotheticalAccountLiquidity(account: string, cTokenModify: string, redeemTokens: BigInt, borrowAmount: BigInt): Promise<any> {
+    const { '0': error, '1': liquidity, '2': shortfall } = await this.contract.methods.getHypotheticalAccountLiquidity(account, cTokenModify, redeemTokens, borrowAmount).call();
+    return {
+      sucess: (error == '0'),
+      liquidity: BigInt(liquidity),
+      shortfall: BigInt(shortfall)
+    };
+  }
+
   public async getOceanMarketSummary(
     blockTime: number,
     priceOracleAdaptor: PriceOracleAdaptor
