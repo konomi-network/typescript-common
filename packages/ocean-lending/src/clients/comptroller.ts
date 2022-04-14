@@ -7,6 +7,8 @@ export interface OceanMarketSummary {
   totalLiquidity: number;
   maxSupplyAPY: number;
   minBorrowAPY: number;
+  liquidationIncentive: number;
+  closeFactor: number;
   markets: OTokenMarketSummary[];
 }
 
@@ -42,7 +44,12 @@ class Comptroller extends Client {
     priceOracleAdaptor: PriceOracleAdaptor
   ): Promise<OceanMarketSummary> {
     const markets = await this.allMarkets();
-    const promises: Promise<any>[] = [this.maxSupplyAPY(blockTime, markets), this.minBorrowAPY(blockTime, markets)];
+    const promises: Promise<any>[] = [
+      this.liquidationIncentive(),
+      this.closeFactor(),
+      this.maxSupplyAPY(blockTime, markets),
+      this.minBorrowAPY(blockTime, markets)
+    ];
 
     markets.forEach((m) => {
       promises.push(this.getOTokenMarketSummary(m, priceOracleAdaptor));
@@ -50,15 +57,17 @@ class Comptroller extends Client {
 
     const values = await Promise.all(promises);
 
-    const otokens: OTokenMarketSummary[] = values.slice(2);
+    const oTokens: OTokenMarketSummary[] = values.slice(4);
     let totalLiquidity = 0;
-    otokens.forEach((o) => (totalLiquidity += o.totalLiquidity));
+    oTokens.forEach((o) => (totalLiquidity += o.totalLiquidity));
 
     return {
       totalLiquidity,
-      maxSupplyAPY: values[0],
-      minBorrowAPY: values[1],
-      markets: otokens
+      liquidationIncentive: values[0],
+      closeFactor: values[1],
+      maxSupplyAPY: values[2],
+      minBorrowAPY: values[3],
+      markets: oTokens
     };
   }
 
@@ -68,26 +77,26 @@ class Comptroller extends Client {
   ): Promise<OTokenMarketSummary> {
     const items = await Promise.all([
       this.callMethod<BigInt>(market, 'totalSupply()'),
+      this.callMethod<BigInt>(market, 'totalBorrows()'),
       this.callMethod<BigInt>(market, 'exchangeRateCurrent()'),
       this.callMethod<string>(market, 'underlying()', ['address']),
-      this.callMethod<BigInt>(market, 'totalBorrows()'),
       priceOracleAdaptor.getUnderlyingPrice(market)
     ]);
 
-    const underlyingDecimals = Number(await this.callMethod<number>(items[2], 'decimals()'));
+    const underlyingDecimals = Number(await this.callMethod<number>(items[3], 'decimals()'));
 
     const mantissa = 18 + underlyingDecimals - OToken.OTOKEN_DECIMALS;
-    const num = Number(items[0]) * Number(items[1]);
+    const num = Number(items[0]) * Number(items[2]);
     const totalUnderlying = num / Math.pow(10, mantissa);
-    const totalLiquidity = totalUnderlying * Number(items[3]);
+    const totalLiquidity = totalUnderlying * Number(items[4]);
 
     return {
       address: market,
       decimals: OToken.OTOKEN_DECIMALS,
-      underlying: items[2],
+      underlying: items[3],
       underlyingDecimals,
-      totalSupply: Number(items[0]),
-      totalBorrow: Number(items[3]),
+      totalSupply: Number(items[0]) / 1e10,
+      totalBorrow: Number(items[1]) / 1e10,
       totalLiquidity: totalLiquidity / 1e8
     };
   }
@@ -98,7 +107,7 @@ class Comptroller extends Client {
    */
   public async liquidationIncentive(): Promise<number> {
     const incentive = await this.contract.methods.liquidationIncentiveMantissa().call();
-    return (incentive / this.DEFAULT_MANTISSA) * 100;
+    return incentive / this.DEFAULT_MANTISSA;
   }
 
   /**

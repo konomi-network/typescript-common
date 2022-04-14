@@ -31,8 +31,8 @@ export class IntegrationClient {
   public async poolInfo(oToken: OToken, blockTime: number): Promise<any> {
     const [liquidity, borrowRateAPY, supplyRateAPY] = await Promise.all([
       this.comptroller.getAccountLiquidity(this.account.address),
-      this.jumpInterestV2.getBorrowRateAPY(oToken, blockTime),
-      this.jumpInterestV2.getSupplyRateAPY(oToken, blockTime)
+      this.jumpInterestV2.getBorrowRateAPY(oToken),
+      this.jumpInterestV2.getSupplyRateAPY(oToken)
     ]);
 
     return {
@@ -64,9 +64,9 @@ export class IntegrationClient {
    */
   public async interestRateModel(blockTime: number): Promise<any> {
     const [baseRatePerYear, multiplierPerYear, jumpMultiplierPerYear, kink] = await Promise.all([
-      this.jumpInterestV2.baseRatePerYear(blockTime),
-      this.jumpInterestV2.multiplierPerYear(blockTime),
-      this.jumpInterestV2.jumpMultiplierPerYear(blockTime),
+      this.jumpInterestV2.baseRatePerYear(),
+      this.jumpInterestV2.multiplierPerYear(),
+      this.jumpInterestV2.jumpMultiplierPerYear(),
       this.jumpInterestV2.kink()
     ]);
 
