@@ -8,7 +8,7 @@ import { InterestConfig } from '../src/config';
 import { Address, Uint16, Uint64 } from '../src/types';
 import { OceanEncoder } from '../src/encoding';
 import { CREATE_POOL_ABI } from '../src/abi/oceanLending';
-import _ from 'lodash';
+import { isEqual } from 'lodash';
 
 const status = new Map([
   ['0', 'Active'],
@@ -134,7 +134,7 @@ describe('OceanGovernor', () => {
     // Assert expected and actual proposal are equal
     ensure(
       proposalDetail.leasePeriod.toString() == leasePerod &&
-      _.isEqual(actualPool, expectPool) &&
+      isEqual(actualPool, expectPool) &&
       proposalDetail.poolOwner == poolOwner &&
       proposalDetail.againstVotes == 0 &&
       proposalDetail.forVotes == 0,
