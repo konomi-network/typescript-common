@@ -1,4 +1,4 @@
-import { Client } from './client';
+import { Client, TxnCallbacks } from './client';
 import { PriceOracleAdaptor } from './priceOracle';
 import { TxnOptions } from 'options';
 import OToken from './oToken';
@@ -29,9 +29,13 @@ class Comptroller extends Client {
     return this.contract.methods.oracle().call();
   }
 
-  public async enterMarkets(markets: string[], options: TxnOptions): Promise<void> {
+  public async getAssetsIn(account: string): Promise<string[]> {
+    return this.contract.methods.getAssetsIn(account).call();
+  }
+
+  public async enterMarkets(markets: string[], options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.enterMarkets(markets);
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   public async getAccountLiquidity(address: string): Promise<number> {
@@ -96,7 +100,7 @@ class Comptroller extends Client {
       underlying: items[3],
       underlyingDecimals,
       totalSupply: Number(items[0]) / 1e10,
-      totalBorrow: Number(items[1]) / 1e10,
+      totalBorrow: Number(items[1]) / 1e18,
       totalLiquidity: totalLiquidity / 1e8
     };
   }
