@@ -22,6 +22,12 @@ export interface OTokenMarketSummary {
   totalLiquidity: number;
 }
 
+export interface AccountLiquidityInfo {
+  success: boolean,
+  liquidity: number,
+  shortfall: number
+}
+
 class Comptroller extends Client {
   private readonly DEFAULT_MANTISSA = 1e18;
 
@@ -81,12 +87,12 @@ class Comptroller extends Client {
    * A non-zero shortfall value indicates the account is currently below his/her collateral requirement and is subject to liquidation. 
    * At most one of liquidity or shortfall shall be non-zero.
    */
-  public async getHypotheticalAccountLiquidity(account: string, cTokenModify: string, redeemTokens: BigInt, borrowAmount: BigInt): Promise<any> {
+  public async getHypotheticalAccountLiquidity(account: string, cTokenModify: string, redeemTokens: number, borrowAmount: number): Promise<AccountLiquidityInfo> {
     const { '0': error, '1': liquidity, '2': shortfall } = await this.contract.methods.getHypotheticalAccountLiquidity(account, cTokenModify, redeemTokens, borrowAmount).call();
     return {
       success: (error == '0'),
-      liquidity: BigInt(liquidity),
-      shortfall: BigInt(shortfall)
+      liquidity: Number(liquidity) / this.DEFAULT_MANTISSA,
+      shortfall: Number(shortfall)
     };
   }
 

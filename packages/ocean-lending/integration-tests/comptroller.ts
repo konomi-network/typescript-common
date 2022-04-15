@@ -42,8 +42,8 @@ async function closeFactor(account: Account, oToken: OToken, token: ERC20Token, 
 async function getHypotheticalAccountLiquidity(account: Account, TETH: OToken, TBTC: OToken, comptroller: Comptroller) {
   console.log('==== getHypotheticalAccountLiquidity start ====');
   const option = { confirmations: 1 }
-  const redeemTokens = BigInt(0);
-  const borrowAmount = BigInt(100);
+  const redeemTokens = 0;
+  const borrowAmount = 100;
 
   await comptroller.enterMarkets([TETH.address, TBTC.address], option);
   await TETH.mint('100', option);
@@ -65,7 +65,7 @@ async function getHypotheticalAccountLiquidity(account: Account, TETH: OToken, T
 
   ensure(
     hypotheticalAccountLiquidity.success == true &&
-    !(hypotheticalAccountLiquidity.liquidity == BigInt('0') && hypotheticalAccountLiquidity.shortfall == BigInt('0')),
+    !(hypotheticalAccountLiquidity.liquidity == 0 && hypotheticalAccountLiquidity.shortfall == 0),
     `At most one of liquidity or shortfall shall be non-zero, actual liquidity: ${hypotheticalAccountLiquidity.liquidity}, actual shortfall: ${hypotheticalAccountLiquidity.shortfall}`
   )
   console.log('==== getHypotheticalAccountLiquidity end ====');
