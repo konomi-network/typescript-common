@@ -34,9 +34,60 @@ class Comptroller extends Client {
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  public async getAccountLiquidity(address: string): Promise<number> {
-    const { 1: liquidity } = await this.contract.methods.getAccountLiquidity(address).call();
+  /**
+   * Returns whether the given account is entered in the given asset
+   * @param account The address of the account to check
+   * @param tokenAddress The cToken to check
+   * @return True if the account is in the asset, otherwise false.
+   */
+  public async checkMembership(account: string, tokenAddress: string): Promise<boolean> {
+    return this.contract.methods.checkMembership(account, tokenAddress).call();
+  }
+
+  /**
+   * @notice Returns the assets an account has entered
+   * @param account The address of the account to pull assets for
+   * @return A dynamic list with the assets the account has entered
+   */
+  public async getAssetsIn(account: string): Promise<string[]> {
+    return this.contract.methods.getAssetsIn(account).call();
+  }
+
+  /**
+   * Removes asset from sender's account liquidity calculation
+   * Sender must not have an outstanding borrow balance in the asset,
+   *  or be providing necessary collateral for an outstanding borrow.
+   * @param tokenAddress The address of the asset to be removed
+   */
+  public async exitMarket(tokenAddress: string, options: TxnOptions): Promise<void> {
+    const method = this.contract.methods.exitMarket(tokenAddress);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  public async getAccountLiquidity(account: string): Promise<number> {
+    const { 1: liquidity } = await this.contract.methods.getAccountLiquidity(account).call();
     return liquidity / this.DEFAULT_MANTISSA;
+  }
+
+  /**
+   * Determine what the account liquidity would be if the given amounts were redeemed/borrowed
+   * @param account The account to determine liquidity for
+   * @param cTokenModify The market to hypothetically redeem/borrow in
+   * @param redeemTokens The number of tokens to hypothetically redeem
+   * @param borrowAmount The amount of underlying to hypothetically borrow
+   * @return Tuple of values (error, liquidity, shortfall).
+   * The error shall be 0 on success, otherwise an error code.
+   * A non-zero liquidity value indicates the account has available account liquidity. 
+   * A non-zero shortfall value indicates the account is currently below his/her collateral requirement and is subject to liquidation. 
+   * At most one of liquidity or shortfall shall be non-zero.
+   */
+  public async getHypotheticalAccountLiquidity(account: string, cTokenModify: string, redeemTokens: BigInt, borrowAmount: BigInt): Promise<any> {
+    const { '0': error, '1': liquidity, '2': shortfall } = await this.contract.methods.getHypotheticalAccountLiquidity(account, cTokenModify, redeemTokens, borrowAmount).call();
+    return {
+      success: (error == '0'),
+      liquidity: BigInt(liquidity),
+      shortfall: BigInt(shortfall)
+    };
   }
 
   public async getOceanMarketSummary(
@@ -114,8 +165,8 @@ class Comptroller extends Client {
    * A cToken's collateral factor can range from 0-90%
    * represents the proportionate increase in liquidity that an account receives by minting the cToken
    */
-  public async collateralFactor(address: string): Promise<number> {
-    const { 1: factor } = await this.contract.methods.markets(address).call();
+  public async collateralFactor(tokenAddress: string): Promise<number> {
+    const { 1: factor } = await this.contract.methods.markets(tokenAddress).call();
     return (factor / this.DEFAULT_MANTISSA) * 100;
   }
 
