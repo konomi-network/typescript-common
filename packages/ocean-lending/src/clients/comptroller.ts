@@ -23,9 +23,9 @@ export interface OTokenMarketSummary {
 }
 
 export interface AccountLiquidityInfo {
-  success: boolean,
-  liquidity: number,
-  shortfall: number
+  success: boolean;
+  liquidity: number;
+  shortfall: number;
 }
 
 class Comptroller extends Client {
@@ -33,10 +33,6 @@ class Comptroller extends Client {
 
   public async oracleAddress(): Promise<string> {
     return this.contract.methods.oracle().call();
-  }
-
-  public async getAssetsIn(account: string): Promise<string[]> {
-    return this.contract.methods.getAssetsIn(account).call();
   }
 
   public async enterMarkets(markets: string[], options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
@@ -87,14 +83,25 @@ class Comptroller extends Client {
    * @param borrowAmount The amount of underlying to hypothetically borrow
    * @return Tuple of values (error, liquidity, shortfall).
    * The error shall be 0 on success, otherwise an error code.
-   * A non-zero liquidity value indicates the account has available account liquidity. 
-   * A non-zero shortfall value indicates the account is currently below his/her collateral requirement and is subject to liquidation. 
+   * A non-zero liquidity value indicates the account has available account liquidity.
+   * A non-zero shortfall value indicates the account is currently below his/her collateral requirement and is subject to liquidation.
    * At most one of liquidity or shortfall shall be non-zero.
    */
-  public async getHypotheticalAccountLiquidity(account: string, cTokenModify: string, redeemTokens: number, borrowAmount: number): Promise<AccountLiquidityInfo> {
-    const { '0': error, '1': liquidity, '2': shortfall } = await this.contract.methods.getHypotheticalAccountLiquidity(account, cTokenModify, redeemTokens, borrowAmount).call();
+  public async getHypotheticalAccountLiquidity(
+    account: string,
+    cTokenModify: string,
+    redeemTokens: number,
+    borrowAmount: number
+  ): Promise<AccountLiquidityInfo> {
+    const {
+      '0': error,
+      '1': liquidity,
+      '2': shortfall
+    } = await this.contract.methods
+      .getHypotheticalAccountLiquidity(account, cTokenModify, redeemTokens, borrowAmount)
+      .call();
     return {
-      success: (error == '0'),
+      success: error == '0',
       liquidity: Number(liquidity) / this.DEFAULT_MANTISSA,
       shortfall: Number(shortfall)
     };
