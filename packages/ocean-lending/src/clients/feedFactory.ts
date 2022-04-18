@@ -32,10 +32,10 @@ export class FeedFactory extends Client {
   }
 
   private encode(value: string): Buffer {
-		const buf = Buffer.alloc(32);
-		let result = BigInt(value).toString(16);
-		result = result.padStart(64, '0');
-		buf.write(result, 0, 'hex');
+    const buf = Buffer.alloc(32);
+    let result = BigInt(value).toString(16);
+    result = result.padStart(64, '0');
+    buf.write(result, 0, 'hex');
     return buf;
   }
 }
