@@ -4,6 +4,7 @@ import { TxnOptions } from 'options';
 import OToken from './oToken';
 
 export interface OceanMarketSummary {
+  accountLiquidity: number;
   totalLiquidity: number;
   maxSupplyAPY: number;
   minBorrowAPY: number;
@@ -109,14 +110,16 @@ class Comptroller extends Client {
 
   public async getOceanMarketSummary(
     blockTime: number,
-    priceOracleAdaptor: PriceOracleAdaptor
+    priceOracleAdaptor: PriceOracleAdaptor,
+    account: string
   ): Promise<OceanMarketSummary> {
     const markets = await this.allMarkets();
     const promises: Promise<any>[] = [
       this.liquidationIncentive(),
       this.closeFactor(),
       this.maxSupplyAPY(blockTime, markets),
-      this.minBorrowAPY(blockTime, markets)
+      this.minBorrowAPY(blockTime, markets),
+      this.getAccountLiquidity(account)
     ];
 
     markets.forEach((m) => {
@@ -125,7 +128,7 @@ class Comptroller extends Client {
 
     const values = await Promise.all(promises);
 
-    const oTokens: OTokenMarketSummary[] = values.slice(4);
+    const oTokens: OTokenMarketSummary[] = values.slice(5);
     let totalLiquidity = 0;
     oTokens.forEach((o) => (totalLiquidity += o.totalLiquidity));
 
@@ -135,6 +138,7 @@ class Comptroller extends Client {
       closeFactor: values[1],
       maxSupplyAPY: values[2],
       minBorrowAPY: values[3],
+      accountLiquidity: values[4],
       markets: oTokens
     };
   }
