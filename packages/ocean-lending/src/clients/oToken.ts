@@ -111,30 +111,30 @@ class OToken extends Client {
    * Total Supply is the number of tokens currently in circulation in this cToken market.
    * It is part of the EIP-20 interface of the cToken contract.
    */
-  public async totalSupply(): Promise<BigInt> {
+  public async totalSupply(): Promise<number> {
     const supply = await this.contract.methods.totalSupply().call();
-    return BigInt(supply);
+    return Number(supply);
   }
 
-  public async totalBorrows(): Promise<BigInt> {
+  public async totalBorrows(): Promise<number> {
     const supply = await this.contract.methods.totalBorrows().call();
-    return BigInt(supply);
+    return Number(supply);
   }
 
   /**
    * Cash is the amount of underlying balance owned by this cToken contract.
    */
-  public async getCash(): Promise<string> {
+  public async getCash(): Promise<number> {
     const cash = await this.contract.methods.getCash().call();
-    return cash;
+    return Number(cash);
   }
 
   /**
    * The total amount of reserves held in the market.
    */
-  public async totalReserves(): Promise<BigInt> {
+  public async totalReserves(): Promise<number> {
     const totalReserves = await this.contract.methods.totalReserves().call();
-    return BigInt(totalReserves);
+    return Number(totalReserves);
   }
 
   /**
@@ -178,7 +178,7 @@ class OToken extends Client {
     const [supplyAPY, borrowAPY, supplyAmount, borrowAmount] = await Promise.all([
       this.supplyAPY(blockTime),
       this.borrowAPY(blockTime),
-      this.accountBorrowBalance(account),
+      this.accountSupplyBalance(account),
       this.accountBorrowBalance(account)
     ]);
 
