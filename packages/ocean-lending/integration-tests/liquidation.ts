@@ -116,6 +116,10 @@ async function liquidate(borrower: Account, liquidator: Account, ETHOfBorrower: 
     console.log(`**after liquidator liquidation**: liquidatorETHBalance  ${liquidatorETHBalanceAfterLiquidate}, liquidatorTSTBalance: ${liquidatorTSTBalanceAfterLiquidate}, liquidatorLiquidity : ${liquidatorLiquidityAfterLiquidate}`);
 
     ensure(borrowerLiquidityAfterLiquidate.shortfall == 0 && borrowerLiquidityAfterLiquidate.liquidity > 0, "After liquidation, the shortfall of borrower should be zero, and liquidity of borrower should be positive!!")
+    ensure(borrowerTSTBorrowBalanceAfterBorrow > borrowerTSTBorrowBalanceAfterLiquidate, 'make sure the borrow of borrower has dropped after liquidation.');
+    ensure(borrowerETHBalanceAfterBorrow > borrowerETHBalanceAfterLiquidate, 'make sure ETH collateral of borrower has dropped after liquidation.')
+    ensure(liquidatorETHBalanceAfterLiquidate > liquidatorETHBalanceBeforeLiquidate, 'make sure liquidator has more ETH collateral after liquidation.')
+
     console.log('==== liquidate end ====');
 }
 
