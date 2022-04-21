@@ -3,7 +3,6 @@ import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { JumpInterestV2 } from '../src/clients/jumpInterestV2';
 import { OToken } from '../src/clients/oToken';
-import { ONE_ETHER } from '../src/utils';
 import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
 
 async function blocksPerYear(jumpInterestV2: JumpInterestV2) {
@@ -41,43 +40,11 @@ async function kink(jumpInterestV2: JumpInterestV2) {
   console.log('==== kink ====');
 }
 
-async function getBorrowRate(jumpInterestV2: JumpInterestV2, oToken: OToken) {
-  console.log('==== getBorrowRate ====');
-  const [cash, totalBorrows, totalReserves] = await Promise.all([
-    oToken.getCash(),
-    oToken.totalBorrowsCurrent(),
-    oToken.totalReserves()
-  ]);
-  const rate = await jumpInterestV2.getBorrowRateByOToken(oToken);
-  console.log(
-    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, borrowRate: ${rate
-    }`
-  );
-  console.log('==== getBorrowRate ====');
-  expect(totalReserves).to.be.eq(BigInt(0));
-}
-
-async function getSupplyRate(jumpInterestV2: JumpInterestV2, oToken: OToken, reserveFactorMantissa: BigInt) {
-  console.log('==== getSupplyRate ====');
-  const [cash, totalBorrows, totalReserves] = await Promise.all([
-    oToken.getCash(),
-    oToken.totalBorrowsCurrent(),
-    oToken.totalReserves()
-  ]);
-  const rate = await jumpInterestV2.getSupplyRateByOToken(oToken);
-  console.log(
-    `cash: ${cash}, totalBorrows: ${totalBorrows}, totalReserves: ${totalReserves}, reserveFactorMantissa: ${reserveFactorMantissa} supplyRate: ${rate
-    }`
-  );
-  console.log('==== getSupplyRate ====');
-  expect(totalReserves).to.be.eq(BigInt(0));
-}
-
 async function getBorrowRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken) {
   console.log('==== getBorrowRateAPY ====');
   const [cash, totalBorrows, totalReserves] = await Promise.all([
     oToken.getCash(),
-    oToken.totalBorrowsCurrent(),
+    oToken.totalBorrows(),
     oToken.totalReserves()
   ]);
   const rate = await jumpInterestV2.getBorrowRateAPY(oToken);
@@ -93,7 +60,7 @@ async function getSupplyRateAPY(jumpInterestV2: JumpInterestV2, oToken: OToken) 
   console.log('==== getSupplyRateAPY ====');
   const [cash, totalBorrows, totalReserves] = await Promise.all([
     oToken.getCash(),
-    oToken.totalBorrowsCurrent(),
+    oToken.totalBorrows(),
     oToken.totalReserves()
   ]);
   const rate = await jumpInterestV2.getSupplyRateAPY(oToken);
@@ -138,7 +105,7 @@ describe('JumpInterestV2', () => {
   it('key flow test', async () => {
     const blockTime = 15;
     const cash = await oToken.getCash();
-    const totalBorrows = await oToken.totalBorrowsCurrent();
+    const totalBorrows = await oToken.totalBorrows();
     const totalSupply = await oToken.totalSupply();
     const totalReserves = await oToken.totalReserves();
     const reserveFactorMantissa = await oToken.reserveFactorMantissa();
@@ -152,9 +119,7 @@ describe('JumpInterestV2', () => {
     await jumpMultiplierPerYear(jumpInterestV2);
     await kink(jumpInterestV2);
 
-    await getBorrowRate(jumpInterestV2, oToken);
     await getBorrowRateAPY(jumpInterestV2, oToken);
-    await getSupplyRate(jumpInterestV2, oToken, reserveFactorMantissa);
     await getSupplyRateAPY(jumpInterestV2, oToken);
   });
 });

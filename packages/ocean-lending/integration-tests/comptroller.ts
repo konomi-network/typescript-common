@@ -51,12 +51,12 @@ async function getHypotheticalAccountLiquidity(account: Account, TETH: OToken, T
   await TBTC.borrow(borrowAmount.toString(), option);
 
   const TETHLiquidity = await comptroller.getAccountLiquidity(account.address);
-  const TETHBorrowBalanceCurrent = await TETH.borrowBalanceCurrent(account.address);
+  const TETHBorrowBalanceCurrent = await TETH.accountBorrowBalance(account.address);
   const TETHBalance = await TETH.balanceOf(account.address);
   console.log(`TETHBalance: ${TETHBalance}, TETHBorrowBalanceCurrent: ${TETHBorrowBalanceCurrent}, TETHLiquidity: ${TETHLiquidity} `)
 
   const TBTCLiquidity = await comptroller.getAccountLiquidity(account.address);
-  const TBTCBorrowBalanceCurrent = await TBTC.borrowBalanceCurrent(account.address);
+  const TBTCBorrowBalanceCurrent = await TBTC.accountBorrowBalance(account.address);
   const TBTCBalance = await TBTC.balanceOf(account.address);
   console.log(`TBTCBalance: ${TBTCBalance}, TBTCBorrowBalanceCurrent: ${TBTCBorrowBalanceCurrent}, TBTCLiquidity: ${TBTCLiquidity} `)
 
@@ -78,15 +78,15 @@ async function checkMembership(account: Account, TETH: OToken, TBTC: OToken, com
   await comptroller.enterMarkets([TETH.address, TBTC.address], option);
   const assetsInBefore = await comptroller.getAssetsIn(account.address);
   const TBTCLiquidityBeforeExitMarket = await comptroller.getAccountLiquidity(account.address);
-  const TBTCBorrowBalanceBeforeExitMarket = await TBTC.borrowBalanceCurrent(account.address);
+  const TBTCBorrowBalanceBeforeExitMarket = await TBTC.accountBorrowBalance(account.address);
   const TBTCBalanceBeforeExitMarket = await TBTC.balanceOf(account.address);
   console.log(`assetsInBefore: ${assetsInBefore}, TBTCBalanceBeforeExitMarket: ${TBTCBalanceBeforeExitMarket}, TBTCBorrowBalanceCurrentBeforeExitMarket: ${TBTCBorrowBalanceBeforeExitMarket}, TBTCLiquidity: ${TBTCLiquidityBeforeExitMarket} `)
 
   const negativeOne = getNegativeOne();
   // Before exit market, account must not have an outstanding borrow balance in the asset
   await TBTC.repayBorrow(negativeOne, option);
-  const TBTCBorrowBalanceAfterRepayAll = await TBTC.borrowBalanceCurrent(account.address);
-  ensure(TBTCBorrowBalanceAfterRepayAll == '0', `Before exit market, account must not have an outstanding borrow balance in the asset, but actual borrow balance is: ${TBTCBorrowBalanceAfterRepayAll}`)
+  const TBTCBorrowBalanceAfterRepayAll = await TBTC.accountBorrowBalance(account.address);
+  ensure(TBTCBorrowBalanceAfterRepayAll == 0, `Before exit market, account must not have an outstanding borrow balance in the asset, but actual borrow balance is: ${TBTCBorrowBalanceAfterRepayAll}`)
   await comptroller.exitMarket(TBTC.address, option);
 
   const assetsInAfter = await comptroller.getAssetsIn(account.address);
@@ -107,15 +107,15 @@ async function exitMarket(account: Account, TETH: OToken, TBTC: OToken, comptrol
   await comptroller.enterMarkets([TETH.address, TBTC.address], option);
   const assetsInBefore = await comptroller.getAssetsIn(account.address);
   const TBTCLiquidityBeforeExitMarket = await comptroller.getAccountLiquidity(account.address);
-  const TBTCBorrowBalanceBeforeExitMarket = await TBTC.borrowBalanceCurrent(account.address);
+  const TBTCBorrowBalanceBeforeExitMarket = await TBTC.accountBorrowBalance(account.address);
   const TBTCBalanceBeforeExitMarket = await TBTC.balanceOf(account.address);
   console.log(`assetsInBefore: ${assetsInBefore}, TBTCBalanceBeforeExitMarket: ${TBTCBalanceBeforeExitMarket}, TBTCBorrowBalanceCurrentBeforeExitMarket: ${TBTCBorrowBalanceBeforeExitMarket}, TBTCLiquidity: ${TBTCLiquidityBeforeExitMarket} `)
 
   const negativeOne = getNegativeOne();
   // Before exit market, account must not have an outstanding borrow balance in the asset
   await TBTC.repayBorrow(negativeOne, option);
-  const TBTCBorrowBalanceAfterRepayAll = await TBTC.borrowBalanceCurrent(account.address);
-  ensure(TBTCBorrowBalanceAfterRepayAll == '0', `Before exit market, account must not have an outstanding borrow balance in the asset, but actual borrow balance is: ${TBTCBorrowBalanceAfterRepayAll}`)
+  const TBTCBorrowBalanceAfterRepayAll = await TBTC.accountBorrowBalance(account.address);
+  ensure(TBTCBorrowBalanceAfterRepayAll == 0, `Before exit market, account must not have an outstanding borrow balance in the asset, but actual borrow balance is: ${TBTCBorrowBalanceAfterRepayAll}`)
   await comptroller.exitMarket(TBTC.address, option);
 
   const assetsInAfter = await comptroller.getAssetsIn(account.address);

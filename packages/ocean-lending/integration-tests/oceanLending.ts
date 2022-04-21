@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
-import {ONE_ETHER} from '../src/utils';
-import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading";
+import { ONE_ETHER } from '../src/utils';
+import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading";
 import { Address, Uint16 } from '../src/types';
 import { InterestConfig } from '../src/config';
 import logger from '../src/logger';
@@ -78,7 +78,7 @@ describe('OceanLending', async () => {
       console.log(`multiplierPerYear: ${Number(multiplierPerYear) / 1e18}`);
       console.log(`jumpMultiplierPerYear: ${Number(jumpMultiplierPerYear) / 1e18}`);
       console.log(`kink: ${Number(kink) / 1e18}`);
-      
+
       const incentive = await comptroller.liquidationIncentive();
       const closeFactor = await comptroller.closeFactor();
       const oTokenCollateralFactor = await comptroller.collateralFactor(marketAddress);
@@ -111,13 +111,13 @@ describe('OceanLending', async () => {
     }
   });
 
-  it ('testSuspend', async () => {
+  it('testSuspend', async () => {
     await testSuspend(poolId, true);
     await testSuspend(poolId, true);
     await testSuspend(poolId, false);
   });
 
-  it ('testExtendLease', async () => {
+  it('testExtendLease', async () => {
     await testSuspend(poolId, true);
     await testExtendLease(poolId, leasePeriod);
 
@@ -125,7 +125,7 @@ describe('OceanLending', async () => {
     await testExtendLease(poolId, leasePeriod);
   });
 
-  it ('testNotExistsPool', async () => {
+  it('testNotExistsPool', async () => {
     await testNotExistsPool();
   });
 
@@ -139,7 +139,7 @@ describe('OceanLending', async () => {
 
     priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, oracleAddress, account);
 
-    return  await comptroller.allMarkets();
+    return await comptroller.allMarkets();
   }
 
   async function makeOToken(oTokenAddress: string): Promise<OToken> {
@@ -180,7 +180,7 @@ describe('OceanLending', async () => {
     console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
 
     const oTokenBefore = await oToken.balanceOf(account.address);
-    const borrowBalanceBefore = await oToken.borrowBalanceCurrent(account.address);
+    const borrowBalanceBefore = await oToken.accountBorrowBalance(account.address);
     const oTokenCollateralFactor = await comptroller.collateralFactor(oToken.address);
     const exchangeRate = await oToken.exchangeRate();
     const underlyingPrice = await priceOracle.getUnderlyingPrice(oToken.address);
@@ -206,7 +206,7 @@ describe('OceanLending', async () => {
     const scaledUpBorrowAmount = underlyingToBorrow * Math.pow(10, underlyingDecimals);
     await oToken.borrow(scaledUpBorrowAmount.toString(), { confirmations: 3 });
 
-    const borrowBalanceAfter = await oToken.borrowBalanceCurrent(account.address);
+    const borrowBalanceAfter = await oToken.accountBorrowBalance(account.address);
     console.log(`Borrow balance after is ${+borrowBalanceAfter / Math.pow(10, underlyingDecimals)}`);
 
     await oToken.approve(scaledUpBorrowAmount.toString(), { confirmations: 3 });
@@ -257,7 +257,7 @@ describe('OceanLending', async () => {
       collateral: {
         canBeCollateral: false,
         collateralFactor: new Uint16(1001),
-        
+
       }
     };
     const poolConfig = {
@@ -265,7 +265,7 @@ describe('OceanLending', async () => {
       closeFactor: new Uint16(2002),
       tokens: [t1, t2, t3]
     };
-    
+
     expect(await oceanLending.derivePayable(leasePeriod)).to.equal('20017376100000000000000');
     // await oceanLending.grantInvokerRole(account.address, { confirmations: 3 });
 
