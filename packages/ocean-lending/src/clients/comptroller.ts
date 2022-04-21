@@ -75,6 +75,19 @@ class Comptroller extends Client {
     return liquidity / this.DEFAULT_MANTISSA;
   }
 
+  public async getAccountLiquidityInfo(account: string): Promise<AccountLiquidityInfo> {
+    const {
+      '0': error,
+      '1': liquidity,
+      '2': shortfall
+    } = await this.contract.methods.getAccountLiquidity(account).call();
+    return {
+      success: error == '0',
+      liquidity: Number(liquidity) / this.DEFAULT_MANTISSA,
+      shortfall: Number(shortfall) / this.DEFAULT_MANTISSA
+    };
+  }
+
   /**
    * Determine what the account liquidity would be if the given amounts were redeemed/borrowed
    * @param account The account to determine liquidity for
@@ -103,8 +116,39 @@ class Comptroller extends Client {
     return {
       success: error == '0',
       liquidity: Number(liquidity) / this.DEFAULT_MANTISSA,
-      shortfall: Number(shortfall)
+      shortfall: Number(shortfall) / this.DEFAULT_MANTISSA
     };
+  }
+
+  /**
+   * @notice Checks if the account should be allowed to repay a borrow in the given market
+   * @param cTokenAddress The market to verify the repay against
+   * @param payerAddress The account which would repay the asset
+   * @param borrowerAddress The account which would borrowed the asset
+   * @param repayAmount The amount of the underlying asset the account would repay
+   */
+  public async repayBorrowAllowed(cTokenAddress: string, payerAddress: string, borrowerAddress: string, repayAmount: string): Promise<boolean> {
+    const allowed = await this.contract.methods.repayBorrowAllowed(cTokenAddress, payerAddress, borrowerAddress, repayAmount).call();
+    return allowed == '0'
+  }
+
+  /**
+   * @notice Checks if the liquidation should be allowed to occur
+   * @param cTokenBorrowedAddress Asset which was borrowed by the borrower
+   * @param cTokenCollateralAddress Asset which was used as collateral and will be seized
+   * @param liquidatorAddress The address repaying the borrow and seizing the collateral
+   * @param borrowerAddress The address of the borrower
+   * @param repayAmount The amount of underlying being repaid
+   */
+  public async liquidateBorrowAllowed(
+    cTokenBorrowedAddress: string,
+    cTokenCollateralAddress: string,
+    liquidatorAddress: string,
+    borrowerAddress: string,
+    repayAmount: string
+  ) {
+    const allowed = await this.contract.methods.liquidateBorrowAllowed(cTokenBorrowedAddress, cTokenCollateralAddress, liquidatorAddress, borrowerAddress, repayAmount).call();
+    return allowed == '0'
   }
 
   public async getOceanMarketSummary(
