@@ -29,17 +29,11 @@ export class IntegrationClient {
    * @param blockTime The number of seconds per block
    */
   public async poolInfo(oToken: OToken): Promise<any> {
-    const [liquidity, borrowRateAPY, supplyRateAPY] = await Promise.all([
-      this.comptroller.getAccountLiquidity(this.account.address),
-      this.jumpInterestV2.getBorrowRateAPY(oToken),
-      this.jumpInterestV2.getSupplyRateAPY(oToken)
-    ]);
+    const [liquidity] = await Promise.all([this.comptroller.getAccountLiquidity(this.account.address)]);
 
     return {
       address: oToken.parameters.underlying,
-      liquidity: liquidity,
-      borrowAPY: borrowRateAPY,
-      depositAPY: supplyRateAPY
+      liquidity: liquidity
     };
   }
 

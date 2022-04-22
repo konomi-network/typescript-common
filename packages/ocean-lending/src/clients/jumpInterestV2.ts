@@ -104,26 +104,6 @@ class JumpInterestV2 extends Client {
   }
 
   /**
-   * Calculates the current borrow interest rate APY
-   * @param oToken The ocean-lending client object
-   * @return The borrow rate per block (as a percentage, and scaled by 1e18)
-   */
-  public async getBorrowRateAPY(oToken: OToken): Promise<BigInt> {
-    const rate = await this.getBorrowRateByOToken(oToken);
-    return this.blockToYear(rate);
-  }
-
-  /**
-   * Calculates the current supply interest rate APY
-   * @param oToken The ocean-lending client object
-   * @return The supply rate per block (as a percentage, and scaled by 1e18)
-   */
-  public async getSupplyRateAPY(oToken: OToken): Promise<BigInt> {
-    const rate = await this.getSupplyRateByOToken(oToken);
-    return this.blockToYear(rate);
-  }
-
-  /**
    * Convert rate per block to rate APY
    *@param ratePerBlock The rate per block
    */
