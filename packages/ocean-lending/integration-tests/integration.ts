@@ -12,23 +12,23 @@ import {
   readPassword,
 } from "../src/reading";
 
-async function poolInfo( integrationClient: IntegrationClient, oToken: OToken, blockTime: number) {
+async function poolInfo(integrationClient: IntegrationClient, oToken: OToken, blockTime: number) {
   console.log('==== poolInfo begin ====');
-  const poolInfo = await integrationClient.poolInfo(oToken, blockTime);
+  const poolInfo = await integrationClient.poolInfo(oToken);
   console.log('poolInfo:', poolInfo);
   console.log('==== poolInfo end ====');
 }
 
-async function collateralSettings( integrationClient: IntegrationClient) {
+async function collateralSettings(integrationClient: IntegrationClient) {
   console.log('==== collateralSettings begin ====');
   const collateralSettings = await integrationClient.collateralSettings();
   console.log('collateralSettings:', collateralSettings);
   console.log('==== collateralSettings end ====');
 }
 
-async function interestRateModel( integrationClient: IntegrationClient, oToken: OToken, blockTime: number) {
+async function interestRateModel(integrationClient: IntegrationClient, oToken: OToken, blockTime: number) {
   console.log('==== interestRateModel begin ====');
-  const interestRateModel = await integrationClient.interestRateModel(blockTime);
+  const interestRateModel = await integrationClient.interestRateModel();
   console.log('interestRateModel:', interestRateModel);
   console.log('==== interestRateModel end ====');
 }
@@ -100,16 +100,14 @@ async function main() {
     jumpInterestV2,
     confirmations
   );
-  const poolInfoResponse = await integrationClient.poolInfo(oToken, blockTime);
+  const poolInfoResponse = await integrationClient.poolInfo(oToken);
   console.log(poolInfoResponse);
 
   const collateralSettingsResponse =
     await integrationClient.collateralSettings();
   console.log(collateralSettingsResponse);
 
-  const interestRateModelResponse = await integrationClient.interestRateModel(
-    blockTime
-  );
+  const interestRateModelResponse = await integrationClient.interestRateModel();
   console.log(interestRateModelResponse);
 }
 
@@ -148,7 +146,7 @@ describe('Integration client', () => {
 
     // load the erc20 token object
     erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
-  
+
     // load the comptroller object
     comptroller = new Comptroller(
       web3,
@@ -156,7 +154,7 @@ describe('Integration client', () => {
       oToken.parameters.comptroller,
       account
     );
-  
+
     // load JumpInterestV2 object
     jumpInterestV2 = new JumpInterestV2(
       web3,
@@ -166,7 +164,7 @@ describe('Integration client', () => {
     );
 
     // load integration client 
-      integrationClient = new IntegrationClient(
+    integrationClient = new IntegrationClient(
       account,
       comptroller,
       jumpInterestV2,

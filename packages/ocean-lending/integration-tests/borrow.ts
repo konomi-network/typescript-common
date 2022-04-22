@@ -3,8 +3,8 @@ import { Account } from 'web3-core';
 import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
-import { ensure,  ONE_ETHER,  sleep } from '../src/utils';
-import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
+import { ensure, ONE_ETHER, sleep } from '../src/utils';
+import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
 import { PriceOracleAdaptor } from '../src/clients/priceOracle';
 
 async function enterMarkets(account: Account, markets: string[], comptroller: Comptroller) {
@@ -35,7 +35,7 @@ async function borrow(
   ensure(liquidity.valueOf() > 0, "You don't have any liquid assets pooled in the protocol.");
   const erc20Before = await token.balanceOf(account.address);
   const oTokenBefore = await oToken.balanceOf(account.address);
-  const borrowBalanceBefore = await oToken.borrowBalanceCurrent(account.address);
+  const borrowBalanceBefore = await oToken.accountBorrowBalance(account.address);
   const konoCollateralFactor: number = await comptroller.collateralFactor(oToken.address);
   const exchangeRate = await oToken.exchangeRate();
   const underlyingPrice = await priceOracle.getUnderlyingPrice(oToken.address);
@@ -59,7 +59,7 @@ async function borrow(
   const scaledUpBorrowAmount = Web3.utils.toWei(Web3.utils.toBN(underlyingToBorrow));
   await oToken.borrow(scaledUpBorrowAmount.toString(), { confirmations: 3 });
 
-  const borrowBalanceAfter = await oToken.borrowBalanceCurrent(account.address);
+  const borrowBalanceAfter = await oToken.accountBorrowBalance(account.address);
   console.log(`Borrow balance after is ${Number(borrowBalanceAfter) / Math.pow(10, underlyingDecimals)}`);
 
   await oToken.approve(scaledUpBorrowAmount.toString(), { confirmations: 3 });
@@ -81,7 +81,7 @@ async function repayBorrow(account: Account, oToken: OToken, token: ERC20Token) 
   const oTokenBefore = await oToken.balanceOf(account.address);
   console.log('erc20Before:', erc20Before, ' oTokenBefore:', oTokenBefore);
 
-  const balance = await oToken.borrowBalanceCurrent(account.address);
+  const balance = await oToken.accountBorrowBalance(account.address);
   console.log(`borrow balance to repay ${Number(balance) / 1e18}`);
   ensure(balance > BigInt(0), 'invalid borrow balance to repay, expected more than zero');
 
@@ -102,21 +102,17 @@ async function borrowInterest(account: Account, oToken: OToken, token: ERC20Toke
   console.log('==== borrowInterest begin ====');
   const erc20Before = await token.balanceOf(account.address);
   const oTokenBefore = await oToken.balanceOf(account.address);
-  const borrowBalanceBefore = await oToken.borrowBalanceCurrent(account.address);
+  const borrowBalanceBefore = await oToken.accountBorrowBalance(account.address);
   const borrowAmount = Number(ONE_ETHER) * 100;
   console.log(`erc20Before: ${erc20Before}, oTokenBefore: ${oTokenBefore}, borrowBalanceBefore: ${borrowBalanceBefore}, amount to borrow: ${borrowAmount}`);
 
   await oToken.borrow(borrowAmount.toString(), { confirmations: 3 });
   // waiting for a while causes interest to accrue
   await sleep(1000);
-  
-  const borrowInterest = await oToken.borrowInterest(account.address);
-  ensure(borrowInterest >= BigInt(0), 'the borrow supplyInterest must bigger than or equal to zero!')
-
 
   const erc20After = await token.balanceOf(account.address);
   const oTokenAfter = await oToken.balanceOf(account.address);
-  const borrowBalanceAfter = await oToken.borrowBalanceCurrent(account.address);
+  const borrowBalanceAfter = await oToken.accountBorrowBalance(account.address);
   console.log(`erc20After: ${erc20After}, oTokenAfter: ${oTokenAfter}, borrowBalanceAfter: ${borrowBalanceAfter}, borrowInterest: ${borrowInterest}`);
   console.log('==== borrowInterest end ====');
 }
@@ -160,7 +156,7 @@ describe('Borrow', () => {
     priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, config.priceOracle.address, account);
   });
 
-    it('key flow test', async () => {
+  it('key flow test', async () => {
     const markets = [config.oTokens.oKono.address];
     await enterMarkets(account, markets, comptroller);
     await borrow(account, oToken, erc20Token, priceOracle, comptroller, 50);

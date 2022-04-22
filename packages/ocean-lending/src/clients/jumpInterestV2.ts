@@ -88,39 +88,8 @@ class JumpInterestV2 extends Client {
    * @param oToken The ocean-lending client object
    * @return The borrow rate per block (as a percentage, and scaled by 1e18)
    */
-  public async getBorrowRateByOToken(oToken: OToken): Promise<BigInt> {
-    const [cash, borrows, reserves] = await Promise.all([
-      oToken.getCash(),
-      oToken.totalBorrowsCurrent(),
-      oToken.totalReserves()
-    ]);
-    const rate = await this.contract.methods.getBorrowRate(cash, borrows, reserves).call();
-    return BigInt(rate);
-  }
-
-  /**
-   * Calculates the current borrow interest rate per block
-   * @param oToken The ocean-lending client object
-   * @return The borrow rate per block (as a percentage, and scaled by 1e18)
-   */
   public async getBorrowRate(cash: BigInt, borrows: BigInt, reserves: BigInt): Promise<BigInt> {
     const rate = await this.contract.methods.getBorrowRate(cash, borrows, reserves).call();
-    return BigInt(rate);
-  }
-
-  /**
-   * Calculates the current supply interest rate per block
-   * @param oToken The ocean-lending client object
-   * @return The supply rate per block (as a percentage, and scaled by 1e18)
-   */
-  public async getSupplyRateByOToken(oToken: OToken): Promise<BigInt> {
-    const [cash, borrows, reserves, reserveFactorMantissa] = await Promise.all([
-      oToken.getCash(),
-      oToken.totalBorrowsCurrent(),
-      oToken.totalReserves(),
-      oToken.reserveFactorMantissa()
-    ]);
-    const rate = await this.contract.methods.getSupplyRate(cash, borrows, reserves, reserveFactorMantissa).call();
     return BigInt(rate);
   }
 
