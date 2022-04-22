@@ -25,21 +25,17 @@ export class FeedFactory extends Client {
     return BigInt(b);
   }
 
-  public async submit(subscriptionId: string, roundId: number, value: string, options: TxnOptions): Promise<void> {
-    const bytes = this.encode(roundId, value);
+  public async submit(subscriptionId: string, value: string, options: TxnOptions): Promise<void> {
+    const bytes = this.encode(value);
     const method = this.contract.methods.submit(subscriptionId, bytes);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  private encode(roundId: number, value: string): Buffer {
-    const buf = Buffer.allocUnsafe(33);
-    buf.writeUInt8(roundId, 0);
-
+  private encode(value: string): Buffer {
+    const buf = Buffer.alloc(32);
     let result = BigInt(value).toString(16);
     result = result.padStart(64, '0');
-
-    buf.write(result, 1, 'hex');
-
+    buf.write(result, 0, 'hex');
     return buf;
   }
 }

@@ -8,7 +8,7 @@ import {
   ONE_ETHER,
   sleep
 } from '../src/utils';
-import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
+import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
 
 async function depositWorks(account: Account, oToken: OToken, token: ERC20Token) {
   console.log('==== deposit ====');
@@ -51,11 +51,10 @@ async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Toke
 
   ensure(
     erc20Before < erc20After,
-    `invalid erc20 balance, expected erc20After ${Number(erc20After) / 1e18} to be bigger than actual: ${
-      Number(erc20After) / 1e18
+    `invalid erc20 balance, expected erc20After ${Number(erc20After) / 1e18} to be bigger than actual: ${Number(erc20After) / 1e18
     }`
   );
-  ensure(oTokenAfter.valueOf() === BigInt(0), 'invalid deposit balance');
+  ensure(oTokenAfter === 0, 'invalid deposit balance');
   // oToken.convertFromUnderlying(amount);
 }
 
@@ -70,8 +69,8 @@ async function supplyInterest(account: Account, oToken: OToken, token: ERC20Toke
   // waiting for a while causes interest to accrue
   await sleep(1000);
 
-  const supplyInterest = await oToken.supplyInterest(account.address);
-  ensure(supplyInterest >= BigInt(0), 'the supply supplyInterest must bigger than or equal to  zero!')
+  const supplyInterest = await oToken.accountSupplyBalance(account.address);
+  ensure(supplyInterest >= depositAmount, 'the supply supplyInterest must bigger than or equal to  zero!')
   const erc20After = await token.balanceOf(account.address);
   const oTokenAfter = await oToken.balanceOf(account.address);
   console.log(`erc20After: ${erc20After}, oTokenAfter: ${oTokenAfter}, supplyInterest: ${supplyInterest}`);

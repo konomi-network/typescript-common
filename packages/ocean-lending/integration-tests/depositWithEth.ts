@@ -7,7 +7,7 @@ import {
   ensure,
   ONE_ETHER,
 } from '../src/utils';
-import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
+import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
 
 async function depositWorks(account: Account, oToken: OToken, token: ERC20Token) {
   console.log('==== depositWorks ====');
@@ -48,11 +48,11 @@ async function redeemNoBorrow(account: Account, oToken: OToken, token: ERC20Toke
   const oEthAfter = await oToken.balanceOf(account.address);
 
   ensure(ethBefore < ethAfter, `invalid eth balance, expected ${ethAfter} to be bigger than actual: ${ethBefore}`);
-  ensure(oEthAfter.valueOf() === BigInt(0), 'invalid deposit balance');
+  ensure(oEthAfter === 0, 'invalid deposit balance');
 
   console.log(`ethAfter balance is ${ethAfter}`);
   // oToken.convertFromUnderlying(amount);
-  expect(oEthAfter.valueOf() === BigInt(0)).to.be.eq(true);
+  expect(oEthAfter === 0).to.be.eq(true);
 }
 
 describe('DepositWithEth', () => {
