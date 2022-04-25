@@ -1,9 +1,10 @@
-import { Client } from './client';
+import { Client, TxnCallbacks } from './client';
 import { PriceOracleAdaptor } from './priceOracle';
 import { TxnOptions } from 'options';
 import OToken from './oToken';
 
 export interface OceanMarketSummary {
+  accountLiquidity: number;
   totalLiquidity: number;
   maxSupplyAPY: number;
   minBorrowAPY: number;
@@ -35,9 +36,9 @@ class Comptroller extends Client {
     return this.contract.methods.oracle().call();
   }
 
-  public async enterMarkets(markets: string[], options: TxnOptions): Promise<void> {
+  public async enterMarkets(markets: string[], options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.enterMarkets(markets);
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -153,14 +154,16 @@ class Comptroller extends Client {
 
   public async getOceanMarketSummary(
     blockTime: number,
-    priceOracleAdaptor: PriceOracleAdaptor
+    priceOracleAdaptor: PriceOracleAdaptor,
+    account: string
   ): Promise<OceanMarketSummary> {
     const markets = await this.allMarkets();
     const promises: Promise<any>[] = [
       this.liquidationIncentive(),
       this.closeFactor(),
       this.maxSupplyAPY(blockTime, markets),
-      this.minBorrowAPY(blockTime, markets)
+      this.minBorrowAPY(blockTime, markets),
+      this.getAccountLiquidity(account)
     ];
 
     markets.forEach((m) => {
@@ -169,7 +172,7 @@ class Comptroller extends Client {
 
     const values = await Promise.all(promises);
 
-    const oTokens: OTokenMarketSummary[] = values.slice(4);
+    const oTokens: OTokenMarketSummary[] = values.slice(5);
     let totalLiquidity = 0;
     oTokens.forEach((o) => (totalLiquidity += o.totalLiquidity));
 
@@ -179,6 +182,7 @@ class Comptroller extends Client {
       closeFactor: values[1],
       maxSupplyAPY: values[2],
       minBorrowAPY: values[3],
+      accountLiquidity: values[4],
       markets: oTokens
     };
   }
@@ -208,7 +212,7 @@ class Comptroller extends Client {
       underlying: items[3],
       underlyingDecimals,
       totalSupply: Number(items[0]) / 1e10,
-      totalBorrow: Number(items[1]) / 1e10,
+      totalBorrow: Number(items[1]) / 1e18,
       totalLiquidity: totalLiquidity / 1e8
     };
   }
