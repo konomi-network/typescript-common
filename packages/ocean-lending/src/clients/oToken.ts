@@ -11,8 +11,6 @@ export interface OTokenParameter {
 }
 
 export interface OTokenDetails {
-  supplyAPY: number;
-  borrowAPY: number;
   supplyAmount: number;
   borrowAmount: number;
 }
@@ -157,7 +155,10 @@ class OToken extends Client {
   }
 
   /**
-   * get the interest of total borrowBalance.
+   * Get the interest of total borrowBalance.
+   * Note that to be human readable, this needs to be diviced by 1e18.
+   * Because account borrow is in underlying ERC20, which has decimals of 18.
+   * This means it is multiplied by 1e18 in the first place.
    * @param address address of user to operation.
    */
   public async accountBorrowBalance(address: string): Promise<number> {
@@ -165,7 +166,10 @@ class OToken extends Client {
   }
 
   /**
-   * get the interest of total supply.
+   * Get the interest of total supply.
+   * Note that to be human readable, this needs to be diviced by 1e8.
+   * Because oToken has decimals of 8. This means it is multiplied by
+   * 1e8 in the first place.
    * @param address address of user to operation.
    */
   public async accountSupplyBalance(address: string): Promise<number> {
@@ -174,17 +178,13 @@ class OToken extends Client {
     return (supplyAmount * exchangeRateCurrent) / Math.pow(10, mantissa);
   }
 
-  public async getOTokenSummary(blockTime: number, account: string): Promise<OTokenDetails> {
-    const [supplyAPY, borrowAPY, supplyAmount, borrowAmount] = await Promise.all([
-      this.supplyAPY(blockTime),
-      this.borrowAPY(blockTime),
+  public async getOTokenSummary(account: string): Promise<OTokenDetails> {
+    const [supplyAmount, borrowAmount] = await Promise.all([
       this.accountSupplyBalance(account),
       this.accountBorrowBalance(account)
     ]);
 
     return {
-      supplyAPY,
-      borrowAPY,
       supplyAmount,
       borrowAmount
     };
