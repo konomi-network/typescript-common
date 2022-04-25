@@ -137,15 +137,16 @@ class Comptroller extends Client {
         oceanMarketSummary.markets[i].exchangeRate,
         oceanMarketSummary.markets[i].underlyingDecimals
       );
+      const borrow = Comptroller.underlyingToHumanReadable(underlyingBorrowed);
       totalSupplyUSD += oceanMarketSummary.markets[i].price * supply;
-      totalBorrowUSD += oceanMarketSummary.markets[i].price * underlyingBorrowed;
+      totalBorrowUSD += oceanMarketSummary.markets[i].price * borrow;
     }
 
     const liquidityInfo = await this.getAccountLiquidity(account);
     return {
       totalSupplyUSD,
       totalBorrowUSD,
-      borrowLimit: liquidityInfo[0] > 0 ? liquidityInfo[0] : liquidityInfo[1]
+      borrowLimit: totalBorrowUSD + liquidityInfo[0] > 0 ? liquidityInfo[0] : -1 * liquidityInfo[1]
     };
   }
 
@@ -264,6 +265,10 @@ class Comptroller extends Client {
     // no need minus OToken.OTOKEN_DECIMALS as converting to human readable
     const mantissa = 18 + underlyingDecimals;
     return (amount * exchangeRate) / Math.pow(10, mantissa);
+  }
+
+  private static underlyingToHumanReadable(amount: number): number {
+    return Number(Web3.utils.fromWei(amount.toString()));
   }
 
   private async callMethod<T>(tokenAddress: string, methodName: string, types?: string[]): Promise<T> {
