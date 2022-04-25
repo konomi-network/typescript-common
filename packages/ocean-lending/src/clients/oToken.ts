@@ -86,6 +86,25 @@ class OToken extends Client {
     await this.send(method, await this.prepareTxn(method), options);
   }
 
+  public static async accountPosition(web3: Web3, contract: string, account: string): Promise<number[]> {
+    const argument = web3.utils.padLeft(account, 64).replace('0x', '');
+
+    const balanceOf = web3.utils.keccak256('balanceOf(address)').substr(0, 10);
+    const balanceOfTxn = {
+      to: contract,
+      data: `${balanceOf}${argument}`
+    };
+
+    const borrowBalanceStored = web3.utils.keccak256('borrowBalanceStored(address)').substr(0, 10);
+    const borrowBalanceStoredTxn = {
+      to: contract,
+      data: `${borrowBalanceStored}${argument}`
+    };
+
+    const rawDatas = await Promise.all([web3.eth.call(balanceOfTxn), web3.eth.call(borrowBalanceStoredTxn)]);
+    return rawDatas.map((r) => web3.eth.abi.decodeParameters(['uint256'], r)[0]);
+  }
+
   public async balanceOf(address: string): Promise<number> {
     const b = await this.contract.methods.balanceOf(address).call();
     return Number(b);

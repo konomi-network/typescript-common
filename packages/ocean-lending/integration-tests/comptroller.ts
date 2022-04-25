@@ -179,6 +179,8 @@ describe('Comptroller', () => {
     const summary = await comptroller.getOceanMarketSummary(blockTime, priceOracle);
     console.log(summary);
 
+    const account = await comptroller.getAccountSummary("0x65B0c8b91707B68C0B23388001B9dC7aab3f6A81", summary);
+    console.log(account);
     // await getHypotheticalAccountLiquidity(account, TETH, TBTC, comptroller);
     // await checkMembership(account, TETH, TBTC, comptroller);
     // await exitMarket(account, TETH, TBTC, comptroller);

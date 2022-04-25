@@ -2,6 +2,14 @@ import { Client } from './client';
 import { PriceOracleAdaptor } from './priceOracle';
 import { TxnOptions } from 'options';
 import OToken from './oToken';
+import Web3 from 'web3';
+
+export interface AccountOceanSummary {
+  totalSupplyUSD: number;
+  totalBorrowUSD: number;
+  borrowLimit: number;
+  // markets: { address: string; totalSupply: number; totalBorrow: number }[];
+}
 
 export interface OceanMarketSummary {
   totalSupplyUSD: number;
@@ -14,6 +22,7 @@ export interface OceanMarketSummary {
 
 export interface OTokenMarketSummary {
   address: string;
+  exchangeRate: number;
   decimals: number;
   underlying: string;
   underlyingDecimals: number;
@@ -74,9 +83,9 @@ class Comptroller extends Client {
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  public async getAccountLiquidity(account: string): Promise<number> {
-    const { 1: liquidity } = await this.contract.methods.getAccountLiquidity(account).call();
-    return liquidity / this.DEFAULT_MANTISSA;
+  public async getAccountLiquidity(account: string): Promise<[number, number]> {
+    const { 1: liquidity, 2: shortfall } = await this.contract.methods.getAccountLiquidity(account).call();
+    return [Number(Web3.utils.fromWei(liquidity)), Number(Web3.utils.fromWei(shortfall))];
   }
 
   /**
@@ -108,6 +117,35 @@ class Comptroller extends Client {
       success: error == '0',
       liquidity: Number(liquidity) / this.DEFAULT_MANTISSA,
       shortfall: Number(shortfall)
+    };
+  }
+
+  public async getAccountSummary(
+    account: string,
+    oceanMarketSummary: OceanMarketSummary
+  ): Promise<AccountOceanSummary> {
+    const values: number[][] = await Promise.all(
+      oceanMarketSummary.markets.map((m) => OToken.accountPosition(this.web3, m.address, account))
+    );
+
+    let totalSupplyUSD = 0;
+    let totalBorrowUSD = 0;
+    for (let i = 0; i < values.length; i++) {
+      const [oTokenSupplied, underlyingBorrowed] = values[i];
+      const supply = Comptroller.oTokenToHumanReadable(
+        oTokenSupplied,
+        oceanMarketSummary.markets[i].exchangeRate,
+        oceanMarketSummary.markets[i].underlyingDecimals
+      );
+      totalSupplyUSD += oceanMarketSummary.markets[i].price * supply;
+      totalBorrowUSD += oceanMarketSummary.markets[i].price * underlyingBorrowed;
+    }
+
+    const liquidityInfo = await this.getAccountLiquidity(account);
+    return {
+      totalSupplyUSD,
+      totalBorrowUSD,
+      borrowLimit: liquidityInfo[0] > 0 ? liquidityInfo[0] : liquidityInfo[1]
     };
   }
 
@@ -172,6 +210,7 @@ class Comptroller extends Client {
 
     return {
       address: market,
+      exchangeRate: Number(items[2]),
       decimals: OToken.OTOKEN_DECIMALS,
       underlying: items[3],
       underlyingDecimals,
@@ -219,6 +258,12 @@ class Comptroller extends Client {
 
   public async getCash(tokenAddress: string): Promise<BigInt> {
     return this.callMethod<BigInt>(tokenAddress, 'getCash()');
+  }
+
+  private static oTokenToHumanReadable(amount: number, exchangeRate: number, underlyingDecimals: number): number {
+    // no need minus OToken.OTOKEN_DECIMALS as converting to human readable
+    const mantissa = 18 + underlyingDecimals;
+    return (amount * exchangeRate) / Math.pow(10, mantissa);
   }
 
   private async callMethod<T>(tokenAddress: string, methodName: string, types?: string[]): Promise<T> {
