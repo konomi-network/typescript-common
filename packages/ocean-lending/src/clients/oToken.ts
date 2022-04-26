@@ -11,8 +11,6 @@ export interface OTokenParameter {
 }
 
 export interface OTokenDetails {
-  supplyAPY: number;
-  borrowAPY: number;
   supplyAmount: number;
   borrowAmount: number;
 }
@@ -69,7 +67,13 @@ class OToken extends Client {
    * @param repayAmount The amount of the borrowed asset to be repaid and converted into collateral, specified in units of the underlying borrowed asset.
    * @param collateralAddress The address of the cToken currently held as collateral by a borrower, that the liquidator shall seize.
    */
-  public async liquidateBorrow(borrowerAddress: string, repayAmount: string, collateralAddress: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+  public async liquidateBorrow(
+    borrowerAddress: string,
+    repayAmount: string,
+    collateralAddress: string,
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
+  ): Promise<void> {
     const method = this.contract.methods.liquidateBorrow(borrowerAddress, repayAmount, collateralAddress);
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
@@ -79,7 +83,12 @@ class OToken extends Client {
    * @param borrowerAddress the account with the debt being payed off
    * @param repayAmount The amount to repay
    */
-  public async repayBorrowBehalf(borrowerAddress: string, repayAmount: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+  public async repayBorrowBehalf(
+    borrowerAddress: string,
+    repayAmount: string,
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
+  ): Promise<void> {
     const method = this.contract.methods.repayBorrowBehalf(borrowerAddress, repayAmount);
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
@@ -107,6 +116,25 @@ class OToken extends Client {
   public async approve(amount: string, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.approve(this.address, amount);
     await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  public static async accountPosition(web3: Web3, contract: string, account: string): Promise<number[]> {
+    const argument = web3.utils.padLeft(account, 64).replace('0x', '');
+
+    const balanceOf = web3.utils.keccak256('balanceOf(address)').substr(0, 10);
+    const balanceOfTxn = {
+      to: contract,
+      data: `${balanceOf}${argument}`
+    };
+
+    const borrowBalanceStored = web3.utils.keccak256('borrowBalanceStored(address)').substr(0, 10);
+    const borrowBalanceStoredTxn = {
+      to: contract,
+      data: `${borrowBalanceStored}${argument}`
+    };
+
+    const rawDatas = await Promise.all([web3.eth.call(balanceOfTxn), web3.eth.call(borrowBalanceStoredTxn)]);
+    return rawDatas.map((r) => web3.eth.abi.decodeParameters(['uint256'], r)[0]);
   }
 
   public async balanceOf(address: string): Promise<number> {
@@ -178,7 +206,10 @@ class OToken extends Client {
   }
 
   /**
-   * get the interest of total borrowBalance.
+   * Get the interest of total borrowBalance.
+   * Note that to be human readable, this needs to be diviced by 1e18.
+   * Because account borrow is in underlying ERC20, which has decimals of 18.
+   * This means it is multiplied by 1e18 in the first place.
    * @param address address of user to operation.
    */
   public async accountBorrowBalance(address: string): Promise<number> {
@@ -186,7 +217,10 @@ class OToken extends Client {
   }
 
   /**
-   * get the interest of total supply.
+   * Get the interest of total supply.
+   * Note that to be human readable, this needs to be diviced by 1e8.
+   * Because oToken has decimals of 8. This means it is multiplied by
+   * 1e8 in the first place.
    * @param address address of user to operation.
    */
   public async accountSupplyBalance(address: string): Promise<number> {
@@ -195,17 +229,13 @@ class OToken extends Client {
     return (supplyAmount * exchangeRateCurrent) / Math.pow(10, mantissa);
   }
 
-  public async getOTokenSummary(blockTime: number, account: string): Promise<OTokenDetails> {
-    const [supplyAPY, borrowAPY, supplyAmount, borrowAmount] = await Promise.all([
-      this.supplyAPY(blockTime),
-      this.borrowAPY(blockTime),
+  public async getOTokenSummary(account: string): Promise<OTokenDetails> {
+    const [supplyAmount, borrowAmount] = await Promise.all([
       this.accountSupplyBalance(account),
       this.accountBorrowBalance(account)
     ]);
 
     return {
-      supplyAPY,
-      borrowAPY,
       supplyAmount,
       borrowAmount
     };

@@ -2,10 +2,17 @@ import { Client, TxnCallbacks } from './client';
 import { PriceOracleAdaptor } from './priceOracle';
 import { TxnOptions } from 'options';
 import OToken from './oToken';
+import Web3 from 'web3';
+
+export interface AccountOceanSummary {
+  totalSupplyUSD: number;
+  totalBorrowUSD: number;
+  borrowLimit: number;
+  // markets: { address: string; totalSupply: number; totalBorrow: number }[];
+}
 
 export interface OceanMarketSummary {
-  accountLiquidity: number;
-  totalLiquidity: number;
+  totalSupplyUSD: number;
   maxSupplyAPY: number;
   minBorrowAPY: number;
   liquidationIncentive: number;
@@ -15,12 +22,17 @@ export interface OceanMarketSummary {
 
 export interface OTokenMarketSummary {
   address: string;
+  exchangeRate: number;
   decimals: number;
   underlying: string;
   underlyingDecimals: number;
   totalSupply: number;
   totalBorrow: number;
-  totalLiquidity: number;
+  totalSupplyUSD: number;
+  totalBorrowUSD: number;
+  borrowAPY: Number;
+  supplyAPY: Number;
+  price: number;
 }
 
 export interface AccountLiquidityInfo {
@@ -71,9 +83,9 @@ class Comptroller extends Client {
     await this.send(method, await this.prepareTxn(method), options);
   }
 
-  public async getAccountLiquidity(account: string): Promise<number> {
-    const { 1: liquidity } = await this.contract.methods.getAccountLiquidity(account).call();
-    return liquidity / this.DEFAULT_MANTISSA;
+  public async getAccountLiquidity(account: string): Promise<[number, number]> {
+    const { 1: liquidity, 2: shortfall } = await this.contract.methods.getAccountLiquidity(account).call();
+    return [Number(Web3.utils.fromWei(liquidity)), Number(Web3.utils.fromWei(shortfall))];
   }
 
   public async getAccountLiquidityInfo(account: string): Promise<AccountLiquidityInfo> {
@@ -121,99 +133,108 @@ class Comptroller extends Client {
     };
   }
 
-  /**
-   * @notice Checks if the account should be allowed to repay a borrow in the given market
-   * @param cTokenAddress The market to verify the repay against
-   * @param payerAddress The account which would repay the asset
-   * @param borrowerAddress The account which would borrowed the asset
-   * @param repayAmount The amount of the underlying asset the account would repay
-   */
-  public async repayBorrowAllowed(cTokenAddress: string, payerAddress: string, borrowerAddress: string, repayAmount: string): Promise<boolean> {
-    const allowed = await this.contract.methods.repayBorrowAllowed(cTokenAddress, payerAddress, borrowerAddress, repayAmount).call();
-    return allowed == '0'
-  }
+  public async getAccountSummary(
+    account: string,
+    oceanMarketSummary: OceanMarketSummary
+  ): Promise<AccountOceanSummary> {
+    const values: number[][] = await Promise.all(
+      oceanMarketSummary.markets.map((m) => OToken.accountPosition(this.web3, m.address, account))
+    );
 
-  /**
-   * @notice Checks if the liquidation should be allowed to occur
-   * @param cTokenBorrowedAddress Asset which was borrowed by the borrower
-   * @param cTokenCollateralAddress Asset which was used as collateral and will be seized
-   * @param liquidatorAddress The address repaying the borrow and seizing the collateral
-   * @param borrowerAddress The address of the borrower
-   * @param repayAmount The amount of underlying being repaid
-   */
-  public async liquidateBorrowAllowed(
-    cTokenBorrowedAddress: string,
-    cTokenCollateralAddress: string,
-    liquidatorAddress: string,
-    borrowerAddress: string,
-    repayAmount: string
-  ) {
-    const allowed = await this.contract.methods.liquidateBorrowAllowed(cTokenBorrowedAddress, cTokenCollateralAddress, liquidatorAddress, borrowerAddress, repayAmount).call();
-    return allowed == '0'
+    let totalSupplyUSD = 0;
+    let totalBorrowUSD = 0;
+    for (let i = 0; i < values.length; i++) {
+      const [oTokenSupplied, underlyingBorrowed] = values[i];
+      const supply = Comptroller.oTokenToHumanReadable(
+        oTokenSupplied,
+        oceanMarketSummary.markets[i].exchangeRate,
+        oceanMarketSummary.markets[i].underlyingDecimals
+      );
+      const borrow = Comptroller.underlyingToHumanReadable(underlyingBorrowed);
+      totalSupplyUSD += oceanMarketSummary.markets[i].price * supply;
+      totalBorrowUSD += oceanMarketSummary.markets[i].price * borrow;
+    }
+
+    const liquidityInfo = await this.getAccountLiquidity(account);
+    return {
+      totalSupplyUSD,
+      totalBorrowUSD,
+      borrowLimit: totalBorrowUSD + liquidityInfo[0] > 0 ? liquidityInfo[0] : -1 * liquidityInfo[1]
+    };
   }
 
   public async getOceanMarketSummary(
     blockTime: number,
-    priceOracleAdaptor: PriceOracleAdaptor,
-    account: string
+    priceOracleAdaptor: PriceOracleAdaptor
   ): Promise<OceanMarketSummary> {
     const markets = await this.allMarkets();
-    const promises: Promise<any>[] = [
-      this.liquidationIncentive(),
-      this.closeFactor(),
-      this.maxSupplyAPY(blockTime, markets),
-      this.minBorrowAPY(blockTime, markets),
-      this.getAccountLiquidity(account)
-    ];
+    const promises: Promise<any>[] = [this.liquidationIncentive(), this.closeFactor()];
 
     markets.forEach((m) => {
-      promises.push(this.getOTokenMarketSummary(m, priceOracleAdaptor));
+      promises.push(this.getOTokenMarketSummary(m, priceOracleAdaptor, blockTime));
     });
 
     const values = await Promise.all(promises);
 
-    const oTokens: OTokenMarketSummary[] = values.slice(5);
-    let totalLiquidity = 0;
-    oTokens.forEach((o) => (totalLiquidity += o.totalLiquidity));
+    const oTokens: OTokenMarketSummary[] = values.slice(2);
+    let totalSupplyUSD = 0;
+    let maxSupplyAPY = 0;
+    let minBorrowAPY = Number.MAX_SAFE_INTEGER;
+    oTokens.forEach((o) => {
+      totalSupplyUSD += o.totalSupplyUSD;
+      maxSupplyAPY = Math.max(maxSupplyAPY, Number(o.supplyAPY));
+      minBorrowAPY = Math.min(minBorrowAPY, Number(o.borrowAPY));
+    });
 
     return {
-      totalLiquidity,
+      totalSupplyUSD,
       liquidationIncentive: values[0],
       closeFactor: values[1],
-      maxSupplyAPY: values[2],
-      minBorrowAPY: values[3],
-      accountLiquidity: values[4],
+      maxSupplyAPY,
+      minBorrowAPY,
       markets: oTokens
     };
   }
 
   public async getOTokenMarketSummary(
     market: string,
-    priceOracleAdaptor: PriceOracleAdaptor
+    priceOracleAdaptor: PriceOracleAdaptor,
+    blockTime: number
   ): Promise<OTokenMarketSummary> {
     const items = await Promise.all([
       this.callMethod<BigInt>(market, 'totalSupply()'),
       this.callMethod<BigInt>(market, 'totalBorrows()'),
       this.callMethod<BigInt>(market, 'exchangeRateCurrent()'),
       this.callMethod<string>(market, 'underlying()', ['address']),
-      priceOracleAdaptor.getUnderlyingPrice(market)
+      priceOracleAdaptor.getUnderlyingPrice(market),
+      this.callMethod<string>(market, 'borrowRatePerBlock()'),
+      this.callMethod<string>(market, 'supplyRatePerBlock()')
     ]);
 
     const underlyingDecimals = Number(await this.callMethod<number>(items[3], 'decimals()'));
 
-    const mantissa = 18 + underlyingDecimals - OToken.OTOKEN_DECIMALS;
-    const num = Number(items[0]) * Number(items[2]);
-    const totalUnderlying = num / Math.pow(10, mantissa);
-    const totalLiquidity = totalUnderlying * Number(items[4]);
+    const exchangeRate = Number(items[2]);
+    const mantissa = 18 + underlyingDecimals; // no need minus OToken.OTOKEN_DECIMALS as converting to human readable
+    const totalSupply = (Number(items[0]) * exchangeRate) / Math.pow(10, mantissa);
+    const totalBorrow = Number(items[1]) / Math.pow(10, underlyingDecimals);
+    const price = Number(items[4]);
+
+    const borrowAPY = await OToken.ratePerBlockToAPY(Number(items[5]) / OToken.UNDERLYING_MANTISSA, blockTime);
+    const supplyAPY = await OToken.ratePerBlockToAPY(Number(items[6]) / OToken.UNDERLYING_MANTISSA, blockTime);
 
     return {
       address: market,
+      exchangeRate: Number(items[2]),
       decimals: OToken.OTOKEN_DECIMALS,
       underlying: items[3],
       underlyingDecimals,
-      totalSupply: Number(items[0]) / 1e10,
-      totalBorrow: Number(items[1]) / 1e18,
-      totalLiquidity: totalLiquidity / 1e8
+      totalSupply,
+      totalBorrow,
+      totalSupplyUSD: totalSupply * price,
+      totalBorrowUSD: totalBorrow * price,
+      borrowAPY,
+      supplyAPY,
+      price
     };
   }
 
@@ -253,6 +274,16 @@ class Comptroller extends Client {
     return this.callMethod<BigInt>(tokenAddress, 'getCash()');
   }
 
+  private static oTokenToHumanReadable(amount: number, exchangeRate: number, underlyingDecimals: number): number {
+    // no need minus OToken.OTOKEN_DECIMALS as converting to human readable
+    const mantissa = 18 + underlyingDecimals;
+    return (amount * exchangeRate) / Math.pow(10, mantissa);
+  }
+
+  private static underlyingToHumanReadable(amount: number): number {
+    return Number(Web3.utils.fromWei(amount.toString()));
+  }
+
   private async callMethod<T>(tokenAddress: string, methodName: string, types?: string[]): Promise<T> {
     const method = this.web3.utils.keccak256(methodName).substr(0, 10);
     const transaction = {
@@ -272,35 +303,6 @@ class Comptroller extends Client {
       console.log(types);
       throw e;
     }
-  }
-
-  public async minBorrowAPY(blockTime: number, tokenAddresses: string[]): Promise<number> {
-    let min: number = 100;
-    for (const tokenAddress of tokenAddresses) {
-      const rateRaw: BigInt = await this.callMethod(tokenAddress, 'borrowRatePerBlock()');
-      const rate = Number(rateRaw) / OToken.UNDERLYING_MANTISSA;
-      const borrowRateAPY = await OToken.ratePerBlockToAPY(rate, blockTime);
-
-      if (min > borrowRateAPY) {
-        min = borrowRateAPY;
-      }
-    }
-    return min;
-  }
-
-  public async maxSupplyAPY(blockTime: number, tokenAddresses: string[]): Promise<number> {
-    let max: number = -1;
-    for (const tokenAddress of tokenAddresses) {
-      const rateRaw: BigInt = await this.callMethod(tokenAddress, 'supplyRatePerBlock()');
-      const rate = Number(rateRaw) / OToken.UNDERLYING_MANTISSA;
-      const supplyRateAPY = await OToken.ratePerBlockToAPY(rate, blockTime);
-
-      if (max < supplyRateAPY) {
-        max = supplyRateAPY;
-      }
-    }
-
-    return max;
   }
 }
 

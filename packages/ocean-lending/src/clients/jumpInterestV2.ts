@@ -1,4 +1,3 @@
-import { OToken } from './oToken';
 import { Client } from './client';
 
 /**

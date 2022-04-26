@@ -3,7 +3,6 @@ import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import { Account, TransactionReceipt } from 'web3-core';
 import { TxnOptions } from '../options';
-// import logger from "../logger";
 
 const PENDING = 'pending';
 export type TAccount = Account | { address: string };
@@ -74,10 +73,8 @@ class Client {
           if (txnHashCallback) {
             txnHashCallback(txnHash);
           }
-          // logger.info('transaction hash for method: %o is %o', method, txnHash);
         })
         .on('confirmation', (confirmations: number, receipt: any) => {
-          // logger.debug('confirmations: %o receipt: %o latestBlockHash: %o', confirmations, receipt, latestBlockHash);
           if (confirmations === options.confirmations) {
             if (confirmationCallback) {
               confirmationCallback(receipt);
@@ -89,7 +86,6 @@ class Client {
           if (errorCallback) {
             errorCallback(error, receipt);
           }
-          // logger.warn('submit for error: %o receipt: %o', error, receipt);
           return reject(error);
         });
     });

@@ -1,13 +1,14 @@
-import { expect } from 'chai';
 import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { ERC20Token } from '../src/clients/erc20Token';
 import { OToken } from '../src/clients/oToken';
 import { Comptroller } from '../src/clients/comptroller';
+import { OceanLending } from '../src/clients/oceanLending';
 import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
 import { PriceOracleAdaptor } from '../src/clients/priceOracle';
 import { ensure } from '../src/utils';
-import { isEqual } from 'lodash'
+import { isEqual } from 'lodash';
+
 
 async function liquidationIncentive(account: Account, oToken: OToken, token: ERC20Token, comptroller: Comptroller) {
   console.log('==== liquidationIncentive ====');
@@ -127,9 +128,9 @@ async function exitMarket(account: Account, TETH: OToken, TBTC: OToken, comptrol
 describe('Comptroller', () => {
   const config = readJsonSync('./config/config.json');
   const oTokenAbi = readJsonSync('./config/oToken.json');
-  const erc20Abi = readJsonSync('./config/erc20.json');
   const comptrollerAbi = readJsonSync('./config/comptroller.json');
   const priceOracleAbi = readJsonSync('./config/priceOracle.json');
+  const oceanLendingAbi = readJsonSync('./config/konomiOceanLending.json');
 
   const web3 = new Web3(new Web3.providers.HttpProvider(config.nodeUrl));
 
@@ -137,7 +138,6 @@ describe('Comptroller', () => {
   let oToken: OToken;
   let TBTC: OToken;
   let TETH: OToken;
-  let erc20Token: ERC20Token;
   let comptroller: Comptroller;
   let priceOracle: PriceOracleAdaptor;
 
@@ -156,49 +156,34 @@ describe('Comptroller', () => {
     // load the oToken object
     oToken = new OToken(web3, oTokenAbi, config.oTokens.oKono.address, account, config.oTokens.oKono.parameters);
 
-    TETH = new OToken(web3, oTokenAbi, config.oTokens.TETH.address, account, config.oTokens.TETH.parameters);
+    // TETH = new OToken(web3, oTokenAbi, config.oTokens.TETH.address, account, config.oTokens.TETH.parameters);
+    // TBTC = new OToken(web3, oTokenAbi, config.oTokens.TBTC.address, account, config.oTokens.TBTC.parameters);
 
-    TBTC = new OToken(web3, oTokenAbi, config.oTokens.TBTC.address, account, config.oTokens.TBTC.parameters);
+    let comptrollerAddress: string;
+    if (!config.comptroller) {
+      const oceanLending = new OceanLending(web3, oceanLendingAbi, config.konomiOceanLending.address, account);
+      const activePools = await oceanLending.activePoolIds();
+      const pool = await oceanLending.getPoolById(Number(activePools[0]));
+      comptrollerAddress = pool.deployContract;
+    } else {
+      comptrollerAddress = config.comptroller.address;
+    }
 
-    // // load the erc20 token object
-    // erc20Token = new ERC20Token(web3, erc20Abi, oToken.parameters.underlying, account);
-
-    comptroller = new Comptroller(web3, comptrollerAbi, config.comptroller.address, account);
-
-    // load price feed object
+    comptroller = new Comptroller(web3, comptrollerAbi, comptrollerAddress, account);
     priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, config.priceOracle.address, account);
+
   });
 
   it('key flow test', async () => {
-    // // actual tests
-    // await liquidationIncentive(account, oToken, erc20Token, comptroller);
-    // await collateralFactor(account, oToken, erc20Token, comptroller);
-    // await closeFactor(account, oToken, erc20Token, comptroller);
-
-    // const oracleAddress = await comptroller.oracleAddress();
-    // console.log('==== oracleAddress', oracleAddress);
-    // expect(oracleAddress).to.be.a('string');
-
-    // const totalLiquidity = await comptroller.totalLiquidity(priceOracle);
-    // console.log('==== totalLiquidity:', totalLiquidity);
-    // expect(totalLiquidity).to.be.gt(0);
-
-    // const blockTime = 3;
-    // const minBorrowRateAPY = await comptroller.minBorrowAPY(blockTime);
-    // console.log('==== minBorrowRateAPY:', minBorrowRateAPY);
-    // expect(minBorrowRateAPY >= BigInt(0)).to.be.eq(true);
-
-    // const maxSupplyRateAPY = await comptroller.maxSupplyAPY(blockTime);
-    // console.log('==== maxSupplyRateAPY:', maxSupplyRateAPY);
-    // expect(maxSupplyRateAPY >= BigInt(0)).to.be.eq(true);
-
     const blockTime = 3;
     const summary = await comptroller.getOceanMarketSummary(blockTime, priceOracle);
     console.log(summary);
 
-    await getHypotheticalAccountLiquidity(account, TETH, TBTC, comptroller);
-    await checkMembership(account, TETH, TBTC, comptroller);
-    await exitMarket(account, TETH, TBTC, comptroller);
+    const account = await comptroller.getAccountSummary("0x65B0c8b91707B68C0B23388001B9dC7aab3f6A81", summary);
+    console.log(account);
+    // await getHypotheticalAccountLiquidity(account, TETH, TBTC, comptroller);
+    // await checkMembership(account, TETH, TBTC, comptroller);
+    // await exitMarket(account, TETH, TBTC, comptroller);
   });
 });
 
