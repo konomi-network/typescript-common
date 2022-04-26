@@ -1,4 +1,4 @@
-import { Client } from './client';
+import { Client, TxnCallbacks } from './client';
 import { PriceOracleAdaptor } from './priceOracle';
 import { TxnOptions } from 'options';
 import OToken from './oToken';
@@ -48,9 +48,9 @@ class Comptroller extends Client {
     return this.contract.methods.oracle().call();
   }
 
-  public async enterMarkets(markets: string[], options: TxnOptions): Promise<void> {
+  public async enterMarkets(markets: string[], options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.enterMarkets(markets);
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -88,6 +88,19 @@ class Comptroller extends Client {
     return [Number(Web3.utils.fromWei(liquidity)), Number(Web3.utils.fromWei(shortfall))];
   }
 
+  public async getAccountLiquidityInfo(account: string): Promise<AccountLiquidityInfo> {
+    const {
+      '0': error,
+      '1': liquidity,
+      '2': shortfall
+    } = await this.contract.methods.getAccountLiquidity(account).call();
+    return {
+      success: error == '0',
+      liquidity: Number(liquidity) / this.DEFAULT_MANTISSA,
+      shortfall: Number(shortfall) / this.DEFAULT_MANTISSA
+    };
+  }
+
   /**
    * Determine what the account liquidity would be if the given amounts were redeemed/borrowed
    * @param account The account to determine liquidity for
@@ -116,7 +129,7 @@ class Comptroller extends Client {
     return {
       success: error == '0',
       liquidity: Number(liquidity) / this.DEFAULT_MANTISSA,
-      shortfall: Number(shortfall)
+      shortfall: Number(shortfall) / this.DEFAULT_MANTISSA
     };
   }
 

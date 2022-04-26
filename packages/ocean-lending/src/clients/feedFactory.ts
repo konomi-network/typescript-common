@@ -2,7 +2,7 @@ import { TxnOptions } from '../options';
 import { Client } from './client';
 
 export interface Feed {
-  decials: number;
+  decimals: number;
   value: BigInt;
   roundId: number;
   updatedBlock: BigInt;
@@ -13,7 +13,7 @@ export class FeedFactory extends Client {
     const b = await this.contract.methods.getFeed(subscriptionId).call();
 
     return {
-      decials: Number(b[0]),
+      decimals: Number(b[0]),
       value: BigInt(b[1]),
       roundId: Number(b[2]),
       updatedBlock: BigInt(b[3])

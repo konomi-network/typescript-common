@@ -61,6 +61,38 @@ class OToken extends Client {
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
+  /**
+   * A liquidator may close up to a certain fixed percentage (i.e. close factor) of any individual outstanding borrow of the underwater account.
+   * @param borrowerAddress The account with negative account liquidity that shall be liquidated.
+   * @param repayAmount The amount of the borrowed asset to be repaid and converted into collateral, specified in units of the underlying borrowed asset.
+   * @param collateralAddress The address of the cToken currently held as collateral by a borrower, that the liquidator shall seize.
+   */
+  public async liquidateBorrow(
+    borrowerAddress: string,
+    repayAmount: string,
+    collateralAddress: string,
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
+  ): Promise<void> {
+    const method = this.contract.methods.liquidateBorrow(borrowerAddress, repayAmount, collateralAddress);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+  }
+
+  /**
+   * Sender repays a borrow belonging to borrower
+   * @param borrowerAddress the account with the debt being payed off
+   * @param repayAmount The amount to repay
+   */
+  public async repayBorrowBehalf(
+    borrowerAddress: string,
+    repayAmount: string,
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
+  ): Promise<void> {
+    const method = this.contract.methods.repayBorrowBehalf(borrowerAddress, repayAmount);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+  }
+
   public async borrowRatePerBlock(): Promise<number> {
     const borrowRate = await this.contract.methods.borrowRatePerBlock().call();
     return borrowRate / OToken.UNDERLYING_MANTISSA;

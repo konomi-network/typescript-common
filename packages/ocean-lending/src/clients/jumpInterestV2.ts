@@ -1,4 +1,3 @@
-import { OToken } from './oToken';
 import { Client } from './client';
 
 /**
@@ -101,26 +100,6 @@ class JumpInterestV2 extends Client {
   ): Promise<BigInt> {
     const rate = await this.contract.methods.getSupplyRate(cash, borrows, reserves, reserveFactorMantissa).call();
     return BigInt(rate);
-  }
-
-  /**
-   * Calculates the current borrow interest rate APY
-   * @param oToken The ocean-lending client object
-   * @return The borrow rate per block (as a percentage, and scaled by 1e18)
-   */
-  public async getBorrowRateAPY(oToken: OToken): Promise<BigInt> {
-    const rate = await this.getBorrowRateByOToken(oToken);
-    return this.blockToYear(rate);
-  }
-
-  /**
-   * Calculates the current supply interest rate APY
-   * @param oToken The ocean-lending client object
-   * @return The supply rate per block (as a percentage, and scaled by 1e18)
-   */
-  public async getSupplyRateAPY(oToken: OToken): Promise<BigInt> {
-    const rate = await this.getSupplyRateByOToken(oToken);
-    return this.blockToYear(rate);
   }
 
   /**

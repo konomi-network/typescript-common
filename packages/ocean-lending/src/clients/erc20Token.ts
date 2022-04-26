@@ -2,16 +2,16 @@ import { Client, TxnCallbacks } from './client';
 import { TxnOptions } from '../options';
 
 class ERC20Token extends Client {
-  public async balanceOf(address: string): Promise<BigInt> {
+  public async balanceOf(address: string): Promise<string> {
     const b = await this.contract.methods.balanceOf(address).call();
-    return BigInt(b);
+    return b;
   }
 
   public async symbol(): Promise<string> {
     return this.contract.methods.symbol().call();
   }
 
-  public async allowance(owner: string, spender: string): Promise<number> {
+  public async allowance(owner: string, spender: string): Promise<string> {
     return this.contract.methods.allowance(owner, spender).call();
   }
 
