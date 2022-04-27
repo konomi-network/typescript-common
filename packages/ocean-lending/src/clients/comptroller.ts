@@ -30,8 +30,8 @@ export interface OTokenMarketSummary {
   totalBorrow: number;
   totalSupplyUSD: number;
   totalBorrowUSD: number;
-  borrowAPY: Number;
-  supplyAPY: Number;
+  borrowAPY: number;
+  supplyAPY: number;
   price: number;
 }
 
