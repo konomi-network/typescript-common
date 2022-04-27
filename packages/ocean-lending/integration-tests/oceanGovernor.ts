@@ -1,9 +1,9 @@
 import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { randomInt } from 'crypto';
-import { ensure,sleep } from '../src/utils';
-import {loadWalletFromEncyrptedJson, loadWalletFromPrivate,readJsonSync, readPassword} from "../src/reading"
-import { OceanGovernor } from '../src/clients/oceanGovernor';
+import { ensure, sleep } from '../src/utils';
+import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
+import { KonomiGovernor } from '../src/clients/oceanGovernor';
 import { InterestConfig } from '../src/config';
 import { Address, Uint16, Uint64 } from '../src/types';
 import { OceanEncoder } from '../src/encoding';
@@ -53,7 +53,7 @@ describe('OceanGovernor', () => {
       collateralFactor: new Uint16(1001),
     }
   };
-  const pool = { 
+  const pool = {
     closeFactor: new Uint16(5000),
     liquidationIncentive: new Uint16(1080),
     tokens: [tokenA, tokenB]
@@ -63,8 +63,8 @@ describe('OceanGovernor', () => {
   let adminAccount: Account;
   const voterAccounts = new Array<Account>();
   let poolOwner: string;
-  let admin: OceanGovernor;
-  let voters: Array<OceanGovernor>;
+  let admin: KonomiGovernor;
+  let voters: Array<KonomiGovernor>;
   let leasePerod: string;
 
   beforeAll(async () => {
@@ -98,8 +98,8 @@ describe('OceanGovernor', () => {
     poolOwner = adminAccount.address;
 
     // load the oceanGovernor object
-    admin = new OceanGovernor(callables, web3, voter1Abi, config.oceanGovernor.address, adminAccount);
-    voters = voterAccounts.map(account => new OceanGovernor(callables, web3, voter1Abi, config.oceanGovernor.address, account));
+    admin = new KonomiGovernor(callables, web3, voter1Abi, config.oceanGovernor.address, adminAccount);
+    voters = voterAccounts.map(account => new KonomiGovernor(callables, web3, voter1Abi, config.oceanGovernor.address, account));
   });
 
   beforeEach(() => {
@@ -166,7 +166,7 @@ describe('OceanGovernor', () => {
     }
     await sleep(15000);
 
-    const s =  await admin.getState(proposalId);
+    const s = await admin.getState(proposalId);
     console.log("🚀 ~ file: oceanGovernor.ts ~ line 163 ~ it ~ s", s, typeof s)
 
     const stateBefore = status.get((await admin.getState(proposalId)).toString());
@@ -391,21 +391,21 @@ describe('OceanGovernor', () => {
 
 });
 
-async function hasVoted(admin: OceanGovernor, proposalId: string, account: Account) {
+async function hasVoted(admin: KonomiGovernor, proposalId: string, account: Account) {
   const state = await admin.getState(proposalId);
   const hasVoted = await admin.hasVoted(proposalId, account.address);
   console.log('state: ', status.get(state.toString()), 'hasVoted: ', hasVoted);
   console.log('==== hasVoted ====');
 }
 
-async function getState(admin: OceanGovernor, proposalId: string) {
+async function getState(admin: KonomiGovernor, proposalId: string) {
   console.log('==== getState begin ====');
   const state = await admin.getState(proposalId);
   console.log('state:', status.get(state.toString()));
   console.log('==== getState end ====');
 }
 
-async function getActiveProposals(admin: OceanGovernor) {
+async function getActiveProposals(admin: KonomiGovernor) {
   console.log('==== getActiveProposals begin ====');
   const activeProposals = await admin.getActiveProposals();
   console.log('activeProposals:', activeProposals);

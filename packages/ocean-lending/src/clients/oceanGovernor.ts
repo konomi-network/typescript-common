@@ -20,7 +20,7 @@ export interface ProposalDetails {
 /**
  * KonomiOceanGovernor contract client
  */
-class OceanGovernor extends Client {
+class KonomiGovernor extends Client {
   // Object contains the target contract for the proposals
   // Keys are the proposal type and values are the contract addresses
   private callables: any;
@@ -248,5 +248,5 @@ class OceanGovernor extends Client {
   }
 }
 
-export default OceanGovernor;
-export { OceanGovernor };
+export default KonomiGovernor;
+export { KonomiGovernor as OceanGovernor };
