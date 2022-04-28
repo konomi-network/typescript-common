@@ -1,6 +1,6 @@
 import { PoolConfig } from 'config';
-import { OceanDecoder, OceanEncoder } from 'encoding';
-import { BasePropsalDetails } from 'proposal/type';
+import { OceanDecoder, OceanEncoder } from '../../encoding';
+import { BasePropsalDetails } from '../type';
 import Web3 from 'web3';
 
 // The `create` function call on Ocean Lending contract
@@ -53,11 +53,11 @@ export class NewOcean extends BasePropsalDetails {
     this.pool = detail.pool;
   }
 
-  public abi(): any {
+  public static abi(): any {
     return CREATE_POOL_ABI;
   }
 
-  public calldata(web3: Web3): String {
+  public calldata(web3: Web3): string {
     const bytes = `0x${OceanEncoder.encode(this.pool).toString('hex')}`;
     return web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, this.leasePeriod.toString(), this.poolOwner]);
   }

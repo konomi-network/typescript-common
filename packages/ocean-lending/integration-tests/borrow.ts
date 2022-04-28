@@ -11,7 +11,7 @@ async function enterMarkets(account: Account, markets: string[], comptroller: Co
   console.log('==== enterMarkets ====');
   await comptroller.enterMarkets(markets, { confirmations: 3 });
 
-  const liquidity: number = await comptroller.getAccountLiquidity(account.address);
+  const liquidity: number[] = await comptroller.getAccountLiquidity(account.address);
   console.log(`You have ${liquidity} of LIQUID assets (worth of USD) pooled in the protocol.`);
 
   const konoCollateralFactor: number = await comptroller.collateralFactor(markets[0]);
@@ -31,7 +31,7 @@ async function borrow(
   console.log('==== borrow ====');
   const depositAmount = BigInt(1000) * ONE_ETHER;
   await oToken.mint(depositAmount.toString(), { confirmations: 3 });
-  const liquidity: number = await comptroller.getAccountLiquidity(account.address);
+  const liquidity: number[] = await comptroller.getAccountLiquidity(account.address);
   ensure(liquidity.valueOf() > 0, "You don't have any liquid assets pooled in the protocol.");
   const erc20Before = await token.balanceOf(account.address);
   const oTokenBefore = await oToken.balanceOf(account.address);
@@ -166,5 +166,4 @@ describe('Borrow', () => {
   it('borrow interest', async () => {
     await borrowInterest(account, oToken, erc20Token);
   });
-
 });

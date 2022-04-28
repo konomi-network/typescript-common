@@ -1,33 +1,35 @@
 import Web3 from 'web3';
 
 export enum ProposalType {
-    NewOracle,
-    NewOcean
+  NewOracle,
+  NewOcean
 }
 
 export interface Proposal {
-    forVotes: number;
-    againstVotes: number;
-    startBlock: number;
-    endBlock: number;
-    proposer: string;
-    targetContract: string;
-    proposalDetail: ProposalDetails;
+  forVotes: number;
+  againstVotes: number;
+  startBlock: number;
+  endBlock: number;
+  proposer: string;
+  targetContract: string;
+  proposalDetail: ProposalDetails;
+  proposalType: ProposalType;
 }
 
 export interface ProposalDetails {
-    methodSelector(web3: Web3): String;
-    calldata(web3: Web3): String;
-    abi(): any;
+  calldata(web3: Web3): string;
 }
 
 export abstract class BasePropsalDetails implements ProposalDetails {
-    abstract abi(): any;
-    abstract calldata(web3: Web3): String;
+  abstract calldata(web3: Web3): string;
 
-    public methodSelector(web3: Web3): String {
-        const abi = this.abi();
-        const methodSignature = `${abi.name}(${abi.inputs.map((i: { type: any }) => i.type)})`;
-        return web3.utils.keccak256(methodSignature).substr(0, 10);
-    }
+  public static abi(): any {
+    throw new Error('Override this method!');
+  }
+
+  public static methodSelector(web3: Web3): string {
+    const abi = this.abi();
+    const methodSignature = `${abi.name}(${abi.inputs.map((i: { type: any }) => i.type)})`;
+    return web3.utils.keccak256(methodSignature).substr(0, 10);
+  }
 }
