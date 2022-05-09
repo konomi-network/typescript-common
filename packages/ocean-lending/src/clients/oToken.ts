@@ -139,8 +139,8 @@ class OToken extends Client {
       oceanMasterRatio: Number(r[2]),
       oceanLendingRatio: Number(r[3]),
       oceanMasterReward: Number(r[4]),
-      oceanLendingRewar: Number(r[5]),
-    }
+      oceanLendingRewar: Number(r[5])
+    };
   }
 
   /**
