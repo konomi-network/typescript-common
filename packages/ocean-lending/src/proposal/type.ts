@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 
-// The proposal types, each type corresponds to 
+// The proposal types, each type corresponds to
 // an operation that one can perform on the contracts
 export enum ProposalType {
   // TODO: NewOracle,

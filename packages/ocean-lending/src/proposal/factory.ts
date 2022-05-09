@@ -18,7 +18,7 @@ export class ProposalFactory {
   /**
    * Make a new proposal from the type and detail to proposal details
    * @param type The proposal type
-   * @param detail The detail to the proposal, key value pair of different parameters 
+   * @param detail The detail to the proposal, key value pair of different parameters
    * @returns The proposal detail object
    */
   public makeProposal(type: ProposalType, detail: { [key: string]: any }): ProposalDetails {
