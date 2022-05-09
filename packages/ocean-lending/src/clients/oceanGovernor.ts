@@ -8,8 +8,11 @@ import { Proposal, ProposalDetails } from '../proposal/type';
  * KonomiOceanGovernor contract client
  */
 export class KonomiGovernor extends Client {
-  // Object contains the target contract for the proposals
+  // When we are proposing to the governance, only certain target
+  // contracts can be allowed for execution. As such, callables hold
+  // the list of contracts allowed.
   // Keys are the proposal type and values are the contract addresses
+  // The keys are: oceanLending, oracleSubscription
   private callables: any;
 
   private proposalFactory: ProposalFactory;
@@ -27,6 +30,12 @@ export class KonomiGovernor extends Client {
     this.proposalFactory = proposalFactory;
   }
 
+  /**
+   * Make a new proposal
+   * @param proposal The proposal detail
+   * @param options The transaction options
+   * @param callbacks The callbacks for the transaction when hash received and stuff
+   */
   public async propose(proposal: ProposalDetails, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const callData = proposal.calldata(this.web3);
     const target = this.callables.oceanLending!;
