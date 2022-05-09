@@ -133,6 +133,29 @@ class Comptroller extends Client {
     };
   }
 
+  public async getOceanMasterRewards(
+    markets: {
+      address: string;
+      underlyingDecimals: number;
+    }[]
+  ): Promise<Map<string, number>> {
+    const rewards = await Promise.all(
+      markets.map((m) =>
+        this.callMethodSingleReturn<number>(
+          m.address,
+          'oceanFeeSetup()',
+          ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint256'],
+          4
+        )
+      )
+    );
+    const oceanRewards = new Map();
+    for (let i = 0; i < markets.length; i++) {
+      oceanRewards.set(markets[i].address, rewards[i] / Math.pow(10, markets[i].underlyingDecimals));
+    }
+    return oceanRewards;
+  }
+
   public async getAccountSummary(
     account: string,
     oceanMarketSummary: OceanMarketSummary
@@ -202,16 +225,16 @@ class Comptroller extends Client {
     blockTime: number
   ): Promise<OTokenMarketSummary> {
     const items = await Promise.all([
-      this.callMethod<BigInt>(market, 'totalSupply()'),
-      this.callMethod<BigInt>(market, 'totalBorrows()'),
-      this.callMethod<BigInt>(market, 'exchangeRateCurrent()'),
-      this.callMethod<string>(market, 'underlying()', ['address']),
+      this.callMethodSingleReturn<BigInt>(market, 'totalSupply()'),
+      this.callMethodSingleReturn<BigInt>(market, 'totalBorrows()'),
+      this.callMethodSingleReturn<BigInt>(market, 'exchangeRateCurrent()'),
+      this.callMethodSingleReturn<string>(market, 'underlying()', ['address']),
       priceOracleAdaptor.getUnderlyingPrice(market),
-      this.callMethod<string>(market, 'borrowRatePerBlock()'),
-      this.callMethod<string>(market, 'supplyRatePerBlock()')
+      this.callMethodSingleReturn<string>(market, 'borrowRatePerBlock()'),
+      this.callMethodSingleReturn<string>(market, 'supplyRatePerBlock()')
     ]);
 
-    const underlyingDecimals = Number(await this.callMethod<number>(items[3], 'decimals()'));
+    const underlyingDecimals = Number(await this.callMethodSingleReturn<number>(items[3], 'decimals()'));
 
     const exchangeRate = Number(items[2]);
     const mantissa = 18 + underlyingDecimals; // no need minus OToken.OTOKEN_DECIMALS as converting to human readable
@@ -266,12 +289,12 @@ class Comptroller extends Client {
   }
 
   public async totalSupply(tokenAddress: string): Promise<BigInt> {
-    const supply = await this.callMethod<BigInt>(tokenAddress, 'totalSupply()');
+    const supply = await this.callMethodSingleReturn<BigInt>(tokenAddress, 'totalSupply()');
     return supply;
   }
 
   public async getCash(tokenAddress: string): Promise<BigInt> {
-    return this.callMethod<BigInt>(tokenAddress, 'getCash()');
+    return this.callMethodSingleReturn<BigInt>(tokenAddress, 'getCash()');
   }
 
   private static oTokenToHumanReadable(amount: number, exchangeRate: number, underlyingDecimals: number): number {
@@ -284,7 +307,12 @@ class Comptroller extends Client {
     return Number(Web3.utils.fromWei(amount.toString()));
   }
 
-  private async callMethod<T>(tokenAddress: string, methodName: string, types?: string[]): Promise<T> {
+  private async callMethodSingleReturn<T>(
+    tokenAddress: string,
+    methodName: string,
+    types?: string[],
+    index?: number
+  ): Promise<T> {
     const method = this.web3.utils.keccak256(methodName).substr(0, 10);
     const transaction = {
       to: tokenAddress,
@@ -294,11 +322,14 @@ class Comptroller extends Client {
     if (types === undefined) {
       types = ['uint256'];
     }
+    if (index === undefined) {
+      index = 0;
+    }
 
     try {
       const raw = await this.web3.eth.call(transaction);
       const r = this.web3.eth.abi.decodeParameters(types, raw);
-      return r[0];
+      return r[index];
     } catch (e) {
       console.log(types);
       throw e;
