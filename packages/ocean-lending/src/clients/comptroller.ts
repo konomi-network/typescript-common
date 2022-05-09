@@ -133,6 +133,12 @@ class Comptroller extends Client {
     };
   }
 
+  /**
+   * Fetch the rewards accumulated so far for ocean master.
+   * Please note that only when repay of borrowed will the rewards be updated
+   * @param markets The market address with underlying decimals
+   * @returns The map containing the address to rewards
+   */
   public async getOceanMasterRewards(
     markets: {
       address: string;
@@ -156,6 +162,12 @@ class Comptroller extends Client {
     return oceanRewards;
   }
 
+  /**
+   * Get the account summary
+   * @param account The target account
+   * @param oceanMarketSummary The position summary
+   * @returns The account summary
+   */
   public async getAccountSummary(
     account: string,
     oceanMarketSummary: OceanMarketSummary
@@ -186,6 +198,12 @@ class Comptroller extends Client {
     };
   }
 
+  /**
+   * Get the ocean market summary
+   * @param blockTime The block time
+   * @param priceOracleAdaptor The price oracle adaptor client
+   * @returns The ocean market summary
+   */
   public async getOceanMarketSummary(
     blockTime: number,
     priceOracleAdaptor: PriceOracleAdaptor
