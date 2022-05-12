@@ -1,0 +1,40 @@
+{
+    "nodeUrl": "<Your node url>",
+    "privateKey": "<Your account private key>",
+    "encryptedAccountJsonPath": "<Your path to encrypted json>",
+    "oTokens": {
+        "oKono": {
+            "address": "0x270Aaf3f62cF075962A131754Add080F15BcbbdA",
+            "parameters": {
+                "initialExchangeRate": "200000000000000000000000000",
+                "underlying": "0x9d31a83fAEAc620450EBD9870fCecc6AfB1d99a3",
+                "comptroller": "0x6Af8CbE6F5358A0232B9d5909D59f8cd06A11C87",
+                "decimals": 8
+            }
+        },
+        "collateralToken": {
+            "address": "0x503Ad3e933AB8BA0184F18d29465B4c6171708aC",
+            "parameters": {
+                "initialExchangeRate": "200000000000000000000000000",
+                "underlying": "0x04a1944A1FEc7Ba5D47c2983A2157972b8C5E5a9",
+                "comptroller": "0x6Af8CbE6F5358A0232B9d5909D59f8cd06A11C87",
+                "decimals": 8
+            }
+        },
+        "borrowedToken": {
+            "address": "0x3c0d32b4539E4cb839F49d94816745F7D39C8949",
+            "parameters": {
+                "initialExchangeRate": "200000000000000000000000000",
+                "underlying": "0xEb7fB50497092E7aC646747CB628fAC28BA5E762",
+                "comptroller": "0x6Af8CbE6F5358A0232B9d5909D59f8cd06A11C87",
+                "decimals": 8
+            }
+        }
+    },
+    "stakingV1": {
+        "address": "0x4b0e8Ac17B18736dEB6a740240f8C03E5df1Ccba"
+    },
+    "comptroller": {
+        "address": "0x6Af8CbE6F5358A0232B9d5909D59f8cd06A11C87"
+    }
+}
