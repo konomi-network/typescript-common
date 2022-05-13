@@ -146,17 +146,17 @@ class OToken extends Client {
   /**
    * Method for Ocean Master to withdraw rewards
    */
-  public async oceanMasterWithdraw(options: TxnOptions): Promise<void> {
+  public async oceanMasterWithdraw(options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.oceanMasterWithdraw();
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
    * Method for Ocean Lending admin to withdraw rewards
    */
-  public async oceanLendingWithdraw(options: TxnOptions): Promise<void> {
+  public async oceanLendingWithdraw(options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.oceanLendingWithdraw();
-    await this.send(method, await this.prepareTxn(method), options);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   public static async accountPosition(web3: Web3, contract: string, account: string): Promise<number[]> {
