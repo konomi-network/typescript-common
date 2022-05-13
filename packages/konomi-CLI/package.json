@@ -1,6 +1,6 @@
 {
 	"name": "@konomi-network/cli",
-	"version": "1.0.11-alpha.0",
+	"version": "1.0.12-alpha.0",
 	"description": "",
 	"main": "konomi.js",
 	"private": true,
