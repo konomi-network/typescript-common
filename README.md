@@ -6,8 +6,8 @@ Typescript common util library for both Frontend and Backend usage
 
 ### Packages:
 
--   @konomi-network/decentralized-fs
--   @konomi-network/eslint-config-konomi
+- @konomi-network/decentralized-fs
+- @konomi-network/eslint-config-konomi
 
 <br>
 
@@ -15,24 +15,24 @@ Typescript common util library for both Frontend and Backend usage
 
 1. Install yarn globally (needed to resolve dependencies correctly when working in a monorepo)
 
-    ```shell
-    npm install -g yarn
-    ```
+   ```shell
+   npm install -g yarn
+   ```
 
 2. Install NPM packages
 
-    ```shell
-    yarn bootstrap
-    ```
+   ```shell
+   yarn install
+   ```
 
-    then
+   then
 
-    ```shell
-    yarn install
-    ```
+   ```shell
+   yarn bootstrap
+   ```
 
 3. Run all test
 
-    ```shell
-    yarn test
-    ```
+   ```shell
+   yarn test
+   ```
