@@ -1,5 +1,6 @@
 import Web3 from 'web3';
 import { NewOcean } from './detail/newOcean';
+import { NewOracle } from './detail/newOracle';
 import { ProposalDetails, ProposalType } from './type';
 
 /**
@@ -13,6 +14,7 @@ export class ProposalFactory {
     // Note: in the constructor, we initialized the methodselectors for different proposal types
     // TODO: maybe we can do dynamic loading if we have more proposals.
     this.methodSelectors.set(NewOcean.methodSelector(web3), [NewOcean, ProposalType.NewOcean]);
+    this.methodSelectors.set(NewOracle.methodSelector(web3), [NewOracle, ProposalType.NewOracle]);
   }
 
   /**
@@ -25,6 +27,8 @@ export class ProposalFactory {
     switch (type) {
       case ProposalType.NewOcean:
         return new NewOcean(detail);
+      case ProposalType.NewOracle:
+        return new NewOracle(detail);
       default:
         throw new Error('Unknow proposal type');
     }

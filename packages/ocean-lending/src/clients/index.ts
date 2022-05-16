@@ -4,5 +4,5 @@ export * from './oToken';
 export * from './erc20Token';
 export * from './priceOracle';
 export * from './oceanLending';
-export * from './oceanGovernor';
+export * from './governor';
 export * from './client';

@@ -2,7 +2,7 @@ import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { randomInt } from 'crypto';
 import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
-import { KonomiGovernor } from '../src/clients/oceanGovernor';
+import { KonomiGovernor } from '../src/clients/governor';
 import { InterestConfig } from '../src/config';
 import { Address, Uint16 } from '../src/types';
 // import { isEqual } from 'lodash';
@@ -106,14 +106,43 @@ describe('OceanGovernor', () => {
     leasePeriod = "250000" + randomInt(10000);
   })
 
-  it('propose new ocean', async () => {
+  // it('propose new ocean', async () => {
+  //   const proposalDetail = factory.makeProposal(
+  //     ProposalType.NewOcean,
+  //     {
+  //       pool,
+  //       leasePeriod: Number(leasePeriod),
+  //       poolOwner: '0x65B0c8b91707B68C0B23388001B9dC7aab3f6A81'
+  //     }
+  //   );
+
+  //   // Propose a pool
+  //   await admin.propose(
+  //     proposalDetail,
+  //     confirmations,
+  //     (hash: any) => console.log("hash obtained:", hash),
+  //     (_receipt: any) => console.log("confirmed"),
+  //     (error: any, _receipt: any) => console.log("error", error)
+  //   );
+
+  //   // Get proposal detail
+  //   const hash = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
+  //   const proposal = await admin.getProposalDetail(hash);
+
+  //   expect(proposal.proposalDetail).toEqual(proposalDetail);
+  //   expect(proposal.proposalType).toEqual(ProposalType.NewOcean);
+  //   expect(proposal.againstVotes).toEqual(0);
+  //   expect(proposal.forVotes).toEqual(0);
+  // });
+
+  it('propose new oracle', async () => {
+    const newOracleDetails = {
+      // TODO: @Chenglei: fill this
+    };
+
     const proposalDetail = factory.makeProposal(
-      ProposalType.NewOcean,
-      {
-        pool,
-        leasePeriod: Number(leasePeriod),
-        poolOwner: '0x65B0c8b91707B68C0B23388001B9dC7aab3f6A81'
-      }
+      ProposalType.NewOracle,
+      newOracleDetails
     );
 
     // Propose a pool
@@ -129,10 +158,7 @@ describe('OceanGovernor', () => {
     const hash = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
     const proposal = await admin.getProposalDetail(hash);
 
-    expect(proposal.proposalDetail).toEqual(proposalDetail);
-    expect(proposal.proposalType).toEqual(ProposalType.NewOcean);
-    expect(proposal.againstVotes).toEqual(0);
-    expect(proposal.forVotes).toEqual(0);
+    // TODO: @Chenglei, ensure on chain proposal and `newOracleDetails` are the same
   });
 
   // it('execute', async () => {

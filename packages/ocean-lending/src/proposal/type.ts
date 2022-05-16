@@ -3,7 +3,7 @@ import Web3 from 'web3';
 // The proposal types, each type corresponds to
 // an operation that one can perform on the contracts
 export enum ProposalType {
-  // TODO: NewOracle,
+  NewOracle,
   NewOcean
 }
 
@@ -40,6 +40,13 @@ export abstract class BasePropsalDetails implements ProposalDetails {
    */
   public static abi(): any {
     throw new Error('Override this method!');
+  }
+
+  public static ensureDefined(value: any | undefined): any {
+    if (value === undefined) {
+      throw new Error(`Value: "${value}" must be defiend`);
+    }
+    return value!;
   }
 
   /**
