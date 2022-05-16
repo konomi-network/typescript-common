@@ -171,7 +171,6 @@ describe('Comptroller', () => {
 
     comptroller = new Comptroller(web3, comptrollerAbi, comptrollerAddress, account);
     priceOracle = new PriceOracleAdaptor(web3, priceOracleAbi, config.priceOracle.address, account);
-
   });
 
   it('key flow test', async () => {
@@ -181,6 +180,10 @@ describe('Comptroller', () => {
 
     const account = await comptroller.getAccountSummary("0x65B0c8b91707B68C0B23388001B9dC7aab3f6A81", summary);
     console.log(account);
+
+    const marketsWithDecimals = summary.markets.map(m => { return { address: m.address, underlyingDecimals: m.underlyingDecimals } });
+    const rewards = await comptroller.getOceanMasterRewards(marketsWithDecimals);
+    console.log(rewards);
     // await getHypotheticalAccountLiquidity(account, TETH, TBTC, comptroller);
     // await checkMembership(account, TETH, TBTC, comptroller);
     // await exitMarket(account, TETH, TBTC, comptroller);

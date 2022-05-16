@@ -15,6 +15,16 @@ export interface OTokenDetails {
   borrowAmount: number;
 }
 
+// Setup for ocean lending fee charging
+export interface OceanFeeSetup {
+  oceanMaster: number;
+  oceanLending: number;
+  oceanMasterRatio: number;
+  oceanLendingRatio: number;
+  oceanMasterReward: number;
+  oceanLendingRewar: number;
+}
+
 class OToken extends Client {
   readonly parameters: OTokenParameter;
 
@@ -116,6 +126,37 @@ class OToken extends Client {
   public async approve(amount: string, options: TxnOptions): Promise<void> {
     const method = this.contract.methods.approve(this.address, amount);
     await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  /**
+   * Get the current ocean lending fee charging setup
+   */
+  public async oceanFeeSetup(): Promise<OceanFeeSetup> {
+    const r = await this.contract.methods.oceanFeeSetup().call();
+    return {
+      oceanMaster: Number(r[0]),
+      oceanLending: Number(r[1]),
+      oceanMasterRatio: Number(r[2]),
+      oceanLendingRatio: Number(r[3]),
+      oceanMasterReward: Number(r[4]),
+      oceanLendingRewar: Number(r[5])
+    };
+  }
+
+  /**
+   * Method for Ocean Master to withdraw rewards
+   */
+  public async oceanMasterWithdraw(options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+    const method = this.contract.methods.oceanMasterWithdraw();
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+  }
+
+  /**
+   * Method for Ocean Lending admin to withdraw rewards
+   */
+  public async oceanLendingWithdraw(options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+    const method = this.contract.methods.oceanLendingWithdraw();
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   public static async accountPosition(web3: Web3, contract: string, account: string): Promise<number[]> {
