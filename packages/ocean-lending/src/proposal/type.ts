@@ -25,6 +25,7 @@ export interface Proposal {
  * of the interface. What matters is the ethereum calldata it generates.
  */
 export interface ProposalDetails {
+  [x: string]: any;
   /**
    * The ethereum transaction call data for the proposal.
    * @param web3 The web3 instance

@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 import { Account } from 'web3-core';
 import { randomInt } from 'crypto';
-import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from "../src/reading"
+import { loadWalletFromEncyrptedJson, loadWalletFromPrivate, readJsonSync, readPassword } from '../src/reading';
 import { KonomiGovernor } from '../src/clients/governor';
 import { InterestConfig } from '../src/config';
 import { Address, Uint16 } from '../src/types';
@@ -49,7 +49,7 @@ describe('OceanGovernor', () => {
     ),
     collateral: {
       canBeCollateral: true,
-      collateralFactor: new Uint16(1001),
+      collateralFactor: new Uint16(1001)
     }
   };
   const pool = {
@@ -98,13 +98,15 @@ describe('OceanGovernor', () => {
 
     // load the oceanGovernor object
     admin = new KonomiGovernor(callables, web3, voter1Abi, config.oceanGovernor.address, adminAccount, factory);
-    voters = voterAccounts.map(account => new KonomiGovernor(callables, web3, voter1Abi, config.oceanGovernor.address, account, factory));
+    voters = voterAccounts.map(
+      (account) => new KonomiGovernor(callables, web3, voter1Abi, config.oceanGovernor.address, account, factory)
+    );
   });
 
   beforeEach(() => {
     // make the proposal unique
-    leasePeriod = "250000" + randomInt(10000);
-  })
+    leasePeriod = '250000' + randomInt(10000);
+  });
 
   // it('propose new ocean', async () => {
   //   const proposalDetail = factory.makeProposal(
@@ -137,28 +139,33 @@ describe('OceanGovernor', () => {
 
   it('propose new oracle', async () => {
     const newOracleDetails = {
-      // TODO: @Chenglei: fill this
+      externalStorageHash: 'QmWuw8KmSGeNqcGNpqkxTrWb2egHokvQnc7rqhZKE5BMvM',
+      sourceCount: '3',
+      leasePeriod: leasePeriod,
+      clientType: '0',
+      onBehalfOf: '0xe7A252739912F74c117FA37335f850f6f95Fbf70'
     };
 
-    const proposalDetail = factory.makeProposal(
-      ProposalType.NewOracle,
-      newOracleDetails
-    );
+    const proposalDetail = factory.makeProposal(ProposalType.NewOracle, newOracleDetails);
 
     // Propose a pool
     await admin.propose(
       proposalDetail,
       confirmations,
-      (hash: any) => console.log("hash obtained:", hash),
-      (_receipt: any) => console.log("confirmed"),
-      (error: any, _receipt: any) => console.log("error", error)
+      (hash: any) => console.log('hash obtained:', hash),
+      (_receipt: any) => console.log('confirmed'),
+      (error: any, _receipt: any) => console.log('error', error)
     );
 
     // Get proposal detail
     const hash = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
     const proposal = await admin.getProposal(hash);
 
-    // TODO: @Chenglei, ensure on chain proposal and `newOracleDetails` are the same
+    expect(proposal.proposalDetail.externalStorageHash).toEqual(newOracleDetails.externalStorageHash);
+    expect(proposal.proposalDetail.sourceCount).toEqual(newOracleDetails.sourceCount);
+    expect(proposal.proposalDetail.leasePeriod).toEqual(newOracleDetails.leasePeriod);
+    expect(proposal.proposalDetail.clientType).toEqual(newOracleDetails.clientType);
+    expect(proposal.proposalDetail.onBehalfOf).toEqual(newOracleDetails.onBehalfOf);
   });
 
   // it('execute', async () => {
@@ -291,7 +298,6 @@ describe('OceanGovernor', () => {
   //   const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePerod, poolOwner]);
   //   const voteType = 0; // against vote
 
-
   //   await admin.setVotingPeriod(BigInt(10), confirmations);
   //   await admin.setVotingThreshold(51, 100, confirmations);
 
@@ -408,7 +414,6 @@ describe('OceanGovernor', () => {
   //   await getState(admin, proposalId);
   //   await getActiveProposals(admin);
   // });
-
 });
 
 // async function hasVoted(admin: KonomiGovernor, proposalId: string, account: Account) {
