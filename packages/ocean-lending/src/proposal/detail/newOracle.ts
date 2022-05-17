@@ -5,46 +5,46 @@ import Web3 from 'web3';
 const NEW_SUBSCRIPTION_ABI: any = {
   inputs: [
     {
-      internalType: "string",
-      name: "_externalStorageHash",
-      type: "string"
+      internalType: 'string',
+      name: '_externalStorageHash',
+      type: 'string'
     },
     {
-      internalType: "uint256",
-      name: "_sourceCount",
-      type: "uint256"
+      internalType: 'uint256',
+      name: '_sourceCount',
+      type: 'uint256'
     },
     {
-      internalType: "uint256",
-      name: "_leasePeriod",
-      type: "uint256"
+      internalType: 'uint256',
+      name: '_leasePeriod',
+      type: 'uint256'
     },
     {
-      internalType: "uint8",
-      name: "_clientType",
-      type: "uint8"
+      internalType: 'uint8',
+      name: '_clientType',
+      type: 'uint8'
     },
     {
-      internalType: "address",
-      name: "_onBehalfOf",
-      type: "address"
+      internalType: 'address',
+      name: '_onBehalfOf',
+      type: 'address'
     }
   ],
-  name: "newSubscription",
+  name: 'newSubscription',
   outputs: [
     {
-      internalType: "uint64",
-      name: "",
-      type: "uint64"
+      internalType: 'uint64',
+      name: '',
+      type: 'uint64'
     },
     {
-      internalType: "address",
-      name: "",
-      type: "address"
+      internalType: 'address',
+      name: '',
+      type: 'address'
     }
   ],
-  stateMutability: "nonpayable",
-  type: "function"
+  stateMutability: 'nonpayable',
+  type: 'function'
 };
 
 /**
@@ -54,9 +54,13 @@ export class NewOracle extends BasePropsalDetails {
   // Note that for all the types here, we are using string
   // to represent them, to avoid conversion issues
   public readonly externalStorageHash: string;
+
   public readonly sourceCount: string;
+
   public readonly leasePeriod: string;
+
   public readonly clientType: string;
+
   public readonly onBehalfOf: string;
 
   constructor(detail: { [key: string]: any }) {
@@ -73,16 +77,13 @@ export class NewOracle extends BasePropsalDetails {
   }
 
   public calldata(web3: Web3): string {
-    return web3.eth.abi.encodeFunctionCall(
-      NEW_SUBSCRIPTION_ABI,
-      [
-        this.externalStorageHash,
-        this.sourceCount,
-        this.leasePeriod,
-        this.clientType,
-        this.onBehalfOf
-      ]
-    );
+    return web3.eth.abi.encodeFunctionCall(NEW_SUBSCRIPTION_ABI, [
+      this.externalStorageHash,
+      this.sourceCount,
+      this.leasePeriod,
+      this.clientType,
+      this.onBehalfOf
+    ]);
   }
 
   /**
@@ -91,16 +92,7 @@ export class NewOracle extends BasePropsalDetails {
    * @param web3 The web3 instance
    */
   public static fromHex(hex: string, web3: Web3): NewOracle {
-    const callData = web3.eth.abi.decodeParameters(
-      [
-        "string",
-        "uint256",
-        "uint256",
-        "uint8",
-        "address"
-      ],
-      hex
-    );
+    const callData = web3.eth.abi.decodeParameters(['string', 'uint256', 'uint256', 'uint8', 'address'], hex);
     return new NewOracle({
       externalStorageHash: callData[0],
       sourceCount: callData[1],

@@ -156,7 +156,7 @@ describe('OceanGovernor', () => {
 
     // Get proposal detail
     const hash = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
-    const proposal = await admin.getProposalDetail(hash);
+    const proposal = await admin.getProposal(hash);
 
     // TODO: @Chenglei, ensure on chain proposal and `newOracleDetails` are the same
   });

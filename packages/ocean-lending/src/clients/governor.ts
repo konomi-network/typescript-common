@@ -136,7 +136,7 @@ export class KonomiGovernor extends Client {
    * forVotes, againstVotes, proposer, startBlock, endBlock
    * @param proposalId The id of the proposal
    */
-  public async getProposalDetail(proposalId: string): Promise<Proposal> {
+  public async getProposal(proposalId: string): Promise<Proposal> {
     const response = await this.contract.methods.getProposalDetails(proposalId).call();
     const propsalDetails = this.proposalFactory.fromHex(response[6][0], this.web3);
 
