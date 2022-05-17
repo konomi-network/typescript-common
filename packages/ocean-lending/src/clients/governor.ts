@@ -1,45 +1,43 @@
-import { PoolConfig } from 'config';
-import { OceanDecoder, OceanEncoder } from '../encoding';
+import Web3 from 'web3';
 import { TxnOptions } from 'options';
 import Client, { TxnCallbacks, TAccount } from './client';
-import { CREATE_POOL_ABI } from '../abi/oceanLending';
-import Web3 from 'web3';
-
-export interface ProposalDetails {
-  forVotes: number;
-  againstVotes: number;
-  startBlock: number;
-  endBlock: number;
-  leasePeriod: number;
-  proposer: string;
-  poolOwner: string;
-  targetContract: string;
-  pool: PoolConfig;
-}
+import { ProposalFactory } from '../proposal/factory';
+import { Proposal, ProposalDetails } from '../proposal/type';
 
 /**
  * KonomiOceanGovernor contract client
  */
-class OceanGovernor extends Client {
-  // Object contains the target contract for the proposals
+export class KonomiGovernor extends Client {
+  // When we are proposing to the governance, only certain target
+  // contracts can be allowed for execution. As such, callables hold
+  // the list of contracts allowed.
   // Keys are the proposal type and values are the contract addresses
+  // The keys are: oceanLending, oracleSubscription
   private callables: any;
 
-  constructor(callables: any, web3: Web3, abi: any, address: string, account: TAccount) {
+  private proposalFactory: ProposalFactory;
+
+  constructor(
+    callables: any,
+    web3: Web3,
+    abi: any,
+    address: string,
+    account: TAccount,
+    proposalFactory: ProposalFactory
+  ) {
     super(web3, abi, address, account);
     this.callables = callables;
+    this.proposalFactory = proposalFactory;
   }
 
-  public async proposePool(
-    pool: PoolConfig,
-    leasePeriod: string,
-    poolOwner: string,
-    options: TxnOptions,
-    ...callbacks: TxnCallbacks
-  ): Promise<void> {
-    const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
-    const callData = this.web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
-
+  /**
+   * Make a new proposal
+   * @param proposal The proposal detail
+   * @param options The transaction options
+   * @param callbacks The callbacks for the transaction when hash received and stuff
+   */
+  public async propose(proposal: ProposalDetails, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+    const callData = proposal.calldata(this.web3);
     const target = this.callables.oceanLending!;
     const method = this.contract.methods.propose(target, callData);
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
@@ -138,9 +136,9 @@ class OceanGovernor extends Client {
    * forVotes, againstVotes, proposer, startBlock, endBlock
    * @param proposalId The id of the proposal
    */
-  public async getProposalDetail(proposalId: string): Promise<ProposalDetails> {
+  public async getProposal(proposalId: string): Promise<Proposal> {
     const response = await this.contract.methods.getProposalDetails(proposalId).call();
-    const callData = this.web3.eth.abi.decodeParameters(['bytes', 'uint256', 'address'], response[6][0].substring(10));
+    const propsalDetails = this.proposalFactory.fromHex(response[6][0], this.web3);
 
     return {
       proposer: response[2],
@@ -148,10 +146,9 @@ class OceanGovernor extends Client {
       againstVotes: Number(response[1]),
       startBlock: Number(response[3]),
       endBlock: Number(response[4]),
-      leasePeriod: Number(callData[1]),
       targetContract: response[5][0],
-      pool: OceanDecoder.decode(Buffer.from(callData[0].substring(2), 'hex')),
-      poolOwner: callData[2]
+      proposalDetail: propsalDetails.details,
+      proposalType: propsalDetails.type
     };
   }
 
@@ -248,5 +245,4 @@ class OceanGovernor extends Client {
   }
 }
 
-export default OceanGovernor;
-export { OceanGovernor };
+export { KonomiGovernor as OceanGovernor };
