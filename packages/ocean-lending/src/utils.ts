@@ -1,5 +1,8 @@
 export const ONE_ETHER = BigInt('1000000000000000000');
 
+/**
+ * ensure
+ */
 export function ensure(predicate: boolean, errorMessage: string) {
   if (!predicate) {
     throw new Error(errorMessage);
