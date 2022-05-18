@@ -244,5 +244,3 @@ export class KonomiGovernor extends Client {
     await this.send(method, await this.prepareTxn(method), options);
   }
 }
-
-export { KonomiGovernor as OceanGovernor };
