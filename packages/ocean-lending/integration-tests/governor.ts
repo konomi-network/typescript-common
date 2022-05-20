@@ -83,7 +83,6 @@ describe('OceanGovernor', () => {
     console.log('Using admin account:', adminAccount.address);
 
     for (let voterAccountConfig of config.voterAccounts) {
-      console.log(voterAccountConfig);
       let voterAccount: Account;
       if (voterAccountConfig.voterEncryptedAccountJson) {
         const pw = await readPassword();
@@ -111,82 +110,14 @@ describe('OceanGovernor', () => {
     leasePeriod = '250000' + randomInt(10000);
   });
 
-  // it('propose new ocean', async () => {
-  //   const proposalDetail = factory.makeProposal(
-  //     ProposalType.NewOcean,
-  //     {
-  //       pool,
-  //       leasePeriod: Number(leasePeriod),
-  //       poolOwner: '0x65B0c8b91707B68C0B23388001B9dC7aab3f6A81'
-  //     }
-  //   );
-
-  //   // Propose a pool
-  //   await admin.propose(
-  //     proposalDetail,
-  //     confirmations,
-  //     (hash: any) => console.log("hash obtained:", hash),
-  //     (_receipt: any) => console.log("confirmed"),
-  //     (error: any, _receipt: any) => console.log("error", error)
-  //   );
-
-  //   // Get proposal detail
-  //   const hash = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
-  //   const proposal = await admin.getProposalDetail(hash);
-
-  //   expect(proposal.proposalDetail).toEqual(proposalDetail);
-  //   expect(proposal.proposalType).toEqual(ProposalType.NewOcean);
-  //   expect(proposal.againstVotes).toEqual(0);
-  //   expect(proposal.forVotes).toEqual(0);
-  // });
-
-  // it('propose new oracle', async () => {
-  //   const newOracleDetails = {
-  //     externalStorageHash: 'QmWuw8KmSGeNqcGNpqkxTrWb2egHokvQnc7rqhZKE5BMvM',
-  //     sourceCount: '3',
-  //     leasePeriod: leasePeriod,
-  //     clientType: '0',
-  //     onBehalfOf: '0xe7A252739912F74c117FA37335f850f6f95Fbf70'
-  //   };
-
-  //   const proposalDetail = factory.makeProposal(ProposalType.NewOracle, newOracleDetails);
-
-  //   // Propose a pool
-  //   await admin.propose(
-  //     proposalDetail,
-  //     confirmations,
-  //     (hash: any) => console.log('hash obtained:', hash),
-  //     (_receipt: any) => console.log('confirmed'),
-  //     (error: any, _receipt: any) => console.log('error', error)
-  //   );
-
-  //   // Get proposal detail
-  //   const hash = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
-  //   const proposal = await admin.getProposal(hash);
-
-  //   expect(proposal.proposalDetail.externalStorageHash).toEqual(newOracleDetails.externalStorageHash);
-  //   expect(proposal.proposalDetail.sourceCount).toEqual(newOracleDetails.sourceCount);
-  //   expect(proposal.proposalDetail.leasePeriod).toEqual(newOracleDetails.leasePeriod);
-  //   expect(proposal.proposalDetail.clientType).toEqual(newOracleDetails.clientType);
-  //   expect(proposal.proposalDetail.onBehalfOf).toEqual(newOracleDetails.onBehalfOf);
-  // });
-
-  it('cast vote with approval vote', async () => {
-    const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
-    const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
-    const voteType = 1; // approval vote
-    const voteReason = ' this is the vote reason.';
-
-    await admin.setVotingPeriod(BigInt(10), confirmations);
-    await admin.setVotingThreshold(51, 100, confirmations);
-
+  it('propose new ocean', async () => {
     const proposalDetail = factory.makeProposal(ProposalType.NewOcean, {
       pool,
-      poolOwner,
-      leasePeriod
+      leasePeriod: Number(leasePeriod),
+      poolOwner: poolOwner
     });
 
-    //  // Propose a pool
+    // Propose a pool
     await admin.propose(
       proposalDetail,
       confirmations,
@@ -196,6 +127,81 @@ describe('OceanGovernor', () => {
     );
 
     // Get proposal detail
+    const hash = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
+    const proposal = await admin.getProposal(hash);
+
+    expect(proposal.proposalDetail).toEqual(proposalDetail);
+    expect(proposal.proposalType).toEqual(ProposalType.NewOcean);
+    expect(proposal.againstVotes).toEqual(0);
+    expect(proposal.forVotes).toEqual(0);
+  });
+
+  it('propose new oracle', async () => {
+    const newOracleDetails = {
+      externalStorageHash: 'QmWuw8KmSGeNqcGNpqkxTrWb2egHokvQnc7rqhZKE5BMvM',
+      sourceCount: '3',
+      leasePeriod: leasePeriod,
+      clientType: '0',
+      onBehalfOf: '0xe7A252739912F74c117FA37335f850f6f95Fbf70'
+    };
+
+    const proposalDetail = factory.makeProposal(ProposalType.NewOracle, newOracleDetails);
+
+    // Propose a pool
+    await admin.propose(
+      proposalDetail,
+      confirmations,
+      (hash: any) => console.log('hash obtained:', hash),
+      (_receipt: any) => console.log('confirmed'),
+      (error: any, _receipt: any) => console.log('error', error)
+    );
+
+    // Get proposal detail
+    const hash = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
+    const proposal = await admin.getProposal(hash);
+
+    expect(proposal.proposalDetail.externalStorageHash).toEqual(newOracleDetails.externalStorageHash);
+    expect(proposal.proposalDetail.sourceCount).toEqual(newOracleDetails.sourceCount);
+    expect(proposal.proposalDetail.leasePeriod).toEqual(newOracleDetails.leasePeriod);
+    expect(proposal.proposalDetail.clientType).toEqual(newOracleDetails.clientType);
+    expect(proposal.proposalDetail.onBehalfOf).toEqual(newOracleDetails.onBehalfOf);
+  });
+
+  it('cast vote with approval vote', async () => {
+    const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
+    const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
+    const voteType = 1; // approval vote
+
+    await admin.setVotingPeriod(BigInt(10), confirmations);
+    await admin.setVotingThreshold(51, 100, confirmations);
+
+    /**
+     * Only admin allowed
+     * VotingThreshold = totalVotes(proposalId) * num / den;
+     */
+
+    // const proposalDetail = factory.makeProposal(ProposalType.NewOcean, {
+    //   pool,
+    //   leasePeriod,
+    //   poolOwner
+    // });
+
+    const proposalDetail = factory.makeProposal(ProposalType.NewOcean, {
+      pool,
+      leasePeriod: leasePeriod,
+      poolOwner: poolOwner
+    });
+
+    // //  // Propose a pool
+    await admin.propose(
+      proposalDetail,
+      confirmations,
+      (hash: any) => console.log('hash obtained:', hash),
+      (_receipt: any) => console.log('confirmed'),
+      (error: any, _receipt: any) => console.log('error', error)
+    );
+
+    // // Get proposal detail
     const proposalId = await admin.hashProposal(callables.oceanLending, callData);
     const proposalDetailBefore = await admin.getProposal(proposalId);
     const stateBefore = status.get((await admin.getState(proposalId)).toString());
@@ -213,14 +219,24 @@ describe('OceanGovernor', () => {
     expect(stateBefore).toEqual('Active');
 
     for (let voter of voters) {
-      await voter.castVote(proposalId, voteType, confirmations);
+      await voter.castVote(
+        proposalId,
+        voteType,
+        confirmations,
+        (hash: any) => console.log('hash obtained:', hash),
+        (_receipt: any) => console.log('confirmed'),
+        (error: any, _receipt: any) => console.log('error', error)
+      );
     }
 
-    await sleep(15000);
+    // await sleep(15000);
 
     const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
 
+    console.log(hasVoted, 'hasVoted');
+
     const stateAfter = status.get((await admin.getState(proposalId)).toString());
+    console.log(stateAfter, 'stateAfter');
     const proposalDetailAfter = await admin.getProposal(proposalId);
     const forVotesAfter = proposalDetailAfter.forVotes;
     const againstVotesAfter = proposalDetailAfter.againstVotes;
@@ -276,7 +292,7 @@ describe('OceanGovernor', () => {
       await voter.castVote(proposalId, voteType, confirmations);
     }
 
-    await sleep(15000);
+    // await sleep(15000);
 
     const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
 
@@ -334,7 +350,7 @@ describe('OceanGovernor', () => {
       await voter.castVoteWithReason(proposalId, voteType, voteReason, confirmations);
     }
 
-    await sleep(20000);
+    // await sleep(20000);
 
     const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
 
