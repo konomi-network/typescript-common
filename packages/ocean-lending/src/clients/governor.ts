@@ -168,6 +168,11 @@ export class KonomiGovernor extends Client {
     return result;
   }
 
+  public getParams(): Promise<string> {
+    const result = this.contract.methods.getParams().call();
+    return result;
+  }
+
   /**
    * Check role of address is validator or not
    */
@@ -232,6 +237,11 @@ export class KonomiGovernor extends Client {
    */
   public async setVotingThreshold(num: number, den: number, options: TxnOptions) {
     const method = this.contract.methods.setVotingThreshold(num, den);
+    await this.send(method, await this.prepareTxn(method), options);
+  }
+
+  public async setQuorumThreshold(num: number, options: TxnOptions) {
+    const method = this.contract.methods.setQuorumThreshold(num);
     await this.send(method, await this.prepareTxn(method), options);
   }
 
