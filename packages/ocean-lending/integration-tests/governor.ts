@@ -169,6 +169,207 @@ describe('OceanGovernor', () => {
     expect(proposal.proposalDetail.onBehalfOf).toEqual(newOracleDetails.onBehalfOf);
   });
 
+  it('cast oracle proposal vote with approval vote', async () => {
+    const voteType = 1; // approval vote
+    await admin.setVotingThreshold(51, 100, confirmations);
+    await admin.setQuorumThreshold(2, confirmations);
+
+    const res = await admin.getParams();
+    console.log(res, 'getParams');
+
+    const newOracleDetails = {
+      externalStorageHash: 'QmWuw8KmSGeNqcGNpqkxTrWb2egHokvQnc7rqhZKE5BMvM',
+      sourceCount: '3',
+      leasePeriod: leasePeriod,
+      clientType: '0',
+      onBehalfOf: '0xe7A252739912F74c117FA37335f850f6f95Fbf70'
+    };
+
+    const proposalDetail = factory.makeProposal(ProposalType.NewOracle, newOracleDetails);
+
+    // Propose a pool
+    await admin.propose(
+      proposalDetail,
+      confirmations,
+      (hash: any) => console.log('hash obtained:', hash),
+      (_receipt: any) => console.log('confirmed'),
+      (error: any, _receipt: any) => console.log('error', error)
+    );
+
+    // // Get proposal detail
+    const proposalId = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
+    const proposalDetailBefore = await admin.getProposal(proposalId);
+    const stateBefore = status.get((await admin.getState(proposalId)).toString());
+    const forVotesBefore = proposalDetailBefore.forVotes;
+    const againstVotesBefore = proposalDetailBefore.againstVotes;
+
+    console.log(
+      `state before castVote:  ${stateBefore}, forVotesBefore: ${forVotesBefore}, againstVotesBefore: ${againstVotesBefore}`
+    );
+
+    ensure(
+      stateBefore == 'Active' && forVotesBefore == 0 && againstVotesBefore == 0,
+      `expect proposal status: Active, actual proposal status: ${stateBefore}`
+    );
+    expect(stateBefore).toEqual('Active');
+
+    for (let voter of voters) {
+      await voter.castVote(
+        proposalId,
+        voteType,
+        confirmations,
+        (hash: any) => console.log('hash obtained:', hash),
+        (_receipt: any) => console.log('confirmed'),
+        (error: any, _receipt: any) => console.log('error', error)
+      );
+    }
+
+    await sleep(15000);
+
+    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
+    console.log(hasVoted, 'hasVoted');
+
+    const stateAfter = status.get((await admin.getState(proposalId)).toString());
+    console.log(stateAfter, 'stateAfter');
+    const proposalDetailAfter = await admin.getProposal(proposalId);
+    const forVotesAfter = proposalDetailAfter.forVotes;
+    const againstVotesAfter = proposalDetailAfter.againstVotes;
+    console.log(
+      `hasVoted: ${hasVoted}, state after castVote: ${stateAfter}, forVotesAfter: ${forVotesAfter}, againstVotesAfter: ${againstVotesAfter}`
+    );
+    ensure(stateAfter == 'Approved', `expect proposal status: Approved, actual proposal status: ${stateAfter}`);
+    expect(stateAfter).toEqual('Approved');
+  });
+
+  it('cast oracle proposal vote with against vote', async () => {
+    const voteType = 0; // against vote
+    const voteReason = ' this is the vote reason.';
+
+    await admin.setVotingThreshold(51, 100, confirmations);
+    await admin.setQuorumThreshold(2, confirmations);
+
+    const res = await admin.getParams();
+    console.log(res, 'getParams');
+
+    const newOracleDetails = {
+      externalStorageHash: 'QmWuw8KmSGeNqcGNpqkxTrWb2egHokvQnc7rqhZKE5BMvM',
+      sourceCount: '3',
+      leasePeriod: leasePeriod,
+      clientType: '0',
+      onBehalfOf: '0xe7A252739912F74c117FA37335f850f6f95Fbf70'
+    };
+
+    const proposalDetail = factory.makeProposal(ProposalType.NewOracle, newOracleDetails);
+
+    // //  // Propose a pool
+    await admin.propose(
+      proposalDetail,
+      confirmations,
+      (hash: any) => console.log('hash obtained:', hash),
+      (_receipt: any) => console.log('confirmed'),
+      (error: any, _receipt: any) => console.log('error', error)
+    );
+
+    // Get proposal detail
+    const proposalId = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
+    const proposalDetailBefore = await admin.getProposal(proposalId);
+    const stateBefore = status.get((await admin.getState(proposalId)).toString());
+    const forVotesBefore = proposalDetailBefore.forVotes;
+    const againstVotesBefore = proposalDetailBefore.againstVotes;
+
+    console.log(
+      `state before castVote:  ${stateBefore}, forVotesBefore: ${forVotesBefore}, againstVotesBefore: ${againstVotesBefore}`
+    );
+
+    ensure(
+      stateBefore == 'Active' && forVotesBefore == 0 && againstVotesBefore == 0,
+      `expect proposal status: Active, actual proposal status: ${stateBefore}`
+    );
+    expect(stateBefore).toEqual('Active');
+
+    for (let voter of voters) {
+      await voter.castVote(proposalId, voteType, confirmations);
+    }
+
+    await sleep(15000);
+
+    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
+
+    const stateAfter = status.get((await admin.getState(proposalId)).toString());
+    const proposalDetailAfter = await admin.getProposal(proposalId);
+    const forVotesAfter = proposalDetailAfter.forVotes;
+    const againstVotesAfter = proposalDetailAfter.againstVotes;
+    console.log(
+      `hasVoted: ${hasVoted}, state after castVote: ${stateAfter}, forVotesAfter: ${forVotesAfter}, againstVotesAfter: ${againstVotesAfter}`
+    );
+    ensure(stateAfter == 'Rejected', `expect proposal status: Rejected, actual proposal status: ${stateAfter}`);
+    expect(stateAfter).toEqual('Rejected');
+  });
+
+  it('cast oracle proposal vote with with reason', async () => {
+    const voteType = 1; // against vote
+    const voteReason = ' this is the vote reason.';
+
+    await admin.setVotingThreshold(51, 100, confirmations);
+    await admin.setQuorumThreshold(2, confirmations);
+
+    const res = await admin.getParams();
+    console.log(res, 'getParams');
+
+    const newOracleDetails = {
+      externalStorageHash: 'QmWuw8KmSGeNqcGNpqkxTrWb2egHokvQnc7rqhZKE5BMvM',
+      sourceCount: '3',
+      leasePeriod: leasePeriod,
+      clientType: '0',
+      onBehalfOf: '0xe7A252739912F74c117FA37335f850f6f95Fbf70'
+    };
+
+    const proposalDetail = factory.makeProposal(ProposalType.NewOracle, newOracleDetails);
+
+    // //  // Propose a pool
+    await admin.propose(
+      proposalDetail,
+      confirmations,
+      (hash: any) => console.log('hash obtained:', hash),
+      (_receipt: any) => console.log('confirmed'),
+      (error: any, _receipt: any) => console.log('error', error)
+    );
+
+    const proposalId = await admin.hashProposal(callables.oceanLending, proposalDetail.calldata(web3));
+    const proposalDetailBefore = await admin.getProposal(proposalId);
+    const stateBefore = status.get((await admin.getState(proposalId)).toString());
+    const forVotesBefore = proposalDetailBefore.forVotes;
+    const againstVotesBefore = proposalDetailBefore.againstVotes;
+
+    console.log(
+      `state before castVote:  ${stateBefore}, forVotesBefore: ${forVotesBefore}, againstVotesBefore: ${againstVotesBefore}`
+    );
+    ensure(
+      stateBefore == 'Active' && forVotesBefore == 0 && againstVotesBefore == 0,
+      `expect proposal status: Active, actual proposal status: ${stateBefore}`
+    );
+    expect(stateBefore).toEqual('Active');
+
+    for (let voter of voters) {
+      await voter.castVoteWithReason(proposalId, voteType, voteReason, confirmations);
+    }
+
+    await sleep(15000);
+
+    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
+
+    const stateAfter = status.get((await admin.getState(proposalId)).toString());
+    const proposalDetailAfter = await admin.getProposal(proposalId);
+    const forVotesAfter = proposalDetailAfter.forVotes;
+    const againstVotesAfter = proposalDetailAfter.againstVotes;
+
+    console.log(
+      `hasVoted: ${hasVoted}, state after castVote: ${stateAfter}, forVotesAfter: ${forVotesAfter}, againstVotesAfter: ${againstVotesAfter}`
+    );
+    ensure(stateAfter == 'Approved', `expect proposal status: Approved, actual proposal status: ${stateAfter}`);
+    expect(stateAfter).toEqual('Approved');
+  });
+
   it('cast vote with approval vote', async () => {
     const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
     const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
@@ -239,64 +440,6 @@ describe('OceanGovernor', () => {
     expect(stateAfter).toEqual('Approved');
   });
 
-  it('execute', async () => {
-    const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
-    const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
-
-    const voteType = 1; // approval vote
-    const voteReason = ' this is the vote reason.';
-
-    await admin.setVotingThreshold(51, 100, confirmations);
-    await admin.setQuorumThreshold(2, confirmations);
-
-    const res = await admin.getParams();
-
-    const proposalDetail = factory.makeProposal(ProposalType.NewOcean, {
-      pool,
-      leasePeriod: leasePeriod,
-      poolOwner: poolOwner
-    });
-
-    // // //  // Propose a pool
-    await admin.propose(
-      proposalDetail,
-      confirmations,
-      (hash: any) => console.log('hash obtained:', hash),
-      (_receipt: any) => console.log('confirmed'),
-      (error: any, _receipt: any) => console.log('error', error)
-    );
-    console.log('execute start');
-
-    const proposalId = await admin.hashProposal(callables.oceanLending, callData);
-
-    for (let voter of voters) {
-      await voter.castVote(
-        proposalId,
-        voteType,
-        confirmations,
-        (hash: any) => console.log('hash obtained:', hash),
-        (_receipt: any) => console.log('confirmed'),
-        (error: any, _receipt: any) => console.log('error', error)
-      );
-    }
-    await sleep(15000);
-
-    const s = await admin.getState(proposalId);
-    console.log('🚀 ~ file: oceanGovernor.ts ~ line 163 ~ it ~ s', s, typeof s);
-
-    const stateBefore = status.get((await admin.getState(proposalId)).toString());
-    console.log('state before execute: ', stateBefore);
-    ensure(stateBefore == 'Approved', `expect proposal status: Approved, actual proposal status: ${stateBefore}`);
-    expect(stateBefore).toEqual('Approved');
-
-    await admin.execute(proposalId, { confirmations: 3 });
-
-    const stateAfter = status.get((await admin.getState(proposalId)).toString());
-    console.log('state after execute: ', stateAfter);
-    ensure(stateAfter == 'Executed', `expect proposal status: Executed, actual proposal status: ${stateAfter}`);
-    expect(stateAfter).toEqual('Executed');
-  });
-
   it('cast vote with against vote', async () => {
     const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
     const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
@@ -363,7 +506,7 @@ describe('OceanGovernor', () => {
   it('cast vote with with reason', async () => {
     const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
     const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
-    const voteType = 0; // against vote
+    const voteType = 1; // approval vote
     const voteReason = ' this is the vote reason.';
 
     await admin.setVotingThreshold(51, 100, confirmations);
@@ -422,57 +565,6 @@ describe('OceanGovernor', () => {
     expect(stateAfter).toEqual('Approved');
   });
 
-  it('execute', async () => {
-    const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
-    const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
-    const voteType = 1;
-
-    await admin.setVotingThreshold(51, 100, confirmations);
-    await admin.setQuorumThreshold(2, confirmations);
-
-    const res = await admin.getParams();
-    console.log(res, 'getParams');
-
-    const proposalDetail = factory.makeProposal(ProposalType.NewOcean, {
-      pool,
-      leasePeriod: leasePeriod,
-      poolOwner: poolOwner
-    });
-
-    // //  // Propose a pool
-    await admin.propose(
-      proposalDetail,
-      confirmations,
-      (hash: any) => console.log('hash obtained:', hash),
-      (_receipt: any) => console.log('confirmed'),
-      (error: any, _receipt: any) => console.log('error', error)
-    );
-
-    console.log('execute start');
-
-    const proposalId = await admin.hashProposal(callables.oceanLending, callData);
-
-    for (let voter of voters) {
-      await voter.castVote(proposalId, voteType, confirmations);
-    }
-    await sleep(15000);
-
-    const s = await admin.getState(proposalId);
-    console.log('🚀 ~ file: oceanGovernor.ts ~ line 163 ~ it ~ s', s, typeof s);
-
-    const stateBefore = status.get((await admin.getState(proposalId)).toString());
-    console.log('state before execute: ', stateBefore);
-    ensure(stateBefore == 'Approved', `expect proposal status: Approved, actual proposal status: ${stateBefore}`);
-    expect(stateBefore).toEqual('Approved');
-
-    await admin.execute(proposalId, { confirmations: 3 });
-
-    const stateAfter = status.get((await admin.getState(proposalId)).toString());
-    console.log('state after execute: ', stateAfter);
-    ensure(stateAfter == 'Executed', `expect proposal status: Executed, actual proposal status: ${stateAfter}`);
-    expect(stateAfter).toEqual('Executed');
-  });
-
   it('cancel', async () => {
     const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
     const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
@@ -516,127 +608,6 @@ describe('OceanGovernor', () => {
     console.log('state after execute: ', stateAfter);
     ensure(stateAfter == 'Canceled', `expect proposal status: Canceled, actual proposal status: ${stateAfter}`);
     expect(stateAfter).toEqual('Canceled');
-  });
-
-  it('cast vote with approval vote', async () => {
-    const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
-    const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
-    const voteType = 1; // approval vote
-
-    await admin.setVotingThreshold(51, 100, confirmations);
-    await admin.setQuorumThreshold(2, confirmations);
-
-    const res = await admin.getParams();
-    console.log(res, 'getParams');
-
-    const proposalDetail = factory.makeProposal(ProposalType.NewOcean, {
-      pool,
-      leasePeriod: leasePeriod,
-      poolOwner: poolOwner
-    });
-
-    // //  // Propose a pool
-    await admin.propose(
-      proposalDetail,
-      confirmations,
-      (hash: any) => console.log('hash obtained:', hash),
-      (_receipt: any) => console.log('confirmed'),
-      (error: any, _receipt: any) => console.log('error', error)
-    );
-
-    const proposalId = await admin.hashProposal(callables.oceanLending, callData);
-    const proposalDetailBefore = await admin.getProposal(proposalId);
-    const stateBefore = status.get((await admin.getState(proposalId)).toString());
-    const forVotesBefore = proposalDetailBefore.forVotes;
-    const againstVotesBefore = proposalDetailBefore.againstVotes;
-
-    console.log(
-      `state before castVote:  ${stateBefore}, forVotesBefore: ${forVotesBefore}, againstVotesBefore: ${againstVotesBefore}`
-    );
-    ensure(
-      stateBefore == 'Active' && forVotesBefore == 0 && againstVotesBefore == 0,
-      `expect proposal status: Active, actual proposal status: ${stateBefore}`
-    );
-    expect(stateBefore).toEqual('Active');
-
-    for (let voter of voters) {
-      await voter.castVote(proposalId, voteType, confirmations);
-    }
-
-    await sleep(15000);
-
-    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
-
-    const stateAfter = status.get((await admin.getState(proposalId)).toString());
-    const proposalDetailAfter = await admin.getProposal(proposalId);
-    const forVotesAfter = proposalDetailAfter.forVotes;
-    const againstVotesAfter = proposalDetailAfter.againstVotes;
-    console.log(
-      `hasVoted: ${hasVoted}, state after castVote: ${stateAfter}, forVotesAfter: ${forVotesAfter}, againstVotesAfter: ${againstVotesAfter}`
-    );
-    ensure(stateAfter == 'Approved', `expect proposal status: Approved, actual proposal status: ${stateAfter}`);
-    expect(stateAfter).toEqual('Approved');
-  });
-
-  it('cast vote with against vote', async () => {
-    const bytes = `0x${OceanEncoder.encode(pool).toString('hex')}`;
-    const callData = web3.eth.abi.encodeFunctionCall(CREATE_POOL_ABI, [bytes, leasePeriod, poolOwner]);
-    const voteType = 0; // against vote
-
-    await admin.setVotingThreshold(51, 100, confirmations);
-    await admin.setQuorumThreshold(2, confirmations);
-
-    const res = await admin.getParams();
-    console.log(res, 'getParams');
-
-    const proposalDetail = factory.makeProposal(ProposalType.NewOcean, {
-      pool,
-      leasePeriod: leasePeriod,
-      poolOwner: poolOwner
-    });
-
-    // //  // Propose a pool
-    await admin.propose(
-      proposalDetail,
-      confirmations,
-      (hash: any) => console.log('hash obtained:', hash),
-      (_receipt: any) => console.log('confirmed'),
-      (error: any, _receipt: any) => console.log('error', error)
-    );
-
-    const proposalId = await admin.hashProposal(callables.oceanLending, callData);
-    const proposalDetailBefore = await admin.getProposal(proposalId);
-    const stateBefore = status.get((await admin.getState(proposalId)).toString());
-    const forVotesBefore = proposalDetailBefore.forVotes;
-    const againstVotesBefore = proposalDetailBefore.againstVotes;
-
-    console.log(
-      `state before castVote:  ${stateBefore}, forVotesBefore: ${forVotesBefore}, againstVotesBefore: ${againstVotesBefore}`
-    );
-    ensure(
-      stateBefore == 'Active' && forVotesBefore == 0 && againstVotesBefore == 0,
-      `expect proposal status: Active, actual proposal status: ${stateBefore}`
-    );
-    expect(stateBefore).toEqual('Active');
-
-    for (let voter of voters) {
-      await voter.castVote(proposalId, voteType, confirmations);
-    }
-
-    await sleep(15000);
-
-    const hasVoted = await admin.hasVoted(proposalId, adminAccount.address);
-
-    const stateAfter = status.get((await admin.getState(proposalId)).toString());
-    const proposalDetailAfter = await admin.getProposal(proposalId);
-    const forVotesAfter = proposalDetailAfter.forVotes;
-    const againstVotesAfter = proposalDetailAfter.againstVotes;
-
-    console.log(
-      `hasVoted: ${hasVoted}, state after castVote: ${stateAfter}, forVotesAfter: ${forVotesAfter}, againstVotesAfter: ${againstVotesAfter}`
-    );
-    ensure(stateAfter == 'Rejected', `expect proposal status: Rejected, actual proposal status: ${stateAfter}`);
-    expect(stateAfter).toEqual('Rejected');
   });
 
   it('execute', async () => {
