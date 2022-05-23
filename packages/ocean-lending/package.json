@@ -72,7 +72,7 @@
     },
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
-    "testTimeout": 95000
+    "testTimeout": 195000
   },
   "husky": {
     "hooks": {
