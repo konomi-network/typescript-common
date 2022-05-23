@@ -168,6 +168,10 @@ export class KonomiGovernor extends Client {
     return result;
   }
 
+  /**
+   * Returns the vote details of the proposal
+   * voteThresholdNum, voteThresholdDen, quorumThreshold
+   */
   public getParams(): Promise<string> {
     const result = this.contract.methods.getParams().call();
     return result;
