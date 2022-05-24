@@ -40,9 +40,14 @@ export class KonomiGovernor extends Client {
    * @param options The transaction options
    * @param callbacks The callbacks for the transaction when hash received and stuff
    */
-  public async propose(proposal: ProposalDetails, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+  public async propose(
+    proposal: ProposalDetails,
+    callableTarget: keyof Callables,
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
+  ): Promise<void> {
     const callData = proposal.calldata(this.web3);
-    const target = this.callables.oceanLending!;
+    const target = this.callables[callableTarget];
     const method = this.contract.methods.propose(target, callData);
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
