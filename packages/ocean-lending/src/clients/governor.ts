@@ -4,6 +4,10 @@ import Client, { TxnCallbacks, TAccount } from './client';
 import { ProposalFactory } from '../proposal/factory';
 import { Proposal, ProposalDetails } from '../proposal/type';
 
+export interface Callables {
+  oceanLending: string;
+  oracle: string;
+}
 /**
  * KonomiOceanGovernor contract client
  */
@@ -13,12 +17,12 @@ export class KonomiGovernor extends Client {
   // the list of contracts allowed.
   // Keys are the proposal type and values are the contract addresses
   // The keys are: oceanLending, oracleSubscription
-  private callables: any;
+  private callables: Callables;
 
   private proposalFactory: ProposalFactory;
 
   constructor(
-    callables: any,
+    callables: Callables,
     web3: Web3,
     abi: any,
     address: string,
