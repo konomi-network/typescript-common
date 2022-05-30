@@ -4,6 +4,10 @@ import Client, { TxnCallbacks, TAccount } from './client';
 import { ProposalFactory } from '../proposal/factory';
 import { Proposal, ProposalDetails } from '../proposal/type';
 
+export interface Callables {
+  oceanLending: string;
+  oracle: string;
+}
 /**
  * KonomiOceanGovernor contract client
  */
@@ -13,12 +17,12 @@ export class KonomiGovernor extends Client {
   // the list of contracts allowed.
   // Keys are the proposal type and values are the contract addresses
   // The keys are: oceanLending, oracleSubscription
-  private callables: any;
+  private callables: Callables;
 
   private proposalFactory: ProposalFactory;
 
   constructor(
-    callables: any,
+    callables: Callables,
     web3: Web3,
     abi: any,
     address: string,
@@ -36,9 +40,14 @@ export class KonomiGovernor extends Client {
    * @param options The transaction options
    * @param callbacks The callbacks for the transaction when hash received and stuff
    */
-  public async propose(proposal: ProposalDetails, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+  public async propose(
+    proposal: ProposalDetails,
+    callableTarget: keyof Callables,
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
+  ): Promise<void> {
     const callData = proposal.calldata(this.web3);
-    const target = this.callables.oceanLending!;
+    const target = this.callables[callableTarget];
     const method = this.contract.methods.propose(target, callData);
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
