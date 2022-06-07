@@ -9,7 +9,7 @@ export type TAccount = Account | { address: string };
 export type TxnCallbacks = [
   ((txnHash: string) => any | void)?,
   ((receipt: TransactionReceipt) => any | void)?,
-  ((error: Error, receipt: TransactionReceipt) => any | void)?
+  ((error: Error, receipt?: TransactionReceipt) => any | void)?
 ];
 
 /**
