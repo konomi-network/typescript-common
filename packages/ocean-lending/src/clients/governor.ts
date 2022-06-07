@@ -49,7 +49,7 @@ export class KonomiGovernor extends Client {
     const callData = proposal.calldata(this.web3);
     const target = this.callables[callableTarget];
     const method = this.contract.methods.propose(target, callData);
-    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -69,7 +69,7 @@ export class KonomiGovernor extends Client {
    */
   public async execute(proposalId: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
     const method = this.contract.methods.execute(proposalId);
-    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -107,7 +107,7 @@ export class KonomiGovernor extends Client {
     ...callbacks: TxnCallbacks
   ): Promise<void> {
     const method = this.contract.methods.castVote(proposalId, voteType);
-    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   /**
@@ -125,7 +125,7 @@ export class KonomiGovernor extends Client {
     ...callbacks: TxnCallbacks
   ): Promise<void> {
     const method = this.contract.methods.castVoteWithReason(proposalId, voteType, reason);
-    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+    return this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
   // ========================= Proposal lifecycle =========================
