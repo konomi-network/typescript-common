@@ -64,7 +64,7 @@ class Client {
     options: TxnOptions,
     txnHashCallback?: (txnHash: string) => any | void,
     confirmationCallback?: (receipt: TransactionReceipt) => any | void,
-    errorCallback?: (error: Error, receipt: TransactionReceipt) => any | void
+    errorCallback?: (error: Error, receipt?: TransactionReceipt) => any | void
   ): Promise<void> {
     return method
       .send(txn)
@@ -81,8 +81,15 @@ class Client {
         }
       })
       .on('error', (error: Error, receipt: any) => {
+        console.log('🚀 ~ client error', error);
         if (errorCallback) {
           errorCallback(error, receipt);
+        }
+      })
+      .catch(function (error: any) {
+        console.log('🚀 ~ catch error', error);
+        if (errorCallback) {
+          errorCallback(error);
         }
       });
   }
