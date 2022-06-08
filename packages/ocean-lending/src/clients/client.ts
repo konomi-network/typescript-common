@@ -68,31 +68,30 @@ class Client {
     txnErrorCallback?: (error: Error, receipt: TransactionReceipt) => any | void,
     rejectErrorCallback?: (error: any) => any | void
   ) {
-    try {
-      method
-        .send(txn)
-        .on('transactionHash', (txnHash: any) => {
-          if (txnHashCallback) {
-            txnHashCallback(txnHash);
+    method
+      .send(txn, (error: any) => {
+        if (error && rejectErrorCallback) rejectErrorCallback(error);
+      })
+      .on('transactionHash', (txnHash: any) => {
+        if (txnHashCallback) {
+          txnHashCallback(txnHash);
+        }
+      })
+      .on('confirmation', (confirmations: number, receipt: any) => {
+        if (confirmations === options.confirmations) {
+          if (confirmationCallback) {
+            confirmationCallback(receipt);
           }
-        })
-        .on('confirmation', (confirmations: number, receipt: any) => {
-          if (confirmations === options.confirmations) {
-            if (confirmationCallback) {
-              confirmationCallback(receipt);
-            }
-          }
-        })
-        .on('error', (error: Error, receipt: any) => {
-          if (txnErrorCallback) {
-            txnErrorCallback(error, receipt);
-          }
-        });
-    } catch (error: any) {
-      if (rejectErrorCallback) {
-        rejectErrorCallback(error);
-      }
-    }
+        }
+      })
+      .on('error', (error: Error, receipt: any) => {
+        if (txnErrorCallback) {
+          txnErrorCallback(error, receipt);
+        }
+      })
+      .catch((error: any) => {
+        if (error && rejectErrorCallback) rejectErrorCallback(error);
+      });
   }
 
   private async deduceNonce(): Promise<number> {
