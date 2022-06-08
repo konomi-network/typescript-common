@@ -9,8 +9,7 @@ export type TAccount = Account | { address: string };
 export type TxnCallbacks = [
   ((txnHash: string) => any | void)?,
   ((receipt: TransactionReceipt) => any | void)?,
-  ((error: Error, receipt: TransactionReceipt) => any | void)?,
-  ((error: any) => any | void)?
+  ((error: Error, receipt: TransactionReceipt) => any | void)?
 ];
 
 /**
@@ -65,13 +64,10 @@ class Client {
     options: TxnOptions,
     txnHashCallback?: (txnHash: string) => any | void,
     confirmationCallback?: (receipt: TransactionReceipt) => any | void,
-    txnErrorCallback?: (error: Error, receipt: TransactionReceipt) => any | void,
-    rejectErrorCallback?: (error: any) => any | void
-  ) {
-    method
-      .send(txn, (error: any) => {
-        if (error && rejectErrorCallback) rejectErrorCallback(error);
-      })
+    txnErrorCallback?: (error: Error, receipt: TransactionReceipt) => any | void
+  ): Promise<void> {
+    return method
+      .send(txn)
       .on('transactionHash', (txnHash: any) => {
         if (txnHashCallback) {
           txnHashCallback(txnHash);
@@ -88,9 +84,6 @@ class Client {
         if (txnErrorCallback) {
           txnErrorCallback(error, receipt);
         }
-      })
-      .catch((error: any) => {
-        if (error && rejectErrorCallback) rejectErrorCallback(error);
       });
   }
 
