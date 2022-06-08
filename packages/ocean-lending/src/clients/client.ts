@@ -9,7 +9,8 @@ export type TAccount = Account | { address: string };
 export type TxnCallbacks = [
   ((txnHash: string) => any | void)?,
   ((receipt: TransactionReceipt) => any | void)?,
-  ((error: Error, receipt?: TransactionReceipt) => any | void)?
+  ((error: Error, receipt: TransactionReceipt) => any | void)?,
+  ((error: any) => any | void)?
 ];
 
 /**
@@ -64,34 +65,34 @@ class Client {
     options: TxnOptions,
     txnHashCallback?: (txnHash: string) => any | void,
     confirmationCallback?: (receipt: TransactionReceipt) => any | void,
-    errorCallback?: (error: Error, receipt?: TransactionReceipt) => any | void
+    txnErrorCallback?: (error: Error, receipt: TransactionReceipt) => any | void,
+    rejectErrorCallback?: (error: any) => any | void
   ): Promise<void> {
-    return method
-      .send(txn)
-      .on('transactionHash', (txnHash: any) => {
-        if (txnHashCallback) {
-          txnHashCallback(txnHash);
-        }
-      })
-      .on('confirmation', (confirmations: number, receipt: any) => {
-        if (confirmations === options.confirmations) {
-          if (confirmationCallback) {
-            confirmationCallback(receipt);
+    try {
+      await method
+        .send(txn)
+        .on('transactionHash', (txnHash: any) => {
+          if (txnHashCallback) {
+            txnHashCallback(txnHash);
           }
-        }
-      })
-      .on('error', (error: Error, receipt: any) => {
-        console.log('🚀 ~ client error', error);
-        if (errorCallback) {
-          errorCallback(error, receipt);
-        }
-      })
-      .catch(function (error: any) {
-        console.log('🚀 ~ catch error', error);
-        if (errorCallback) {
-          errorCallback(error);
-        }
-      });
+        })
+        .on('confirmation', (confirmations: number, receipt: any) => {
+          if (confirmations === options.confirmations) {
+            if (confirmationCallback) {
+              confirmationCallback(receipt);
+            }
+          }
+        })
+        .on('error', (error: Error, receipt: any) => {
+          if (txnErrorCallback) {
+            txnErrorCallback(error, receipt);
+          }
+        });
+    } catch (error: any) {
+      if (rejectErrorCallback) {
+        rejectErrorCallback(error);
+      }
+    }
   }
 
   private async deduceNonce(): Promise<number> {
