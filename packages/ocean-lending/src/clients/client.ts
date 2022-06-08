@@ -67,9 +67,9 @@ class Client {
     confirmationCallback?: (receipt: TransactionReceipt) => any | void,
     txnErrorCallback?: (error: Error, receipt: TransactionReceipt) => any | void,
     rejectErrorCallback?: (error: any) => any | void
-  ): Promise<void> {
+  ) {
     try {
-      await method
+      method
         .send(txn)
         .on('transactionHash', (txnHash: any) => {
           if (txnHashCallback) {
