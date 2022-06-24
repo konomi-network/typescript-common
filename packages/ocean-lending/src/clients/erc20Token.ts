@@ -25,13 +25,8 @@ class ERC20Token extends Client {
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 
-  public async approve(
-    spender: string,
-    addedValue: string,
-    options: TxnOptions,
-    ...callbacks: TxnCallbacks
-  ): Promise<void> {
-    const method = this.contract.methods.approve(spender, addedValue);
+  public async approve(spender: string, value: string, options: TxnOptions, ...callbacks: TxnCallbacks): Promise<void> {
+    const method = this.contract.methods.approve(spender, value);
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
 }
