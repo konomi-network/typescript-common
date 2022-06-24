@@ -24,6 +24,16 @@ class ERC20Token extends Client {
     const method = this.contract.methods.increaseAllowance(spender, addedValue);
     await this.send(method, await this.prepareTxn(method), options, ...callbacks);
   }
+
+  public async approve(
+    spender: string,
+    addedValue: string,
+    options: TxnOptions,
+    ...callbacks: TxnCallbacks
+  ): Promise<void> {
+    const method = this.contract.methods.approve(spender, addedValue);
+    await this.send(method, await this.prepareTxn(method), options, ...callbacks);
+  }
 }
 
 export default ERC20Token;
